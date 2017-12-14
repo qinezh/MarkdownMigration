@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MarkdownMigration.Diff", "M
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MarkdownMigration.Convert", "MarkdownMigration.Migrate\MarkdownMigration.Convert.csproj", "{0765EEF7-36F6-474C-ADE6-68789742433A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarkdownMigration.Convert.Test", "MarkdownMigration.Convert.Test\MarkdownMigration.Convert.Test.csproj", "{48E8BD40-A1FC-4940-AD63-94E9CDF35662}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MarkdownMigration.Convert.Test", "MarkdownMigration.Convert.Test\MarkdownMigration.Convert.Test.csproj", "{48E8BD40-A1FC-4940-AD63-94E9CDF35662}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

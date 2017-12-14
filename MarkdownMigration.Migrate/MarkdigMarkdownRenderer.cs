@@ -69,6 +69,12 @@ namespace MarkdownMigration.Convert
 
         public override StringBuffer Render(IMarkdownRenderer render, MarkdownParagraphBlockToken token, MarkdownBlockContext context)
         {
+            var source = token.SourceInfo.Markdown;
+            if (source.EndsWith("\n"))
+            {
+                return RenderInlineTokens(token.InlineTokens.Tokens, render) + "\n";
+            }
+
             return RenderInlineTokens(token.InlineTokens.Tokens, render);
         }
 
@@ -92,6 +98,11 @@ namespace MarkdownMigration.Convert
             return token.SourceInfo.Markdown;
         }
         #endregion
+
+        public StringBuffer Render(IMarkdownRenderer render, MarkdownNewLineBlockToken token, MarkdownBlockContext context)
+        {
+            return token.SourceInfo.Markdown;
+        }
 
         public StringBuffer Render(IMarkdownRenderer render, DfmXrefInlineToken token, MarkdownInlineContext context)
         {
@@ -142,6 +153,13 @@ namespace MarkdownMigration.Convert
         private StringBuffer RenderHeadingToken(IMarkdownRenderer render, MarkdownHeadingBlockToken token, MarkdownBlockContext context)
         {
             var source = token.SourceInfo.Markdown;
+
+            // TODO: improve
+            if (source.Contains("<a "))
+            {
+                return source;
+            }
+
             var match = _headingRegex.Match(source);
             if (match.Success)
             {

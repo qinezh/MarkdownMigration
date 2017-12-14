@@ -8,13 +8,36 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.DocAsCode.Dfm" Version="2.28.2" />
     <PackageReference Include="Microsoft.DocAsCode.Glob" Version="2.28.2" />
     <PackageReference Include="Mono.Options" Version="5.3.0.1" />
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="Microsoft.DocAsCode.Common">
+      <HintPath>..\assembly\Microsoft.DocAsCode.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.DocAsCode.Dfm">
+      <HintPath>..\assembly\Microsoft.DocAsCode.Dfm.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.DocAsCode.MarkdownLite">
+      <HintPath>..\assembly\Microsoft.DocAsCode.MarkdownLite.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.DocAsCode.Plugins">
+      <HintPath>..\assembly\Microsoft.DocAsCode.Plugins.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.DocAsCode.YamlSerialization">
+      <HintPath>..\assembly\Microsoft.DocAsCode.YamlSerialization.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\assembly\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Collections.Immutable">
+      <HintPath>..\assembly\System.Collections.Immutable.dll</HintPath>
+    </Reference>
     <Reference Include="System.Net.Http" />
+    <Reference Include="YamlDotNet">
+      <HintPath>..\assembly\YamlDotNet.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

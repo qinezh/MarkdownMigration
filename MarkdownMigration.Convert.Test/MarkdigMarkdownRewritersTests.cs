@@ -1,18 +1,14 @@
 ﻿namespace MarkdownMigration.Convert.Test
 {
-    using Microsoft.DocAsCode.Dfm;
     using Xunit;
 
     public class MarkdigMarkdownRewritersTests
     {
-        private DfmEngine _engine;
+        private MarkdownMigrateTool _tool;
 
         public MarkdigMarkdownRewritersTests()
         {
-            var option = DocfxFlavoredMarked.CreateDefaultOptions();
-            option.LegacyMode = true;
-            var builder = new DfmEngineBuilder(option);
-            _engine = builder.CreateDfmEngine(new MarkdigMarkdownRenderer());
+            _tool = new MarkdownMigrateTool();
         }
 
         [Fact]
@@ -22,7 +18,7 @@
             var source = "@System.String";
             var expected = "@\"System.String\"";
 
-            var result = Rewrite(source, "topic.md");
+            var result = _tool.Convert("topic.md", source);
             Assert.Equal(expected, result);
         }
 
@@ -33,7 +29,7 @@
             var source = "@outlook.com";
             var expected = "@outlook.com";
 
-            var result = Rewrite(source, "topic.md");
+            var result = _tool.Convert("topic.md", source);
             Assert.Equal(expected, result);
         }
 
@@ -44,7 +40,7 @@
             var source = "<xref:system.string>";
             var expected = "<xref:system.string>";
 
-            var result = Rewrite(source, "topic.md");
+            var result = _tool.Convert("topic.md", source);
             Assert.Equal(expected, result);
         }
 
@@ -67,7 +63,7 @@
 > *abc*
 ";
 
-            var result = Rewrite(source, "topic.md");
+            var result = _tool.Convert("topic.md", source);
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }
 
@@ -78,10 +74,10 @@
             var source = "<Mailto:docs@microsoft.com>";
             var expected = "<docs@microsoft.com>";
 
-            var result = Rewrite(source, "topic.md");
+            var result = _tool.Convert("topic.md", source);
             Assert.Equal(expected, result);
 
-            result = Rewrite(result, "topic.md");
+            result = _tool.Convert("topic.md", result);
             Assert.Equal(expected, result);
         }
 
@@ -90,25 +86,52 @@
         public void TestHtml()
         {
             var source = @"
+
 **markdown**
+
 
 
 <div>
 This is **markdown** content.
 </div>
 
-# header";
-            var expected = @"
+# header
 **markdown**
+
+<div>
+This is **markdown** content.
+</div>";
+            var expected = @"
+
+**markdown**
+
 
 
 <div>
 This is <strong>markdown</strong> content.
 </div>
 
-# header";
+# header
+**markdown**
 
-            var result = Rewrite(source, "topic.md");
+<div>
+This is <strong>markdown</strong> content.
+</div>";
+
+            var result = _tool.Convert("topic.md", source);
+            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+        }
+
+        [Fact]
+        [Trait("Related", "MarkdigMarkdownRewriters")]
+        public void TestHeadingWithHref()
+        {
+            var source = @"## <a id=""WhatIs""></a>What is Twilio?
+";
+            var expected = @"## <a id=""WhatIs""></a>What is Twilio?
+";
+
+            var result = _tool.Convert("topic.md", source);
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }
 
@@ -123,7 +146,7 @@ content...";
 
 content...";
 
-            var result = Rewrite(source, "topic.md");
+            var result = _tool.Convert("topic.md", source);
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }
 
@@ -138,7 +161,7 @@ content...";
 
 content...";
 
-            var result = Rewrite(source, "topic.md");
+            var result = _tool.Convert("topic.md", source);
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }
 
@@ -155,7 +178,7 @@ content...";
 
 content...";
 
-            var result = Rewrite(source, "topic.md");
+            var result = _tool.Convert("topic.md", source);
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }
 
@@ -166,13 +189,25 @@ content...";
             var source = "__a__ and _b_ and **a** and **b** and *__ab__*";
             var expected = "__a__ and _b_ and **a** and **b** and *__ab__*";
 
-            var result = Rewrite(source, "topic.md");
+            var result = _tool.Convert("topic.md", source);
             Assert.Equal(expected, result);
         }
 
-        private string Rewrite(string source, string filePath)
+        [Fact]
+        [Trait("Related", "MarkdigMarkdownRewriters")]
+        public void TestSpecialSpace()
         {
-            return _engine.Markup(source, filePath);
+            var source = @"When installing, tread carefully and in the  dialog, uncheck unless you like to be prompted to sign in every 5 seconds for eternity. 
+ 
+Skip to 12 if you want to use SourceTree 
+ ";
+            var expected = @"When installing, tread carefully and in the  dialog, uncheck unless you like to be prompted to sign in every 5 seconds for eternity. 
+ 
+Skip to 12 if you want to use SourceTree 
+ ";
+
+            var result = _tool.Convert("topic.md", source);
+            Assert.Equal(expected, result);
         }
     }
 }

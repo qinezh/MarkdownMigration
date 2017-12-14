@@ -18,17 +18,17 @@ namespace MarkdownMigration.Convert
         private readonly DfmEngineBuilder _builder;
         private readonly MarkdownRenderer _render;
 
-        private MarkdownMigrateTool(string rendererName)
+        public MarkdownMigrateTool()
         {
             var option = DocfxFlavoredMarked.CreateDefaultOptions();
             option.LegacyMode = true;
             _builder = new DfmEngineBuilder(option);
-            _render = InitRenderer(rendererName);
+            _render = new MarkdigMarkdownRenderer();
         }
 
         public static void Migrate(CommandLineOptions opt)
         {
-            var tool = new MarkdownMigrateTool(opt.RendererName);
+            var tool = new MarkdownMigrateTool();
             if (!string.IsNullOrEmpty(opt.FilePath))
             {
                 var input = opt.FilePath;
@@ -79,7 +79,7 @@ namespace MarkdownMigration.Convert
             Console.WriteLine($"{inputFile} has been migrated to {outputFile}.");
         }
 
-        private string Convert(string inputFile, string markdown)
+        public string Convert(string inputFile, string markdown)
         {
             var engine = _builder.CreateDfmEngine(_render);
             return engine.Markup(markdown, inputFile);
