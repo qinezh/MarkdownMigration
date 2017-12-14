@@ -28,6 +28,8 @@ namespace HtmlCompare
 
             // need string
             IgnoreComments,
+            IgnoreXref,
+            IgnoreSourceInfo,
             IgnoreEmptyP,
             FormatCustomTags,
             FormatTableStyle,
@@ -53,13 +55,14 @@ namespace HtmlCompare
             IgnoreAltInImage,
             IgnoreTrimTd,
             IgnoreDel,
+            
 
             // format xml
             FormatXml
         };
 
         static bool debug = false;
-        static string targetFileName = "active-directory-b2c-overview.html";
+        static string targetFileName = "algorithms.html";
 
         static void Main(string[] args)
         {
@@ -480,6 +483,31 @@ namespace HtmlCompare
                 result = Regex.Replace(result, " +", " ");
                 return result;
             });
+        }
+        private static readonly Regex s1 = new Regex(@" sourcefile=""[^""<>]*?""", RegexOptions.Compiled);
+        private static readonly Regex s2 = new Regex(@" sourcestartlinenumber=""[^""<>]*?""", RegexOptions.Compiled);
+        private static readonly Regex s3 = new Regex(@" sourceendlinenumber=""[^""<>]*?""", RegexOptions.Compiled);
+        private static readonly Regex s4 = new Regex(@" data-raw-source=""[^""<>]*?""", RegexOptions.Compiled);
+        private static readonly Regex s5 = new Regex(@" data-throw-if-not-resolved=""[^""<>]*?""", RegexOptions.Compiled);
+
+        static string IgnoreSourceInfo(string source)
+        {
+            //var result = Regex.Replace(source, "<td>\n* *", "<td>");
+            //result = Regex.Replace(result, " *\n*</td>", "</td>");
+            var result = s1.Replace(source, m => string.Empty);
+            result = s2.Replace(result, m => string.Empty);
+            result = s3.Replace(result, m => string.Empty);
+            result = s4.Replace(result, m => string.Empty);
+            result = s5.Replace(result, m => string.Empty);
+
+            return result;
+        }
+
+        private static readonly Regex Xref = new Regex(@"<xref href=""[^""<>]*?"" data-throw-if-not-resolved=""[^""<>]*?"" data-raw-source='(@[^""][^<>]*?[^""]"")'>\s*<\/xref>", RegexOptions.Compiled);
+
+        static string IgnoreXref(string source)
+        {
+            return Xref.Replace(source, m => m.Groups[1].Value);
         }
 
         static string IgnoreDel(string source)
