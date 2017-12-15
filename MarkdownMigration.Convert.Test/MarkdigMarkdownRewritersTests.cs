@@ -195,16 +195,10 @@ content...";
 
         [Fact]
         [Trait("Related", "MarkdigMarkdownRewriters")]
-        public void TestSpecialSpace()
+        public void TestAutoLinkWithQuota()
         {
-            var source = @"When installing, tread carefully and in the  dialog, uncheck unless you like to be prompted to sign in every 5 seconds for eternity. 
- 
-Skip to 12 if you want to use SourceTree 
- ";
-            var expected = @"When installing, tread carefully and in the  dialog, uncheck unless you like to be prompted to sign in every 5 seconds for eternity. 
- 
-Skip to 12 if you want to use SourceTree 
- ";
+            var source = "This kind of url link such as \'https://github.com\' are not supported in markdig";
+            var expected = "This kind of url link such as \'<https://github.com>\' are not supported in markdig";
 
             var result = _tool.Convert("topic.md", source);
             Assert.Equal(expected, result);

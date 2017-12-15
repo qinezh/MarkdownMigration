@@ -219,11 +219,20 @@ namespace MarkdownMigration.Convert
         private StringBuffer RenderInlineTokens(ImmutableArray<IMarkdownToken> tokens, IMarkdownRenderer render)
         {
             var result = StringBuffer.Empty;
-            if (tokens != null)
+            for (var index = 0; index < tokens.Count(); index++)
             {
-                foreach (var t in tokens)
+                if (tokens[index] is MarkdownLinkInlineToken token && token.LinkType is MarkdownLinkType.UrlLink)
                 {
-                    result += render.Render(t);
+                    var pre = index - 1 >= 0 ? tokens[index - 1] : null;
+
+                    if (pre is MarkdownTextToken t && (t.Content.EndsWith("&quot;") || t.Content.EndsWith("&#39;")))
+                    {
+                        result += "<" + render.Render(token) + ">";
+                    }
+                }
+                else
+                {
+                    result += render.Render(tokens[index]);
                 }
             }
 
