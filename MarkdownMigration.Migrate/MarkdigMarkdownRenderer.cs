@@ -224,16 +224,13 @@ namespace MarkdownMigration.Convert
                 if (tokens[index] is MarkdownLinkInlineToken token && token.LinkType is MarkdownLinkType.UrlLink)
                 {
                     var pre = index - 1 >= 0 ? tokens[index - 1] : null;
-
                     if (pre is MarkdownTextToken t && (t.Content.EndsWith("&quot;") || t.Content.EndsWith("&#39;")))
                     {
                         result += "<" + render.Render(token) + ">";
+                        continue;
                     }
                 }
-                else
-                {
-                    result += render.Render(tokens[index]);
-                }
+                result += render.Render(tokens[index]);
             }
 
             return result;
