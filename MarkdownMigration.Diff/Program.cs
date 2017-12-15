@@ -28,8 +28,9 @@ namespace HtmlCompare
 
             // need string
             IgnoreComments,
-            IgnoreXref,
             IgnoreSourceInfo,
+            IgnoreXref,
+            IgnoreSourceInfo1,
             IgnoreEmptyP,
             FormatCustomTags,
             FormatTableStyle,
@@ -52,7 +53,7 @@ namespace HtmlCompare
             IgnoreBackSlashInAutolink,
             IgnoreAutolink1,
             IgnoreStrongEm,
-            IgnoreAltInImage,
+            IgnoreAltInImage,  
             IgnoreTrimTd,
             IgnoreDel,
             
@@ -62,7 +63,7 @@ namespace HtmlCompare
         };
 
         static bool debug = false;
-        static string targetFileName = "algorithms.html";
+        static string targetFileName = "active-directory-aadconnect-federation-saml-idp.html";
 
         static void Main(string[] args)
         {
@@ -492,18 +493,22 @@ namespace HtmlCompare
 
         static string IgnoreSourceInfo(string source)
         {
-            //var result = Regex.Replace(source, "<td>\n* *", "<td>");
-            //result = Regex.Replace(result, " *\n*</td>", "</td>");
             var result = s1.Replace(source, m => string.Empty);
             result = s2.Replace(result, m => string.Empty);
             result = s3.Replace(result, m => string.Empty);
-            result = s4.Replace(result, m => string.Empty);
             result = s5.Replace(result, m => string.Empty);
 
             return result;
         }
 
-        private static readonly Regex Xref = new Regex(@"<xref href=""[^""<>]*?"" data-throw-if-not-resolved=""[^""<>]*?"" data-raw-source='(@[^""][^<>]*?[^""]"")'>\s*<\/xref>", RegexOptions.Compiled);
+        static string IgnoreSourceInfo1(string source)
+        {
+            var result = s4.Replace(source, m => string.Empty);
+
+            return result;
+        }
+
+        private static readonly Regex Xref = new Regex(@"<xref href=""[^""<>]*?"" data-raw-source=""(@[^<>]*?)"">\s*<\/xref>", RegexOptions.Compiled);
 
         static string IgnoreXref(string source)
         {
@@ -567,14 +572,14 @@ namespace HtmlCompare
             });
         }
 
-        private static readonly Regex EmptyP = new Regex(@"<p>\s*</p>", RegexOptions.Compiled);
+        private static readonly Regex EmptyP = new Regex(@"<p>((\s*)|(&gt;))<\/p>", RegexOptions.Compiled);
 
         static string IgnoreEmptyP(string source)
         {
             return EmptyP.Replace(source, m => string.Empty);
         }
 
-        private static readonly Regex Autolink = new Regex(@"<a>((https?:.*?)|(www.*?))<\/a>", RegexOptions.Compiled);
+        private static readonly Regex Autolink = new Regex(@"<a href=""((https?:.*?)|(www.*?))"">\1<\/a>", RegexOptions.Compiled);
 
         static string IgnoreAutolink1(string source)
         {
@@ -586,7 +591,7 @@ namespace HtmlCompare
             return Autolink.Replace(source, m => m.ToString().Replace('\\', ' '));
         }
 
-        private static readonly Regex EmptyBlockQuote = new Regex(@"\n\s*<blockquote></blockquote>\s*\n", RegexOptions.Compiled);
+        private static readonly Regex EmptyBlockQuote = new Regex(@"<blockquote><\/blockquote>", RegexOptions.Compiled);
 
         static string IgnoreEmptyBlockquote(string source)
         {
