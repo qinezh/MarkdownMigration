@@ -52,6 +52,8 @@ namespace MarkdownMigration.Convert
             const string BlockQuoteStartString = "> ";
             const string BlockQuoteJoinString = "\n" + BlockQuoteStartString;
 
+            var source = token.SourceInfo.Markdown;
+
             var content = StringBuffer.Empty;
             for (var index = 0; index < token.Tokens.Length; index++)
             {
@@ -65,7 +67,7 @@ namespace MarkdownMigration.Convert
                     content += render.Render(t);
                 }
             }
-            var contents = content.ToString().Split('\n');
+            var contents = content.ToString().TrimEnd('\n').Split('\n');
             content = StringBuffer.Empty;
             foreach (var item in contents)
             {
@@ -80,7 +82,30 @@ namespace MarkdownMigration.Convert
                     content += item;
                 }
             }
-            return content + "\n\n";
+
+            var newlinesCount = CountEndNewLine(source);
+            return content + new string('\n', newlinesCount);
+        }
+
+        private int CountEndNewLine(string source)
+        {
+            var last = source.Length - 1;
+            var count = 0;
+            while (last >= 0)
+            {
+                if (source[last] == '\n')
+                {
+                    ++count;
+                }
+                else
+                {
+                    return count;
+                }
+
+                --last;
+            }
+
+            return count;
         }
 
         public override StringBuffer Render(IMarkdownRenderer render, MarkdownEmInlineToken token, MarkdownInlineContext context)

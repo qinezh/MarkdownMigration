@@ -61,8 +61,6 @@
 > [!VIDEO https://channel9.msdn.com]
 > 
 > *abc*
-> 
-
 ";
 
             var result = _tool.Convert("topic.md", source);
@@ -215,9 +213,7 @@ content...";
     - Three";
             var expected = @"> - One
 > - Two
->     - Three
-
-";
+>     - Three";
 
             var result = _tool.Convert("topic.md", source);
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
@@ -234,9 +230,7 @@ content...";
             var expected = @"> [!IMPORTANT]
 > one
 > 
-> two
-
-";
+> two";
 
             var result = _tool.Convert("topic.md", source);
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
@@ -257,10 +251,24 @@ content...";
 > 
 > - Web
 > - Email-:
->     - Microsoft Outlook 2010/
+>     - Microsoft Outlook 2010/";
 
-";
+            var result = _tool.Convert("topic.md", source);
+            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+        }
 
+        [Fact]
+        [Trait("Related", "MarkdigMarkdownRewriters")]
+        public void Test00()
+        {
+            var source = @"> Line
+
+
+# title";
+            var expected = @"> Line
+
+
+# title";
             var result = _tool.Convert("topic.md", source);
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }
