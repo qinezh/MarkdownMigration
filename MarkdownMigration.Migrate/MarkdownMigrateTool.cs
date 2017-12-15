@@ -69,6 +69,15 @@ namespace MarkdownMigration.Convert
 
         public void MigrateFile(string inputFile, string outputFile)
         {
+            if (inputFile == null)
+            {
+                throw new ArgumentNullException(nameof(inputFile));
+            }
+            if (!File.Exists(inputFile))
+            {
+                throw new FileNotFoundException($"{inputFile} can't be found.");
+            }
+
             var result = Convert(inputFile, File.ReadAllText(inputFile));
             var dir = Path.GetDirectoryName(outputFile);
             if (!string.IsNullOrEmpty(dir))
