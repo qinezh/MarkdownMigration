@@ -67,8 +67,17 @@ namespace MarkdownMigration.Convert
             });
         }
 
-        private void MigrateFile(string inputFile, string outputFile)
+        public void MigrateFile(string inputFile, string outputFile)
         {
+            if (inputFile == null)
+            {
+                throw new ArgumentNullException(nameof(inputFile));
+            }
+            if (!File.Exists(inputFile))
+            {
+                throw new FileNotFoundException($"{inputFile} can't be found.");
+            }
+
             var result = Convert(inputFile, File.ReadAllText(inputFile));
             var dir = Path.GetDirectoryName(outputFile);
             if (!string.IsNullOrEmpty(dir))
@@ -82,19 +91,34 @@ namespace MarkdownMigration.Convert
         public string Convert(string inputFile, string markdown)
         {
             var engine = _builder.CreateDfmEngine(_render);
-            return engine.Markup(markdown, inputFile);
+            var result = engine.Markup(markdown, inputFile);
+
+            result = RevertNormalizedPart(result, markdown);
+
+            return result;
         }
 
-        private MarkdownRenderer InitRenderer(string rendererName)
+        private string RevertNormalizedPart(string result, string source)
         {
-            rendererName = rendererName ?? string.Empty;
-            switch (rendererName.ToLower())
+            var resultLines = NormalizeUtility.NewLine.Split(result);
+            var sourceLines = NormalizeUtility.NewLine.Split(source);
+
+            if (resultLines.Length == sourceLines.Length)
             {
-                case "dfm":
-                    return new DfmMarkdownRenderer();
-                default:
-                    return new MarkdigMarkdownRenderer();
+                for (var index = 0; index < resultLines.Length; index++)
+                {
+                    var resultLine = resultLines[index];
+                    var sourceLine = sourceLines[index];
+                    if (string.Equals(NormalizeUtility.Normalize(sourceLine), resultLine))
+                    {
+                        resultLines[index] = sourceLine;
+                    }
+                }
+
+                return string.Join("\n", resultLines);
             }
+
+            return result;
         }
     }
 }

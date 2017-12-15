@@ -47,6 +47,42 @@ namespace MarkdownMigration.Convert
             return token.SourceInfo.Markdown;
         }
 
+        public override StringBuffer Render(IMarkdownRenderer render, MarkdownBlockquoteBlockToken token, MarkdownBlockContext context)
+        {
+            const string BlockQuoteStartString = "> ";
+            const string BlockQuoteJoinString = "\n" + BlockQuoteStartString;
+
+            var content = StringBuffer.Empty;
+            for (var index = 0; index < token.Tokens.Length; index++)
+            {
+                var t = token.Tokens[index];
+                if (index == token.Tokens.Length - 1 && t is DfmVideoBlockToken videoToken)
+                {
+                    content += render.Render(t).ToString().TrimEnd();
+                }
+                else
+                {
+                    content += render.Render(t);
+                }
+            }
+            var contents = content.ToString().Split('\n');
+            content = StringBuffer.Empty;
+            foreach (var item in contents)
+            {
+                if (content == StringBuffer.Empty)
+                {
+                    content += BlockQuoteStartString;
+                    content += item;
+                }
+                else
+                {
+                    content += BlockQuoteJoinString;
+                    content += item;
+                }
+            }
+            return content + "\n\n";
+        }
+
         public override StringBuffer Render(IMarkdownRenderer render, MarkdownEmInlineToken token, MarkdownInlineContext context)
         {
             return token.SourceInfo.Markdown;
@@ -79,11 +115,6 @@ namespace MarkdownMigration.Convert
         }
 
         public override StringBuffer Render(IMarkdownRenderer render, MarkdownTableBlockToken token, MarkdownBlockContext context)
-        {
-            return token.SourceInfo.Markdown;
-        }
-
-        public override StringBuffer Render(IMarkdownRenderer render, MarkdownBlockquoteBlockToken token, MarkdownBlockContext context)
         {
             return token.SourceInfo.Markdown;
         }
@@ -219,12 +250,18 @@ namespace MarkdownMigration.Convert
         private StringBuffer RenderInlineTokens(ImmutableArray<IMarkdownToken> tokens, IMarkdownRenderer render)
         {
             var result = StringBuffer.Empty;
-            if (tokens != null)
+            for (var index = 0; index < tokens.Count(); index++)
             {
-                foreach (var t in tokens)
+                if (tokens[index] is MarkdownLinkInlineToken token && token.LinkType is MarkdownLinkType.UrlLink)
                 {
-                    result += render.Render(t);
+                    var pre = index - 1 >= 0 ? tokens[index - 1] : null;
+                    if (pre is MarkdownTextToken t && (t.Content.EndsWith("&quot;") || t.Content.EndsWith("&#39;")))
+                    {
+                        result += "<" + render.Render(token) + ">";
+                        continue;
+                    }
                 }
+                result += render.Render(tokens[index]);
             }
 
             return result;
