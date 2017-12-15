@@ -57,10 +57,12 @@
 ";
             var expected = @"> Video Sample
 > [!VIDEO https://channel9.msdn.com]
->
->[!VIDEO https://channel9.msdn.com]
->
+> 
+> [!VIDEO https://channel9.msdn.com]
+> 
 > *abc*
+> 
+
 ";
 
             var result = _tool.Convert("topic.md", source);
@@ -202,6 +204,65 @@ content...";
 
             var result = _tool.Convert("topic.md", source);
             Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        [Trait("Related", "MarkdigMarkdownRewriters")]
+        public void TestBlockQuote()
+        {
+            var source = @">- One
+- Two
+    - Three";
+            var expected = @"> - One
+> - Two
+>     - Three
+
+";
+
+            var result = _tool.Convert("topic.md", source);
+            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+        }
+
+        [Fact]
+        [Trait("Related", "MarkdigMarkdownRewriters")]
+        public void TestImportant()
+        {
+            var source = @">[!IMPORTANT]
+>one
+
+>two";
+            var expected = @"> [!IMPORTANT]
+> one
+> 
+> two
+
+";
+
+            var result = _tool.Convert("topic.md", source);
+            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+        }
+
+        [Fact]
+        [Trait("Related", "MarkdigMarkdownRewriters")]
+        public void Test()
+        {
+            var source = @">[!IMPORTANT]
+>List:
+
+>- Web
+- Email-:
+    - Microsoft Outlook 2010/";
+            var expected = @"> [!IMPORTANT]
+> List:
+> 
+> - Web
+> - Email-:
+>     - Microsoft Outlook 2010/
+
+";
+
+            var result = _tool.Convert("topic.md", source);
+            Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }
     }
 }
