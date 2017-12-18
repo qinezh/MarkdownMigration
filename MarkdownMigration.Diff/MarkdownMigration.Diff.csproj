@@ -51,6 +51,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MarkdownMigrateDiffUtility.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="ProgressHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -9,6 +9,7 @@
     <PackageReference Include="xunit" Version="2.3.1" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\MarkdownMigration.Diff\MarkdownMigration.Diff.csproj" />
     <ProjectReference Include="..\MarkdownMigration.Migrate\MarkdownMigration.Convert.csproj" />
   </ItemGroup>
 </Project>

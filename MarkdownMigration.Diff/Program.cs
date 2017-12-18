@@ -63,7 +63,7 @@ namespace HtmlCompare
         };
 
         static bool debug = false;
-        static string targetFileName = "active-directory-aadconnect-federation-saml-idp.html";
+        static string targetFileName = "active-directory-aadconnectsync-connector-version-history.html";
 
         static void Main(string[] args)
         {
@@ -242,7 +242,7 @@ namespace HtmlCompare
 
         static void CreateFile(string path, string content)
         {
-            if (debug) return;
+            //if (debug) return; 
 
             var folder = Path.GetDirectoryName(path);
             if (!Directory.Exists(folder))
@@ -356,7 +356,7 @@ namespace HtmlCompare
             return removedDeclaration;
         }
 
-        static bool CompareMigratedHtml(string fileA, string contentA, string contentB, out string migratedA, out string migratedB)
+        public static bool CompareMigratedHtml(string fileA, string contentA, string contentB, out string migratedA, out string migratedB, bool enableLog = true)
         {
             migratedA = contentA;
             migratedB = contentB;
@@ -372,18 +372,18 @@ namespace HtmlCompare
                         //PauseWhenDebug();
                         migratedA = tempMigratedA;
                         migratedB = tempMigratedB;
-                        migrationChangeResults[stepFunc.Method.Name].Add(fileA);
+                        if(enableLog) migrationChangeResults[stepFunc.Method.Name].Add(fileA);
                     }
                     if (migratedA == migratedB)
                     {
-                        migrationEqualResults[stepFunc.Method.Name].Add(fileA);
+                        if (enableLog) migrationEqualResults[stepFunc.Method.Name].Add(fileA);
                         return true;
                     }
                 }
                 catch (Exception ex)
                 {
                     PauseWhenDebug();
-                    migrationErrorResults[stepFunc.Method.Name].Add(fileA);
+                    if (enableLog) migrationErrorResults[stepFunc.Method.Name].Add(fileA);
                 }
             }
 
