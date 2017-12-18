@@ -144,15 +144,6 @@ namespace MarkdownMigration.Convert
             return token.SourceInfo.Markdown;
         }
 
-        public override StringBuffer Render(IMarkdownRenderer render, MarkdownListBlockToken token, MarkdownBlockContext context)
-        {
-            return token.SourceInfo.Markdown;
-        }
-
-        protected override StringBuffer Render(IMarkdownRenderer render, MarkdownListItemBlockToken token, string indent)
-        {
-            return token.SourceInfo.Markdown;
-        }
         #endregion
 
         public StringBuffer Render(IMarkdownRenderer render, MarkdownNewLineBlockToken token, MarkdownBlockContext context)
@@ -204,6 +195,67 @@ namespace MarkdownMigration.Convert
             {
                 return RenderHeadingToken(render, token, context);
             }
+        }
+
+        public override StringBuffer Render(IMarkdownRenderer render, MarkdownListBlockToken token, MarkdownBlockContext context)
+        {
+            var content = StringBuffer.Empty;
+
+            if (!token.Ordered)
+            {
+                const string ListStartString = "* ";
+                foreach (var t in token.Tokens)
+                {
+                    var listItemToken = t as MarkdownListItemBlockToken;
+                    if (listItemToken == null)
+                    {
+                        throw new Exception($"token {t.GetType()} is not unordered MarkdownListItemBlockToken in MarkdownListBlockToken. Token raw:{t.SourceInfo.Markdown}");
+                    }
+                    content += ListStartString;
+                    content += Render(render, listItemToken, "  ");
+                }
+            }
+            else
+            {
+                for (int i = 0; i < token.Tokens.Length; ++i)
+                {
+                    var listItemToken = token.Tokens[i] as MarkdownListItemBlockToken;
+
+                    if (listItemToken == null)
+                    {
+                        throw new Exception($"token {token.Tokens[i].GetType()} is not ordered MarkdownListItemBlockToken in MarkdownListBlockToken. Token raw:{token.Tokens[i].SourceInfo.Markdown}");
+                    }
+
+                    content += $"{i + 1}. ";
+                    string indent = new string(' ', (i + 1).ToString().Length + 2);
+                    content += Render(render, listItemToken, indent);
+                }
+            }
+            return content + "\n";
+        }
+
+        protected override StringBuffer Render(IMarkdownRenderer render, MarkdownListItemBlockToken token, string indent)
+        {
+            var content = StringBuffer.Empty;
+            if (token.Tokens.Length > 0)
+            {
+                var tokenRenderContent = StringBuffer.Empty;
+                foreach (var t in token.Tokens)
+                {
+                    tokenRenderContent += render.Render(t);
+                }
+
+                var lines = tokenRenderContent.ToString().TrimEnd('\n').Split('\n');
+                content += lines[0];
+                content += "\n";
+                foreach (var line in lines.Skip(1))
+                {
+                    content += indent;
+                    content += line;
+                    content += "\n";
+                }
+            }
+            return content;
         }
 
         private StringBuffer RenderHeadingToken(IMarkdownRenderer render, MarkdownHeadingBlockToken token, MarkdownBlockContext context)

@@ -31,10 +31,5 @@ namespace MarkdownMigration.Convert
 
             return WhiteSpaceLine.Replace(result, string.Empty);
         }
-
-        public static string Restore(string markdown)
-        {
-            return markdown;
-        }
     }
 }

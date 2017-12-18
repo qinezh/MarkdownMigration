@@ -238,7 +238,7 @@ content...";
 
         [Fact]
         [Trait("Related", "MarkdigMarkdownRewriters")]
-        public void Test()
+        public void TestMigrateBlockQuotaWithList()
         {
             var source = @">[!IMPORTANT]
 >List:
@@ -259,7 +259,7 @@ content...";
 
         [Fact]
         [Trait("Related", "MarkdigMarkdownRewriters")]
-        public void Test00()
+        public void TestMigrateBlockQuotaWithMultipleNewLine()
         {
             var source = @"> Line
 
@@ -269,6 +269,18 @@ content...";
 
 
 # title";
+            var result = _tool.Convert("topic.md", source);
+            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+        }
+
+        [Fact]
+        [Trait("Related", "MarkdigMarkdownRewriters")]
+        public void TestMigrateListWithUnsupportedIndent()
+        {
+            var source = @"1. a
+  2. b";
+            var expected = @"1. a
+   2. b";
             var result = _tool.Convert("topic.md", source);
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }
