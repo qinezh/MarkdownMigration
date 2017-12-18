@@ -62,8 +62,35 @@ namespace HtmlCompare
             FormatXml
         };
 
+        static List<Func<string, string>> NoMatterSteps = new List<Func<string, string>>()
+        {
+            DecodeAndFormatXml,
+
+            // need string
+            IgnoreComments,
+            IgnoreSourceInfo,
+            IgnoreSourceInfo1,
+            IgnoreEmptyP,
+            FormatCustomTags,
+            FormatTableStyle,
+            IgnoreCodeLastLine,
+            IgnorePre,
+            IgnorePinli,
+
+            // need parse to html
+            //Xhtml,
+            UnifySpaceAndNewLine,
+            TrimCustomTag,
+            IgnoreHeadingIdDash,
+            IgnoreTrimTd,
+            IgnoreDel,            
+
+            // format xml
+            FormatXml
+        };
+
         static bool debug = false;
-        static string targetFileName = "active-directory-aadconnectsync-connector-version-history.html";
+        static string targetFileName = "active-directory-applications-guiding-developers-assigning-users.html";
 
         static void Main(string[] args)
         {
@@ -356,12 +383,14 @@ namespace HtmlCompare
             return removedDeclaration;
         }
 
-        public static bool CompareMigratedHtml(string fileA, string contentA, string contentB, out string migratedA, out string migratedB, bool enableLog = true)
+        public static bool CompareMigratedHtml(string fileA, string contentA, string contentB, out string migratedA, out string migratedB, bool enableLog = true, bool enableAllRules = true)
         {
             migratedA = contentA;
             migratedB = contentB;
 
-            foreach (var stepFunc in StringMigrationSteps)
+            var steps = enableAllRules ? StringMigrationSteps : NoMatterSteps;
+
+            foreach (var stepFunc in steps)
             {
                 try
                 {
@@ -403,6 +432,7 @@ namespace HtmlCompare
         {
             // only decode known strings in <code>
             var decodeSource = source.Replace("&#39;", "'");
+            decodeSource = decodeSource.Replace("%7E", "~");
 
             var doc = StringToHtml(decodeSource);
 
@@ -579,7 +609,7 @@ namespace HtmlCompare
             return EmptyP.Replace(source, m => string.Empty);
         }
 
-        private static readonly Regex Autolink = new Regex(@"<a href=""((https?:.*?)|(www.*?))"">\1<\/a>", RegexOptions.Compiled);
+        private static readonly Regex Autolink = new Regex(@"<a href=""[^""<>]*?"">((https?:.*?)|(www.*?))<\/a>", RegexOptions.Compiled);
 
         static string IgnoreAutolink1(string source)
         {

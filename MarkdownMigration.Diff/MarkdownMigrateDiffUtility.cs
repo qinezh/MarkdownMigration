@@ -8,10 +8,10 @@ namespace HtmlCompare
 {
     public static class MarkdownMigrateDiffUtility
     {
-        public static bool ComapreHtml(string htmlA, string htmlB)
+        public static bool ComapreHtml(string htmlA, string htmlB, bool enableAllRules = false)
         {
             string migratedA, migratedB;
-            return Program.CompareMigratedHtml("", htmlA, htmlB, out migratedA, out migratedB, false);
+            return Program.CompareMigratedHtml("", htmlA, htmlB, out migratedA, out migratedB, false, enableAllRules);
         }
     }
 }
