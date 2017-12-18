@@ -277,10 +277,24 @@ content...";
         [Trait("Related", "MarkdigMarkdownRewriters")]
         public void TestMigrateListWithUnsupportedIndent()
         {
-            var source = @"1. a
+            var source = @"2. a
   2. b";
-            var expected = @"1. a
+            var expected = @"2. a
    2. b";
+            var result = _tool.Convert("topic.md", source);
+            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+        }
+
+        [Fact]
+        [Trait("Related", "MarkdigMarkdownRewriters")]
+        public void TestMigrateUnorderedList()
+        {
+            var source = @"- a
+  * b
+";
+            var expected = @"- a
+   * b
+";
             var result = _tool.Convert("topic.md", source);
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }

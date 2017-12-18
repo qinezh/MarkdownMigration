@@ -1,5 +1,6 @@
-﻿using MarkdownMigration.Convert;
-using System;
+﻿using System;
+using System.IO;
+using MarkdownMigration.Convert;
 
 namespace MarkdownMigration.ConsoleApp
 {
@@ -7,14 +8,10 @@ namespace MarkdownMigration.ConsoleApp
     {
         public static void Main(string[] args)
         {
-            //var content = File.ReadAllText("sample.md");
-            //var converter = new Converter();
-            //var migratedContent = converter.ConvertHtml(content);
-            //Console.WriteLine(migratedContent);
+            var content = File.ReadAllText("sample.md");
+            var migratedContent = MarkdownMigrateUtility.Migrate(content, "sample.md");
 
-            //var tool = new MarkdownMigrateTool();
-            //var migrated = tool.Convert("sample.md");
-            //Console.WriteLine(migrated);
+            Console.WriteLine(migratedContent);
         }
     }
 }

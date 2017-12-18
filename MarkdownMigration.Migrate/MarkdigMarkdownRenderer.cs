@@ -17,6 +17,8 @@ namespace MarkdownMigration.Convert
         private static DfmRenderer _dfmHtmlRender = new DfmRenderer();
         private static readonly Regex _headingRegex = new Regex(@"^(?<pre> *#{1,6}(?<whitespace> *))(?<text>[^\n]+?)(?<post>(?: +#*)? *(?:\n+|$))", RegexOptions.Compiled);
         private static readonly Regex _lheading = new Regex(@"^(?<text>[^\n]+)(?<post>\n *(?:=|-){2,} *(?:\n+|$))", RegexOptions.Compiled);
+        private static readonly Regex _orderListStart = new Regex(@"^(?<start>\d+)\.", RegexOptions.Compiled);
+        private static readonly Regex _unorderListStart = new Regex(@"^\s*(?<start>.)", RegexOptions.Compiled);
 
         #region override default renderer
         public override StringBuffer Render(IMarkdownRenderer render, IMarkdownToken token, IMarkdownContext context)
@@ -203,7 +205,8 @@ namespace MarkdownMigration.Convert
 
             if (!token.Ordered)
             {
-                const string ListStartString = "* ";
+                var match = _unorderListStart.Match(token.SourceInfo.Markdown);
+                var startString = match.Success ? match.Groups["start"] + " ": "* ";
                 foreach (var t in token.Tokens)
                 {
                     var listItemToken = t as MarkdownListItemBlockToken;
@@ -211,12 +214,23 @@ namespace MarkdownMigration.Convert
                     {
                         throw new Exception($"token {t.GetType()} is not unordered MarkdownListItemBlockToken in MarkdownListBlockToken. Token raw:{t.SourceInfo.Markdown}");
                     }
-                    content += ListStartString;
+                    content += startString;
                     content += Render(render, listItemToken, "  ");
                 }
             }
             else
             {
+                var match = _orderListStart.Match(token.SourceInfo.Markdown);
+                var start = 1;
+                if (match.Success)
+                {
+                    var value = match.Groups["start"].Value;
+                    if (Int32.TryParse(value, out int result))
+                    {
+                        start = result;
+                    }
+                }
+
                 for (int i = 0; i < token.Tokens.Length; ++i)
                 {
                     var listItemToken = token.Tokens[i] as MarkdownListItemBlockToken;
@@ -226,12 +240,13 @@ namespace MarkdownMigration.Convert
                         throw new Exception($"token {token.Tokens[i].GetType()} is not ordered MarkdownListItemBlockToken in MarkdownListBlockToken. Token raw:{token.Tokens[i].SourceInfo.Markdown}");
                     }
 
-                    content += $"{i + 1}. ";
+                    content += $"{start + i}. ";
                     string indent = new string(' ', (i + 1).ToString().Length + 2);
                     content += Render(render, listItemToken, indent);
                 }
             }
-            return content + "\n";
+
+            return content + '\n';
         }
 
         protected override StringBuffer Render(IMarkdownRenderer render, MarkdownListItemBlockToken token, string indent)

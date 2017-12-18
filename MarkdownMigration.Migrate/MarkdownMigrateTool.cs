@@ -23,7 +23,7 @@ namespace MarkdownMigration.Convert
             var option = DocfxFlavoredMarked.CreateDefaultOptions();
             option.LegacyMode = true;
             _builder = new DfmEngineBuilder(option);
-            _render = new MarkdigMarkdownRenderer();
+            _render = new MarkdigMarkdownRendererProxy();
         }
 
         public static void Migrate(CommandLineOptions opt)
