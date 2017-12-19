@@ -1,11 +1,49 @@
-﻿$nugetUrl = "https://dist.nuget.org/win-x86-commandline/latest/nuget.exe"
+param (
+    [string]$repoRoot
+)
+if (-not $repoRoot)
+{
+    $repoRoot = $pwd.Path
+}
+$repoRoot = Resolve-Path $repoRoot
+$tempFolder = Join-Path $repoRoot "_temp"
+New-Item $tempFolder -type directory -Force
+Push-Location $repoRoot
+
+$migrationToolUrl = "https://github.com/qinezh/MarkdownMigration/releases/download/0.1/Migration.zip"
+$migrationToolZipPath = Join-Path $repoRoot "_tools/Migration.zip"
+$migrationToolPath = Join-Path $repoRoot "_tools/Migration"
+$nugetUrl = "https://dist.nuget.org/win-x86-commandline/latest/nuget.exe"
 $nugetPath = "_tools/nuget.exe"
-$bathFolder = "F:\test"
+
+
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+function Unzip
+{
+    param([string]$zipfile, [string]$outpath)
+
+    [System.IO.Compression.ZipFile]::ExtractToDirectory($zipfile, $outpath)
+}
+
 New-Item _tools -type directory -Force
 if (-not (Test-Path $nugetPath))
 {
     Invoke-WebRequest -Uri $nugetUrl -OutFile $nugetPath
 }
+if (Test-path $migrationToolZipPath)
+{
+    Remove-Item $migrationToolZipPath
+}
+if (Test-Path $migrationToolPath)
+{
+    Remove-Item $migrationToolPath -Recurse
+}
+Invoke-WebRequest -Uri $migrationToolUrl -OutFile $migrationToolZipPath
+New-Item $migrationToolPath -type directory
+Unzip $migrationToolZipPath (Join-Path $repoRoot "_tools")
+$migrationExePath = Join-Path $migrationToolPath "MarkdownMigration.Convert.exe"
+$htmlExtractExePath = Join-Path $migrationToolPath "ExtractHtml.exe"
+$htmlCompareExePath = Join-Path $migrationToolPath "HtmlCompare.exe"
 
 & $nugetPath install Microsoft.DocAsCode.MarkdigEngine -Version 1.0.127-alpha -Source https://www.myget.org/F/op-dev/api/v2 -OutputDirectory _tools
 & $nugetPath install docfx.console -Version 2.28.3 -Source https://www.myget.org/F/docfx/api/v3/index.json -OutputDirectory _tools
@@ -30,39 +68,41 @@ if ($repoConfig.docsets_to_publish)
     foreach ($docset in $repoConfig.docsets_to_publish)
     {
         $docsetName = $docset.docset_name
-        $htmlBathFolder = Join-Path $bathFolder $docsetName
-        $docfxJsonPath = Join-Path $pwd.Path "$($docset.build_source_folder)\docfx.json"
-        $outPutBathPath = Split-Path -parent $docfxJsonPath        
-        $dfmOutput = $docsetName + "_dfm"
-        $dfmOutput = Join-Path $htmlBathFolder $dfmOutput
-        $markdigOutput = $docsetName + "_markdig"
-        $markdigOutput = Join-Path $htmlBathFolder $markdigOutput
+        $docsetFolder = Join-Path $repoRoot "$($docset.build_source_folder)"  
+
+        $htmlBaseFolder = Join-Path $tempFolder $docsetName
+        $dfmOutput = Join-Path $htmlBaseFolder "dfm"
+        $markdigOutput = Join-Path $htmlBaseFolder "markdig"
+
+        $docfxJsonPath = Join-Path $docsetFolder "docfx.json"
         $docfxJson = Get-Content -Raw -Path $docfxJsonPath | ConvertFrom-Json
         $dest = "_site"
         if ($docfxJson.build.dest)
         {
-            $dest = Join-Path $outPutBathPath $docfxJson.build.dest
+            $dest = Join-Path $docsetFolder $docfxJson.build.dest
         }
 
         & $docfxExePath $docfxJsonPath --exportRawModel --dryRun --force --markdownEngineName dfm 
         Copy-Item -Path $dest -Destination $dfmOutput -recurse -Force
         Remove-Item –path $dest –recurse
-        Remove-Item –path "$outPutBathPath\obj" –recurse
+        Remove-Item –path "$docsetFolder\obj" –recurse
 
-        & "F:\MarkdownMigration\MarkdownMigration\MarkdownMigration.Migrate\bin\Debug\net461\MarkdownMigration.Convert.exe" -c $pwd -p "**.md"
+        & $migrationExePath -c $docsetFolder -p "**.md"
 
         & $docfxExePath $docfxJsonPath --exportRawModel --dryRun --force --markdownEngineName markdig
         Copy-Item -Path $dest -Destination $markdigOutput -recurse -Force
         Remove-Item –path $dest –recurse
-        Remove-Item –path "$outPutBathPath\obj" –recurse
+        Remove-Item –path "$docsetFolder\obj" –recurse
 
-        & "F:\MarkdownMigration\MarkdownMigration\MarkdownMigration.ExtractHtml\bin\Debug\ExtractHtml.exe" "$dfmOutput,$markdigOutput"
-        $dfmOutput = $dfmOutput + "-html"
-        $markdigOutput =$markdigOutput + "-html"
+        & $htmlExtractExePath "$dfmOutput,$markdigOutput"
+        $dfmHtmlOutput = $dfmOutput + "-html"
+        $markdigHtmlOutput =$markdigOutput + "-html"
 
-        if ((Test-Path $dfmOutput) -and (Test-Path $markdigOutput))
+        if ((Test-Path $dfmHtmlOutput) -and (Test-Path $markdigHtmlOutput))
         {
-           & "F:\MarkdownMigration\MarkdownMigration\MarkdownMigration.Diff\bin\Debug\HtmlCompare.exe" $dfmOutput $markdigOutput $htmlBathFolder "$htmlBathFolder\Compare"
+           & $htmlCompareExePath $dfmHtmlOutput $markdigHtmlOutput $htmlBaseFolder "$htmlBaseFolder\Compare"
         }
     }
 }
+
+Pop-Location $repoRoot
