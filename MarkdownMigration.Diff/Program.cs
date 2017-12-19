@@ -412,7 +412,14 @@ namespace HtmlCompare
                 catch (Exception ex)
                 {
                     PauseWhenDebug();
-                    if (enableLog) migrationErrorResults[stepFunc.Method.Name].Add(fileA);
+                    if (enableLog)
+                    {
+                        migrationErrorResults[stepFunc.Method.Name].Add(fileA);
+                    }
+                    else
+                    {
+                        throw ex;
+                    }
                 }
             }
 
