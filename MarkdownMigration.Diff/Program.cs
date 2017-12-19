@@ -36,7 +36,6 @@ namespace HtmlCompare
             FormatTableStyle,
             IgnoreCodeLastLine,
             IgnorePre,
-            IgnoreEmptyBlockquote,
             IgnoreCodeInMutiLine,
             IgnoreNocookie,
             IgnoreAINHeader,
@@ -56,10 +55,15 @@ namespace HtmlCompare
             IgnoreAltInImage,  
             IgnoreTrimTd,
             IgnoreDel,
-            
+            IgnoreConnectedUL,
+            IgnoreEmptyBlockquote,
+            IgnoreEmptyConnectedBlockQuote,
 
             // format xml
-            FormatXml
+            IgnoreNewlineAroundTag,
+            UnifySpaceAndNewLine,
+            TrimCustomTag,
+            DecodeAndFormatXml
         };
 
         static List<Func<string, string>> NoMatterSteps = new List<Func<string, string>>()
@@ -90,7 +94,7 @@ namespace HtmlCompare
         };
 
         static bool debug = false;
-        static string targetFileName = "active-directory-applications-guiding-developers-assigning-users.html";
+        static string targetFileName = "docs-recommendation-function-spec.html";
 
         static void Main(string[] args)
         {
@@ -440,6 +444,9 @@ namespace HtmlCompare
             // only decode known strings in <code>
             var decodeSource = source.Replace("&#39;", "'");
             decodeSource = decodeSource.Replace("%7E", "~");
+            decodeSource = decodeSource.Replace("%7B", "{");
+            decodeSource = decodeSource.Replace("%7D", "}");
+            decodeSource = decodeSource.Replace(' ', ' ');
 
             var doc = StringToHtml(decodeSource);
 
@@ -527,6 +534,7 @@ namespace HtmlCompare
         private static readonly Regex s3 = new Regex(@" sourceendlinenumber=""[^""<>]*?""", RegexOptions.Compiled);
         private static readonly Regex s4 = new Regex(@" data-raw-source=""[^""<>]*?""", RegexOptions.Compiled);
         private static readonly Regex s5 = new Regex(@" data-throw-if-not-resolved=""[^""<>]*?""", RegexOptions.Compiled);
+        private static readonly Regex s6 = new Regex(@" start=""[^""<>]*?""", RegexOptions.Compiled);
 
         static string IgnoreSourceInfo(string source)
         {
@@ -534,7 +542,7 @@ namespace HtmlCompare
             result = s2.Replace(result, m => string.Empty);
             result = s3.Replace(result, m => string.Empty);
             result = s5.Replace(result, m => string.Empty);
-
+            result = s6.Replace(result, m => string.Empty);
             return result;
         }
 
@@ -558,7 +566,14 @@ namespace HtmlCompare
             //result = Regex.Replace(result, " *\n*</td>", "</td>");
             return source.Replace("<del>", "~~").Replace("</del>", "~~");
         }
-
+        private static readonly Regex ConnectedUL = new Regex(@"</ul>\s*\n*<ul>", RegexOptions.Compiled);
+        static string IgnoreConnectedUL(string source)
+        {
+            //var result = Regex.Replace(source, "<td>\n* *", "<td>");
+            //result = Regex.Replace(result, " *\n*</td>", "</td>");
+            return ConnectedUL.Replace(source, m => string.Empty);
+        }
+        
         private static readonly Regex TD = new Regex(@"<td>([\s\S]*?)</td>", RegexOptions.Compiled);
         static string IgnoreTrimTd(string source)
         {
@@ -582,6 +597,10 @@ namespace HtmlCompare
             .Replace("</p>", "").Replace("<p />", ""));
         }
 
+        static string IgnoreNewlineAroundTag(string source)
+        {
+            return source.Replace("<", "\n<").Replace(">", ">\n");
+        }
 
         private static readonly Regex StrongEm = new Regex(@"<strong>\s*<em>(.*?)</em>\s*</strong>", RegexOptions.Compiled);
 
@@ -628,7 +647,14 @@ namespace HtmlCompare
             return Autolink.Replace(source, m => m.ToString().Replace('\\', ' '));
         }
 
-        private static readonly Regex EmptyBlockQuote = new Regex(@"<blockquote><\/blockquote>", RegexOptions.Compiled);
+        private static readonly Regex ConnectedBlockQuote = new Regex(@"<\/blockquote>\n*\s*\n*<blockquote>", RegexOptions.Compiled);
+
+        static string IgnoreEmptyConnectedBlockQuote(string source)
+        {
+            return ConnectedBlockQuote.Replace(source, m => string.Empty);
+        }
+
+        private static readonly Regex EmptyBlockQuote = new Regex(@"<blockquote>\n*\s*\n*<\/blockquote>", RegexOptions.Compiled);
 
         static string IgnoreEmptyBlockquote(string source)
         {

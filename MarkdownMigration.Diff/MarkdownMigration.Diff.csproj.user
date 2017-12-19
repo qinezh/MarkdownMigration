@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
-    <StartArguments>F:\test\e2eprod-azure-documents\e2eprod-azure-documents_dfm-html F:\test\e2eprod-azure-documents\e2eprod-azure-documents_markdig-html F:\test\e2eprod-azure-documents F:\test\e2eprod-azure-documents\Compare</StartArguments>
+    <StartArguments>F:\test\new-hope\new-hope_dfm-html F:\test\new-hope\new-hope_markdig-html F:\test\new-hope F:\test\new-hope\Compare</StartArguments>
   </PropertyGroup>
 </Project>
