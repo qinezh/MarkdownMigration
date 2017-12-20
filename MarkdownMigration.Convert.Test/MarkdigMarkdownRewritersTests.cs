@@ -8,7 +8,7 @@
 
         public MarkdigMarkdownRewritersTests()
         {
-            _tool = new MarkdownMigrateTool();
+            _tool = new MarkdownMigrateTool(null);
         }
 
         [Fact]
