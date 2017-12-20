@@ -10,7 +10,7 @@ using Microsoft.DocAsCode.MarkdownLite;
 
 namespace MarkdownMigration.Convert
 {
-    public class MarkdigMarkdownRenderer : MarkdownRenderer
+    public class MarkdigMarkdownRenderer : DfmMarkdownRenderer
     {
         private static HttpClient _client = new HttpClient();
         private static readonly string _requestTemplate = "https://xref.docs.microsoft.com/query?uid={0}";
