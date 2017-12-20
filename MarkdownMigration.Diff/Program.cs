@@ -90,7 +90,10 @@ namespace HtmlCompare
             IgnoreDel,            
 
             // format xml
-            FormatXml
+            IgnoreNewlineAroundTag,
+            UnifySpaceAndNewLine,
+            TrimCustomTag,
+            DecodeAndFormatXml
         };
 
         static bool debug = false;
@@ -329,7 +332,7 @@ namespace HtmlCompare
                         node.InnerHtml = ReplaceSpaceAndNewLine(node.InnerHtml);
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     // declaration and comment does not allow setting InnerXml
                 }
@@ -389,8 +392,8 @@ namespace HtmlCompare
 
         public static bool CompareMigratedHtml(string fileA, string contentA, string contentB, out string migratedA, out string migratedB, bool enableLog = true, bool enableAllRules = true)
         {
-            migratedA = contentA;
-            migratedB = contentB;
+            migratedA = contentA.Trim();
+            migratedB = contentB.Trim();
 
             var steps = enableAllRules ? StringMigrationSteps : NoMatterSteps;
 
@@ -597,9 +600,14 @@ namespace HtmlCompare
             .Replace("</p>", "").Replace("<p />", ""));
         }
 
+        private static readonly Regex LeftAngle = new Regex(@"\s*\n*\s*<", RegexOptions.Compiled);
+        private static readonly Regex RightAngle = new Regex(@">\s*\n*\s*", RegexOptions.Compiled);
+
         static string IgnoreNewlineAroundTag(string source)
         {
-            return source.Replace("<", "\n<").Replace(">", ">\n");
+            var result = LeftAngle.Replace(source, m => "\n<");
+            result = RightAngle.Replace(result, n => ">\n");
+            return result;
         }
 
         private static readonly Regex StrongEm = new Regex(@"<strong>\s*<em>(.*?)</em>\s*</strong>", RegexOptions.Compiled);
@@ -738,7 +746,7 @@ namespace HtmlCompare
             catch (Exception e)
             {
 
-                throw;
+                throw e;
             }
         }
 
@@ -897,7 +905,7 @@ namespace HtmlCompare
                 xml.LoadXml(htmlContent);
                 return htmlContent;
             }
-            catch (XmlException e)
+            catch (XmlException)
             {
                 HtmlDocument htmlDoc = new HtmlDocument { OptionOutputAsXml = true };
 
