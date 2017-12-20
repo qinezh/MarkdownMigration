@@ -7,7 +7,6 @@ namespace MarkdownMigration.Convert
     using System.Collections.Generic;
     using System.Linq;
     using System.IO;
-    using System.Threading.Tasks;
 
     using Microsoft.DocAsCode.Dfm;
     using Microsoft.DocAsCode.Glob;
@@ -79,16 +78,27 @@ namespace MarkdownMigration.Convert
 
             if (string.IsNullOrEmpty(outputFolder))
             {
-                Parallel.ForEach(files, file => MigrateFile(file, file));
+                //Parallel.ForEach(files, file => MigrateFile(file, file));
+                foreach(var file in files)
+                {
+                    MigrateFile(file, file);
+                }
                 return;
             }
 
-            Parallel.ForEach(files, file =>
+            //Parallel.ForEach(files, file =>
+            //{
+            //    var name = Path.GetFileName(file);
+            //    var outputFile = Path.Combine(outputFolder, name);
+            //    MigrateFile(file, outputFile);
+            //});
+
+            foreach (var file in files)
             {
                 var name = Path.GetFileName(file);
                 var outputFile = Path.Combine(outputFolder, name);
                 MigrateFile(file, outputFile);
-            });
+            }
         }
 
         public void MigrateFile(string inputFile, string outputFile)

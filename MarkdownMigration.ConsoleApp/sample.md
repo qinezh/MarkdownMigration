@@ -1,6 +1,4 @@
-﻿abc
-
-efg
+﻿[!include[title](.\..\..\..\includes\active-directory-develop-guidedsetup-android-introduction.md)]
 
 ##Heading with whitespace ##
 
