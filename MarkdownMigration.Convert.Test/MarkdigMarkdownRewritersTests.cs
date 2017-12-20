@@ -18,7 +18,7 @@
             var source = "@System.String";
             var expected = "@\"System.String\"";
 
-            var result = _tool.Convert("topic.md", source);
+            var result = _tool.Convert(source, "topic.md");
             Assert.Equal(expected, result);
         }
 
@@ -29,7 +29,7 @@
             var source = "@outlook.com";
             var expected = "@outlook.com";
 
-            var result = _tool.Convert("topic.md", source);
+            var result = _tool.Convert(source, "topic.md");
             Assert.Equal(expected, result);
         }
 
@@ -40,7 +40,7 @@
             var source = "<xref:system.string>";
             var expected = "<xref:system.string>";
 
-            var result = _tool.Convert("topic.md", source);
+            var result = _tool.Convert(source, "topic.md");
             Assert.Equal(expected, result);
         }
 
@@ -63,7 +63,7 @@
 > *abc*
 ";
 
-            var result = _tool.Convert("topic.md", source);
+            var result = _tool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }
 
@@ -74,10 +74,10 @@
             var source = "<Mailto:docs@microsoft.com>";
             var expected = "<docs@microsoft.com>";
 
-            var result = _tool.Convert("topic.md", source);
+            var result = _tool.Convert(source, "topic.md");
             Assert.Equal(expected, result);
 
-            result = _tool.Convert("topic.md", result);
+            result = _tool.Convert(result, "topic.md");
             Assert.Equal(expected, result);
         }
 
@@ -118,7 +118,7 @@ This is <strong>markdown</strong> content.
 This is <strong>markdown</strong> content.
 </div>";
 
-            var result = _tool.Convert("topic.md", source);
+            var result = _tool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }
 
@@ -131,7 +131,7 @@ This is <strong>markdown</strong> content.
             var expected = @"## <a id=""WhatIs""></a>What is Twilio?
 ";
 
-            var result = _tool.Convert("topic.md", source);
+            var result = _tool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }
 
@@ -146,7 +146,7 @@ content...";
 
 content...";
 
-            var result = _tool.Convert("topic.md", source);
+            var result = _tool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }
 
@@ -161,7 +161,7 @@ content...";
 
 content...";
 
-            var result = _tool.Convert("topic.md", source);
+            var result = _tool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }
 
@@ -178,7 +178,7 @@ content...";
 
 content...";
 
-            var result = _tool.Convert("topic.md", source);
+            var result = _tool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }
 
@@ -189,7 +189,7 @@ content...";
             var source = "__a__ and _b_ and **a** and **b** and *__ab__*";
             var expected = "__a__ and _b_ and **a** and **b** and *__ab__*";
 
-            var result = _tool.Convert("topic.md", source);
+            var result = _tool.Convert(source, "topic.md");
             Assert.Equal(expected, result);
         }
 
@@ -200,7 +200,7 @@ content...";
             var source = "This kind of url link such as \'https://github.com\' are not supported in markdig";
             var expected = "This kind of url link such as \'<https://github.com>\' are not supported in markdig";
 
-            var result = _tool.Convert("topic.md", source);
+            var result = _tool.Convert(source, "topic.md");
             Assert.Equal(expected, result);
         }
 
@@ -215,7 +215,7 @@ content...";
 > - Two
 >     - Three";
 
-            var result = _tool.Convert("topic.md", source);
+            var result = _tool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }
 
@@ -232,7 +232,7 @@ content...";
 > 
 > two";
 
-            var result = _tool.Convert("topic.md", source);
+            var result = _tool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }
 
@@ -253,7 +253,7 @@ content...";
 > - Email-:
 >     - Microsoft Outlook 2010/";
 
-            var result = _tool.Convert("topic.md", source);
+            var result = _tool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }
 
@@ -269,7 +269,7 @@ content...";
 
 
 # title";
-            var result = _tool.Convert("topic.md", source);
+            var result = _tool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }
 
@@ -281,7 +281,7 @@ content...";
   2. b";
             var expected = @"2. a
    2. b";
-            var result = _tool.Convert("topic.md", source);
+            var result = _tool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }
 
@@ -295,7 +295,7 @@ content...";
             var expected = @"- a
    * b
 ";
-            var result = _tool.Convert("topic.md", source);
+            var result = _tool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }
     }

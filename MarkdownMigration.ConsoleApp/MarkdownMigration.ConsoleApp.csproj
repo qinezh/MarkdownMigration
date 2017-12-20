@@ -6,6 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MarkdigEngine" Version="1.0.123" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\MarkdownMigration.Migrate\MarkdownMigration.Convert.csproj" />
   </ItemGroup>
 

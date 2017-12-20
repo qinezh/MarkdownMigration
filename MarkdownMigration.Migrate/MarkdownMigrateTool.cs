@@ -12,23 +12,28 @@ namespace MarkdownMigration.Convert
     using Microsoft.DocAsCode.Dfm;
     using Microsoft.DocAsCode.Glob;
     using Microsoft.DocAsCode.MarkdownLite;
+    using MarkdownMigration.Common;
+
+    using Newtonsoft.Json;
+    using Microsoft.DocAsCode.Common;
 
     public class MarkdownMigrateTool
     {
         private readonly DfmEngineBuilder _builder;
         private readonly MarkdownRenderer _render;
 
-        public MarkdownMigrateTool()
+        public MarkdownMigrateTool(MigrationReport report, string workingFolder = ".")
         {
             var option = DocfxFlavoredMarked.CreateDefaultOptions();
             option.LegacyMode = true;
             _builder = new DfmEngineBuilder(option);
-            _render = new MarkdigMarkdownRendererProxy();
+            _render = new MarkdigMarkdownRendererProxy(report, workingFolder);
         }
 
         public static void Migrate(CommandLineOptions opt)
         {
-            var tool = new MarkdownMigrateTool();
+            var report = new MigrationReport();
+            var tool = new MarkdownMigrateTool(report, opt.WorkingFolder);
             if (!string.IsNullOrEmpty(opt.FilePath))
             {
                 var input = opt.FilePath;
@@ -43,6 +48,25 @@ namespace MarkdownMigration.Convert
             {
                 tool.MigrateFromPattern(opt.WorkingFolder, opt.Patterns, opt.ExcludePatterns, opt.Output);
             }
+
+            Save(report, opt.WorkingFolder, "report.json");
+        }
+
+        private static void Save(MigrationReport report, string workingFolder, string file)
+        {
+            var newReport = new MigrationReport
+            {
+                Files = new Dictionary<string, MigrationReportItem>()
+            };
+
+            foreach (var entry in report.Files)
+            {
+                var relativePath = PathUtility.MakeRelativePath(workingFolder, entry.Key);
+                newReport.Files.Add(relativePath, entry.Value);
+            }
+            var filePath = Path.Combine(workingFolder, file);
+            var content = JsonConvert.SerializeObject(newReport, Formatting.Indented);
+            File.WriteAllText(filePath, content);
         }
 
         private void MigrateFromPattern(string cwd, List<string> patterns, List<string> excludePatterns, string outputFolder)
@@ -78,7 +102,7 @@ namespace MarkdownMigration.Convert
                 throw new FileNotFoundException($"{inputFile} can't be found.");
             }
 
-            var result = Convert(inputFile, File.ReadAllText(inputFile));
+            var result = Convert(File.ReadAllText(inputFile), inputFile);
             var dir = Path.GetDirectoryName(outputFile);
             if (!string.IsNullOrEmpty(dir))
             {
@@ -88,7 +112,7 @@ namespace MarkdownMigration.Convert
             Console.WriteLine($"{inputFile} has been migrated to {outputFile}.");
         }
 
-        public string Convert(string inputFile, string markdown)
+        public string Convert(string markdown, string inputFile)
         {
             var engine = _builder.CreateDfmEngine(_render);
             var result = engine.Markup(markdown, inputFile);

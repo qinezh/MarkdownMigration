@@ -1,4 +1,13 @@
-﻿@System.String and @outlook.com
+﻿abc
+
+efg
+
+##Heading with whitespace ##
+
+
+# Heading
+
+Test Shortcut Xref: @System.String and @outlook.com
 
 Test markdown within html:
 
@@ -13,10 +22,12 @@ Test markdown within html:
 	</div>
 ```
 
-Test blockquote:
->
-> This is blockquote
-> and another
+> [!TIP]
+> For phase estimation
+
+> [!TIP]
+> The true canon.
+
 
 
 In general, symbol bindings go out of scope and become inoperative 
