@@ -1,7 +1,7 @@
 ﻿namespace MarkdownMigration.Diff.Test
 {
-    using Xunit;
     using HtmlCompare;
+    using Xunit;
 
     public class HtmlCompareTest
     {

@@ -280,7 +280,9 @@ content...";
             var source = @"2. a
   2. b";
             var expected = @"2. a
-   2. b";
+   2. b
+
+";
             var result = _tool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }
@@ -289,11 +291,28 @@ content...";
         [Trait("Related", "MarkdigMarkdownRewriters")]
         public void TestMigrateUnorderedList()
         {
-            var source = @"- a
+            var source = @"-  a
   * b
 ";
             var expected = @"- a
-   * b
+  * b
+
+";
+            var result = _tool.Convert(source, "topic.md");
+            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+        }
+
+        [Fact]
+        [Trait("Related", "MarkdigMarkdownRewriters")]
+        public void TestMigrateNewLine()
+        {
+            var source = @"- a
+
+- b
+";
+            var expected = @"- a
+
+- b
 ";
             var result = _tool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result);

@@ -70,11 +70,11 @@ namespace MarkdownMigration.Convert
             {
                 var tokenName = GetTokenName(token);
                 var tokenInfo = new MigratedTokenInfo(tokenName, token.SourceInfo.LineNumber);
-                if (_report.Files.TryGetValue(file, out MigrationReportItem item))
+                if (_report != null && _report.Files.TryGetValue(file, out MigrationReportItem item))
                 {
                     item.Tokens.Add(tokenInfo);
                 }
-                else
+                else if (_report != null)
                 {
                     _report.Files.Add(file, new MigrationReportItem(tokenInfo));
                 }

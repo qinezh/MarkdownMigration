@@ -10,6 +10,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\MarkdownMigration.Common\MarkdownMigration.Common.csproj" />
+    <ProjectReference Include="..\MarkdownMigration.Convert\MarkdownMigration.Convert.csproj" />
     <ProjectReference Include="..\MarkdownMigration.Migrate\MarkdownMigration.Convert.csproj" />
   </ItemGroup>
 
