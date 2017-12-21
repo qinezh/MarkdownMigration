@@ -317,5 +317,31 @@ content...";
             var result = _tool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }
+
+        [Fact]
+        [Trait("Related", "MarkdigMarkdownRewriters")]
+        public void TestMigrateListWithNewLine()
+        {
+            var source = @"1. One
+
+  ![page](a.png)
+
+2. Two
+
+  ![Search for ](b.png)
+";
+            var expected = @"1. One
+   
+   ![page](a.png)
+   
+2. Two
+   
+   ![Search for ](b.png)
+   
+
+";
+            var result = _tool.Convert(source, "topic.md");
+            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+        }
     }
 }

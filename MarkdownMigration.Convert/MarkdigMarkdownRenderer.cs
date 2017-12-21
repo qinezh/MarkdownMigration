@@ -260,7 +260,7 @@ namespace MarkdownMigration.Convert
                     tokenRenderContent += render.Render(t);
                 }
 
-                var lines = tokenRenderContent.ToString().TrimEnd('\n').Split('\n');
+                var lines = tokenRenderContent.ToString().Split('\n');
                 content += lines[0];
                 content += "\n";
                 foreach (var line in lines.Skip(1))
