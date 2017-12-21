@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
@@ -12,11 +13,18 @@ namespace ExtractHtml
 {
     class Program
     {
+        private static string BasePath = string.Empty;
+
         static void Main(string[] args)
         {
             var jsonfolders = args[0].Split(',')?.ToList();
 
-            if(jsonfolders == null)
+            if (args.Length > 1)
+            {
+                BasePath = args[1];
+            }
+
+            if (jsonfolders == null)
             {
                 Console.WriteLine($"AppSetting 'jsonfolders' not found. Trying 'zipfiles'");
                 var zipfiles = ConfigurationManager.AppSettings["zipfiles"]?.Split(',')?.ToList();
@@ -26,7 +34,7 @@ namespace ExtractHtml
                     Console.WriteLine($"AppSetting 'zipfiles' not found. Trying 'directory'");
                     var directory = ConfigurationManager.AppSettings["directory"];
 
-                    if(directory == null)
+                    if (directory == null)
                     {
                         Console.WriteLine($"AppSetting 'directory' not found. Searching zip file in {Environment.CurrentDirectory}");
                         directory = Environment.CurrentDirectory;
@@ -56,7 +64,7 @@ namespace ExtractHtml
 
         static void Confirm(IEnumerable<string> paths)
         {
-            if(paths == null || paths.Count() == 0)
+            if (paths == null || paths.Count() == 0)
             {
                 Console.WriteLine($"No Files Found.");
                 System.Environment.Exit(0);
@@ -81,6 +89,8 @@ namespace ExtractHtml
 
         static void ExtractHtmlFromJson(IEnumerable<string> jsonfolders)
         {
+            var htmlToSourceFileMapping = new ConcurrentDictionary<string, string>();
+
             foreach (var jsongFolder in jsonfolders)
             {
                 string targetFolder = jsongFolder + "-html";
@@ -96,9 +106,17 @@ namespace ExtractHtml
                     var json = File.ReadAllText(rawPage);
                     dynamic data = JsonConvert.DeserializeObject(json);
                     string html = data?.conceptual;
+                    string sourcePath = data?._key;
+
                     if (html != null)
                     {
                         var htmlPage = rawPage.Replace(jsongFolder, targetFolder).Replace(".raw.json", ".html");
+
+                        if (sourcePath != null)
+                        {
+                            htmlToSourceFileMapping[htmlPage] = Path.Combine(BasePath, sourcePath);
+                        }
+
                         if (!Directory.Exists(Path.GetDirectoryName(htmlPage)))
                         {
                             Directory.CreateDirectory(Path.GetDirectoryName(htmlPage));
@@ -107,6 +125,8 @@ namespace ExtractHtml
                         progressHelper.Increase();
                     }
                 });
+
+                File.WriteAllText(Path.Combine(targetFolder, "htmlSourceMapping.json"), JsonConvert.SerializeObject(htmlToSourceFileMapping));
             }
         }
     }

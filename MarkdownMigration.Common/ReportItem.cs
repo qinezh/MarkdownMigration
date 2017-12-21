@@ -3,13 +3,20 @@ using System.Collections.Generic;
 
 namespace MarkdownMigration.Common
 {
+    public enum DiffStatus
+    {
+        OK,
+        BAD
+    }
+
     public class MigrationReportItem
     {
-        public MigrationReportItem(MigratedTokenInfo tokenInfo)
+        public MigrationReportItem()
         {
-            Migrated = true;
-            Tokens = new List<MigratedTokenInfo> { tokenInfo };
         }
+
+        [JsonProperty("diffstatus")]
+        public DiffStatus DiffStatus { get; set; }
 
         [JsonProperty("migrated")]
         public bool Migrated { get; set; }

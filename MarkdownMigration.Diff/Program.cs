@@ -1,4 +1,6 @@
 ﻿using HtmlAgilityPack;
+using MarkdownMigration.Common;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -98,6 +100,7 @@ namespace HtmlCompare
 
         static bool debug = false;
         static string targetFileName = "docs-recommendation-function-spec.html";
+        static ConcurrentDictionary<string, string> htmlToSourceFileMapping = new ConcurrentDictionary<string, string>();
 
         static void Main(string[] args)
         {
@@ -105,6 +108,11 @@ namespace HtmlCompare
             string timeStampStr = DateTime.Now.ToString("yy-MM-dd-hh-mm-ss");
             string folderA = args[0];
             string folderB = args[1];
+
+            var migrationReport = JsonConvert.DeserializeObject<MigrationReport>(Path.Combine(args[2], "report.json"));
+
+            htmlToSourceFileMapping = JsonConvert.DeserializeObject<ConcurrentDictionary<string, string>>(File.ReadAllText(Path.Combine(folderA, "htmlSourceMapping.json")));
+
             if (folderA == null || folderB == null)
             {
                 Console.WriteLine($"Appsettings 'sourceFolderA' or 'sourceFolderB' not found. Try Searching in folder 'sourceDirectory'");
@@ -230,8 +238,42 @@ namespace HtmlCompare
                 Console.WriteLine($"Starting WinMerge...");
                 Process.Start(exe, exeArgs);
             }
-
+            //filesA all
+            var sameFiles = result_Equal.Concat(result_Same).Select(html => htmlToSourceFileMapping[html]).ToList();
+            Report(sameFiles, filesA.Select(html => htmlToSourceFileMapping[html]).ToList(), migrationReport, args[2]);
             //Console.ReadKey();
+        }
+
+        static void Report(List<string> sameFiles, List<string> allFiles, MigrationReport migrationReport, string output)
+        {
+            var differentFiles = allFiles.Except(sameFiles);
+
+            if (migrationReport == null)
+            {
+                migrationReport = new MigrationReport { Files = new Dictionary<string, MigrationReportItem>() };
+            }
+
+            foreach(var reportItem in migrationReport.Files.Where(f => sameFiles.Contains(f.Key)))
+            {
+                reportItem.Value.DiffStatus = DiffStatus.OK;
+            }
+
+            foreach (var reportItem in migrationReport.Files.Where(f => differentFiles.Contains(f.Key)))
+            {
+                reportItem.Value.DiffStatus = DiffStatus.BAD;
+            }
+
+            foreach(var file in sameFiles.Except(migrationReport.Files.Select(f => f.Key)))
+            {
+                migrationReport.Files.Add(file, new MigrationReportItem { DiffStatus = DiffStatus.OK, Migrated = false });
+            }
+
+            foreach (var file in differentFiles.Except(migrationReport.Files.Select(f => f.Key)))
+            {
+                migrationReport.Files.Add(file, new MigrationReportItem { DiffStatus = DiffStatus.BAD, Migrated = false });
+            }
+
+            File.WriteAllText(Path.Combine(output, "report.json"), JsonConvert.SerializeObject(migrationReport));
         }
 
         #region Heplers

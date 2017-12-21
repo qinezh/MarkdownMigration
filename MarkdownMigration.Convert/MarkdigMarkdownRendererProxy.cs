@@ -76,7 +76,12 @@ namespace MarkdownMigration.Convert
                 }
                 else if (_report != null)
                 {
-                    _report.Files.Add(file, new MigrationReportItem(tokenInfo));
+                    _report.Files.Add(file, new MigrationReportItem
+                    {
+                        Tokens = new List<MigratedTokenInfo> { tokenInfo},
+                        Migrated = true
+                    });
+
                 }
             }
 
