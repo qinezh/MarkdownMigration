@@ -39,11 +39,9 @@ if (Test-Path $migrationToolPath)
     #Remove-Item $migrationToolPath -Recurse
 }
 #Invoke-WebRequest -Uri $migrationToolUrl -OutFile $migrationToolZipPath
-New-Item $migrationToolPath -type directory
+#New-Item $migrationToolPath -type directory
 #Unzip $migrationToolZipPath (Join-Path $repoRoot "_tools")
-$migrationExePath = Join-Path $migrationToolPath "MarkdownMigration.Convert.exe"
-$htmlExtractExePath = Join-Path $migrationToolPath "ExtractHtml.exe"
-$htmlCompareExePath = Join-Path $migrationToolPath "HtmlCompare.exe"
+$migrationExePath = Join-Path $migrationToolPath "MarkdownMigration.ConsoleApp.exe"
 
 & $nugetPath install Microsoft.DocAsCode.MarkdigEngine -Version 1.0.127-alpha -Source https://www.myget.org/F/op-dev/api/v2 -OutputDirectory _tools
 & $nugetPath install docfx.console -Version 2.28.3 -Source https://www.myget.org/F/docfx/api/v3/index.json -OutputDirectory _tools
@@ -87,26 +85,20 @@ if ($repoConfig.docsets_to_publish)
         Remove-Item -path $dest -recurse
         Remove-Item -path "$docsetFolder\obj" -recurse
 
-        & $migrationExePath -c $docsetFolder -p "**.md"
+        & $migrationExePath -m -c $docsetFolder -p "**.md"
 
         $reportPath = Join-Path $docsetFolder "report.json"
-        $reportDestPath = Join-Path $dfmOutput "report.json"
+        $reportDestPath = Join-Path $htmlBaseFolder "report.json"
         Copy-Item -Path $reportPath -Destination $reportDestPath -recurse -Force
+        Remove-Item -path $reportPath
 
         & $docfxExePath $docfxJsonPath --exportRawModel --dryRun --force --markdownEngineName markdig
         Copy-Item -Path $dest -Destination $markdigOutput -recurse -Force
         Remove-Item -path $dest -recurse
         Remove-Item -path "$docsetFolder\obj" -recurse
 
-        & $htmlExtractExePath "$dfmOutput,$markdigOutput" $($docset.build_source_folder)
-        $dfmHtmlOutput = $dfmOutput + "-html"
-        $markdigHtmlOutput =$markdigOutput + "-html"
-
-        if ((Test-Path $dfmHtmlOutput) -and (Test-Path $markdigHtmlOutput))
-        {
-           & $htmlCompareExePath $dfmHtmlOutput $markdigHtmlOutput $htmlBaseFolder "$htmlBaseFolder\Compare"
-        }
+        & $migrationExePath -d -j "$dfmOutput,$markdigOutput" -rpf $reportDestPath -crp "$htmlBaseFolder\Compare"
     }
 }
 
-Pop-Location $repoRoot
+Pop-Location

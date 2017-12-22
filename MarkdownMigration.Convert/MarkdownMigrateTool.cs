@@ -29,46 +29,7 @@ namespace MarkdownMigration.Convert
             _render = new MarkdigMarkdownRendererProxy(report, workingFolder);
         }
 
-        public static void Migrate(CommandLineOptions opt)
-        {
-            var report = new MigrationReport();
-            var tool = new MarkdownMigrateTool(report, opt.WorkingFolder);
-            if (!string.IsNullOrEmpty(opt.FilePath))
-            {
-                var input = opt.FilePath;
-                var output = opt.Output;
-                if (string.IsNullOrEmpty(output))
-                {
-                    output = input;
-                }
-                tool.MigrateFile(input, output);
-            }
-            else if (opt.Patterns.Count > 0)
-            {
-                tool.MigrateFromPattern(opt.WorkingFolder, opt.Patterns, opt.ExcludePatterns, opt.Output);
-            }
-
-            Save(report, opt.WorkingFolder, "report.json");
-        }
-
-        private static void Save(MigrationReport report, string workingFolder, string file)
-        {
-            var newReport = new MigrationReport
-            {
-                Files = new Dictionary<string, MigrationReportItem>()
-            };
-
-            foreach (var entry in report.Files)
-            {
-                var relativePath = PathUtility.MakeRelativePath(workingFolder, entry.Key);
-                newReport.Files.Add(relativePath, entry.Value);
-            }
-            var filePath = Path.Combine(workingFolder, file);
-            var content = JsonConvert.SerializeObject(newReport, Formatting.Indented);
-            File.WriteAllText(filePath, content);
-        }
-
-        private void MigrateFromPattern(string cwd, List<string> patterns, List<string> excludePatterns, string outputFolder)
+        public void MigrateFromPattern(string cwd, List<string> patterns, List<string> excludePatterns, string outputFolder)
         {
             var files = FileGlob.GetFiles(cwd, patterns, excludePatterns).ToList();
             if (files.Count == 0)

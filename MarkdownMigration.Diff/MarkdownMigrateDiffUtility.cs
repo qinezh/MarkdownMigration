@@ -11,7 +11,7 @@ namespace HtmlCompare
         public static bool ComapreHtml(string htmlA, string htmlB, bool enableAllRules = false)
         {
             string migratedA, migratedB;
-            return Program.CompareMigratedHtml("", htmlA, htmlB, out migratedA, out migratedB, false, enableAllRules);
+            return HtmlCompare.CompareMigratedHtml("", htmlA, htmlB, out migratedA, out migratedB, false, enableAllRules);
         }
     }
 }

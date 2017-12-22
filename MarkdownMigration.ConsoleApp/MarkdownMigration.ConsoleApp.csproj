@@ -12,6 +12,8 @@
   <ItemGroup>
     <ProjectReference Include="..\MarkdownMigration.Common\MarkdownMigration.Common.csproj" />
     <ProjectReference Include="..\MarkdownMigration.Convert\MarkdownMigration.Convert.csproj" />
+    <ProjectReference Include="..\MarkdownMigration.Diff\MarkdownMigration.Diff.csproj" />
+    <ProjectReference Include="..\MarkdownMigration.ExtractHtml\MarkdownMigration.ExtractHtml.csproj" />
   </ItemGroup>
 
   <ItemGroup>

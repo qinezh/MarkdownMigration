@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using System.Collections.Generic;
 
 namespace MarkdownMigration.Common
@@ -16,6 +17,7 @@ namespace MarkdownMigration.Common
         }
 
         [JsonProperty("diffstatus")]
+        [JsonConverter(typeof(StringEnumConverter))]
         public DiffStatus DiffStatus { get; set; }
 
         [JsonProperty("migrated")]

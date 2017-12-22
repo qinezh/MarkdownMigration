@@ -3,7 +3,6 @@
   <PropertyGroup>
     <TargetFramework>net461</TargetFramework>
     <ApplicationIcon />
-    <OutputType>Exe</OutputType>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,10 +15,6 @@
   <ItemGroup>
     <ProjectReference Include="..\MarkdownMigration.Common\MarkdownMigration.Common.csproj" />
     <ProjectReference Include="..\MarkdownMigration.Diff\MarkdownMigration.Diff.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="System.Net.Http" />
   </ItemGroup>
 
 </Project>
