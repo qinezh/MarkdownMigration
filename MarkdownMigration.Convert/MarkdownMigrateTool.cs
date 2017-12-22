@@ -21,7 +21,7 @@ namespace MarkdownMigration.Convert
         private readonly DfmEngineBuilder _builder;
         private readonly MarkdownRenderer _render;
 
-        public MarkdownMigrateTool(MigrationReport report, string workingFolder = ".")
+        public MarkdownMigrateTool(DocsetMigrationReport report, string workingFolder = ".")
         {
             var option = DocfxFlavoredMarked.CreateDefaultOptions();
             option.LegacyMode = true;

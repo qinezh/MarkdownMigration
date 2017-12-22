@@ -17,9 +17,9 @@ namespace MarkdownMigration.Convert
         private MarkdownEngine _dfmEngine;
         private MarkdigMarkdownService _service;
         private MarkdigMarkdownRenderer renderer = new MarkdigMarkdownRenderer();
-        private MigrationReport _report;
+        private DocsetMigrationReport _report;
 
-        public MarkdigMarkdownRendererProxy(MigrationReport report, string basePath = ".")
+        public MarkdigMarkdownRendererProxy(DocsetMigrationReport report, string basePath = ".")
         {
             _report = report;
             if (_report != null && _report.Files == null)
