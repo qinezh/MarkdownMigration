@@ -13,7 +13,8 @@ namespace MarkdownMigration.Convert
         public enum Mode
         {
             Migration,
-            Diff
+            Diff,
+            GenerateExcel
         }
 
 
@@ -44,6 +45,7 @@ namespace MarkdownMigration.Convert
                 { "j|jsonfolders=", "difffolders, split compare json folders with comma", (j) => JsonFolders = j },
                 { "rpf|reportFile=", "json report file path", (rpf) => JsonReportFile = rpf },
                 { "crp|compareResultPath=", "this path is used to store diff result", (crp) => CompareResultPath = crp },
+                { "ge|generateExcelReport", "generate excel report from json report", (ge) => RunMode = Mode.GenerateExcel },
             };
         }
 
@@ -51,11 +53,13 @@ namespace MarkdownMigration.Convert
         {
             _options.Parse(args);
 
+            //TODO: check more parameters
             if (Patterns.Count > 0)
             {
                 if (string.IsNullOrEmpty(WorkingFolder))
                 {
                     Console.WriteLine("The root path using for glob pattern searching need to be provided with `-c` option");
+                    PrintUsage();
                     return false;
                 }
             }

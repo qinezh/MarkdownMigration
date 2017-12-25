@@ -1,5 +1,6 @@
 ﻿using MarkdownMigration.Common;
 using MarkdownMigration.Convert;
+using MarkdownMigration.GenerateExcel;
 using Microsoft.DocAsCode.Common;
 using Newtonsoft.Json;
 using System;
@@ -17,13 +18,15 @@ namespace MarkdownMigration.ConsoleApp
 
             try
             {
-                var report = new DocsetMigrationReport();
+                var docsetReport = new DocsetMigrationReport();
+                var repoReport = new RepoMigrationReport();
+
                 if (opt.Parse(args))
                 {
                     switch (opt.RunMode)
                     {
                         case CommandLineOptions.Mode.Migration:
-                            var tool = new MarkdownMigrateTool(report, opt.WorkingFolder);
+                            var tool = new MarkdownMigrateTool(docsetReport, opt.WorkingFolder);
                             if (!string.IsNullOrEmpty(opt.FilePath))
                             {
                                 var input = opt.FilePath;
@@ -39,7 +42,7 @@ namespace MarkdownMigration.ConsoleApp
                                 tool.MigrateFromPattern(opt.WorkingFolder, opt.Patterns, opt.ExcludePatterns, opt.Output);
                             }
 
-                            SaveMigrationReport(report, opt.WorkingFolder, "report.json");
+                            SaveMigrationReport(docsetReport, opt.WorkingFolder, "report.json");
                             break;
                         case CommandLineOptions.Mode.Diff:
                             //ExtractHtml
@@ -51,13 +54,25 @@ namespace MarkdownMigration.ConsoleApp
                             HtmlCompare.HtmlCompare.CompareHtmlFromFolder(jsonfolders[0] + "-html", jsonfolders[1] + "-html", opt.JsonReportFile, opt.CompareResultPath,out sameFiles, out allFiles);
                             
                             //Update report.json
-                            report = new DocsetMigrationReport();
+                            docsetReport = new DocsetMigrationReport();
                             if (File.Exists(opt.JsonReportFile))
                             {
-                                report = JsonConvert.DeserializeObject<DocsetMigrationReport>(File.ReadAllText(opt.JsonReportFile));
+                                docsetReport = JsonConvert.DeserializeObject<DocsetMigrationReport>(File.ReadAllText(opt.JsonReportFile));
                             }
-                            UpdateMigrationReportWithDiffResult(sameFiles, allFiles, report, opt.JsonReportFile);
-
+                            UpdateMigrationReportWithDiffResult(sameFiles, allFiles, docsetReport, opt.JsonReportFile);
+                            break;
+                        case CommandLineOptions.Mode.GenerateExcel:
+                            try
+                            {
+                                repoReport = JsonConvert.DeserializeObject<RepoMigrationReport>(File.ReadAllText(opt.JsonReportFile));
+                            }
+                            catch (Exception)
+                            {
+                                throw new Exception("json file is not valid.");
+                            }
+                            var reportName = string.IsNullOrEmpty(repoReport.RepoName) ? "repo_report.xlsx" : repoReport.RepoName + ".xlsx";
+                            var excelGenerater = new ExcelGenerater(repoReport, Path.Combine(Path.GetDirectoryName(opt.JsonReportFile), reportName));
+                            excelGenerater.GenerateExcel();
                             break;
                     }
                 }
