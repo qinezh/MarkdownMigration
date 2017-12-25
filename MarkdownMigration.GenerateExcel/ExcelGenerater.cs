@@ -15,11 +15,11 @@ namespace MarkdownMigration.GenerateExcel
         private const int MinColumnWidth = 5;
         private const int MaxColumnWidth = 40;
 
-        public RepoMigrationReport Report { get; set; }
+        public RepoReport Report { get; set; }
 
         public string OutputFilename { get; set; }
 
-        public ExcelGenerater(RepoMigrationReport report, string outputFile)
+        public ExcelGenerater(RepoReport report, string outputFile)
         {
             this.Report = report;
             this.OutputFilename = outputFile;

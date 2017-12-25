@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace MarkdownMigration.Common
 {
-    public class DocsetMigrationReport
+    public class DocsetReport
     {
         [JsonProperty("docset_name")]
         public string DocsetName { get; set; }

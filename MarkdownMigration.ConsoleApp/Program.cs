@@ -18,8 +18,8 @@ namespace MarkdownMigration.ConsoleApp
 
             try
             {
-                var docsetReport = new DocsetMigrationReport();
-                var repoReport = new RepoMigrationReport();
+                var docsetReport = new DocsetReport();
+                var repoReport = new RepoReport();
 
                 if (opt.Parse(args))
                 {
@@ -54,17 +54,17 @@ namespace MarkdownMigration.ConsoleApp
                             HtmlCompare.HtmlCompare.CompareHtmlFromFolder(jsonfolders[0] + "-html", jsonfolders[1] + "-html", opt.JsonReportFile, opt.CompareResultPath,out sameFiles, out allFiles);
                             
                             //Update report.json
-                            docsetReport = new DocsetMigrationReport();
+                            docsetReport = new DocsetReport();
                             if (File.Exists(opt.JsonReportFile))
                             {
-                                docsetReport = JsonConvert.DeserializeObject<DocsetMigrationReport>(File.ReadAllText(opt.JsonReportFile));
+                                docsetReport = JsonConvert.DeserializeObject<DocsetReport>(File.ReadAllText(opt.JsonReportFile));
                             }
                             UpdateMigrationReportWithDiffResult(sameFiles, allFiles, docsetReport, opt.JsonReportFile);
                             break;
                         case CommandLineOptions.Mode.GenerateExcel:
                             try
                             {
-                                repoReport = JsonConvert.DeserializeObject<RepoMigrationReport>(File.ReadAllText(opt.JsonReportFile));
+                                repoReport = JsonConvert.DeserializeObject<RepoReport>(File.ReadAllText(opt.JsonReportFile));
                             }
                             catch (Exception)
                             {
@@ -83,9 +83,9 @@ namespace MarkdownMigration.ConsoleApp
             }
         }
 
-        private static void SaveMigrationReport(DocsetMigrationReport report, string workingFolder, string file)
+        private static void SaveMigrationReport(DocsetReport report, string workingFolder, string file)
         {
-            var newReport = new DocsetMigrationReport
+            var newReport = new DocsetReport
             {
                 Files = new Dictionary<string, MigrationReportItem>()
             };
@@ -100,13 +100,13 @@ namespace MarkdownMigration.ConsoleApp
             File.WriteAllText(filePath, content);
         }
 
-        private static void UpdateMigrationReportWithDiffResult(List<string> sameFiles, List<string> allFiles, DocsetMigrationReport migrationReport, string output)
+        private static void UpdateMigrationReportWithDiffResult(List<string> sameFiles, List<string> allFiles, DocsetReport migrationReport, string output)
         {
             var differentFiles = allFiles.Except(sameFiles);
 
             if (migrationReport == null)
             {
-                migrationReport = new DocsetMigrationReport { Files = new Dictionary<string, MigrationReportItem>() };
+                migrationReport = new DocsetReport { Files = new Dictionary<string, MigrationReportItem>() };
             }
 
             if (migrationReport.Files == null)
