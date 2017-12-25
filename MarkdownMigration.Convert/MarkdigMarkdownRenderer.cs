@@ -206,16 +206,24 @@ namespace MarkdownMigration.Convert
             if (!token.Ordered)
             {
                 var match = _unorderListStart.Match(token.SourceInfo.Markdown);
-                var startString = match.Success ? match.Groups["start"] + " ": "* ";
-                foreach (var t in token.Tokens)
+                var startString = match.Success ? match.Groups["start"] + " " : "* ";
+                for (int i = 0; i < token.Tokens.Length; ++i)
                 {
+                    var t = token.Tokens[i];
                     var listItemToken = t as MarkdownListItemBlockToken;
                     if (listItemToken == null)
                     {
                         throw new Exception($"token {t.GetType()} is not unordered MarkdownListItemBlockToken in MarkdownListBlockToken. Token raw:{t.SourceInfo.Markdown}");
                     }
                     content += startString;
-                    content += Render(render, listItemToken, "  ");
+                    if (i == token.Tokens.Length - 1)
+                    {
+                        content += Render(render, listItemToken, "  ", true);
+                    }
+                    else
+                    {
+                        content += Render(render, listItemToken, "  ");
+                    }
                 }
             }
             else
@@ -242,14 +250,21 @@ namespace MarkdownMigration.Convert
 
                     content += $"{start + i}. ";
                     string indent = new string(' ', (i + 1).ToString().Length + 2);
-                    content += Render(render, listItemToken, indent);
+                    if (i == token.Tokens.Length - 1)
+                    {
+                        content += Render(render, listItemToken, indent, true);
+                    }
+                    else
+                    {
+                        content += Render(render, listItemToken, indent);
+                    }
                 }
             }
 
-            return content + '\n';
+            return content;
         }
 
-        protected override StringBuffer Render(IMarkdownRenderer render, MarkdownListItemBlockToken token, string indent)
+        protected StringBuffer Render(IMarkdownRenderer render, MarkdownListItemBlockToken token, string indent, bool last = false)
         {
             var content = StringBuffer.Empty;
             if (token.Tokens.Length > 0)
@@ -263,10 +278,25 @@ namespace MarkdownMigration.Convert
                 var lines = tokenRenderContent.ToString().Split('\n');
                 content += lines[0];
                 content += "\n";
-                foreach (var line in lines.Skip(1))
+
+                for (var index = 1; index < lines.Count(); index++)
                 {
-                    content += indent;
-                    content += line;
+                    if (last && index == lines.Count() - 1 && string.Equals(lines[index].Trim(), string.Empty))
+                    {
+                        continue;
+                    }
+
+                    if (!string.Equals(lines[index].Trim(), string.Empty))
+                    {
+                        content += indent;
+                    }
+                    
+                    content += lines[index];
+
+                    if (last && index == lines.Count() - 1)
+                    {
+                        continue;
+                    }
                     content += "\n";
                 }
             }
@@ -361,8 +391,16 @@ namespace MarkdownMigration.Convert
 
         private bool TryResolveUid(string uid)
         {
-            var task = CanResolveUidWithRetryAsync(uid);
-            return task.Result;
+            try
+            {
+                var task = CanResolveUidWithRetryAsync(uid);
+                return task.Result;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error occured while resolving uid, {ex.Message}");
+                return true;
+            }
         }
 
         private async Task<bool> CanResolveUidWithRetryAsync(string uid)
