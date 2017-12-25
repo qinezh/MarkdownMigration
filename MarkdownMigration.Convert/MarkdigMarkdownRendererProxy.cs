@@ -17,16 +17,9 @@ namespace MarkdownMigration.Convert
         private MarkdownEngine _dfmEngine;
         private MarkdigMarkdownService _service;
         private MarkdigMarkdownRenderer renderer = new MarkdigMarkdownRenderer();
-        private DocsetReport _report;
 
-        public MarkdigMarkdownRendererProxy(DocsetReport report, string basePath = ".")
+        public MarkdigMarkdownRendererProxy(string basePath = ".")
         {
-            _report = report;
-            if (_report != null && _report.Files == null)
-            {
-                _report.Files = new Dictionary<string, MigrationReportItem>();
-            }
-
             var option = DocfxFlavoredMarked.CreateDefaultOptions();
             option.LegacyMode = true;
             var builder = new DfmEngineBuilder(option);
@@ -70,19 +63,7 @@ namespace MarkdownMigration.Convert
             {
                 var tokenName = GetTokenName(token);
                 var tokenInfo = new MigratedTokenInfo(tokenName, token.SourceInfo.LineNumber);
-                if (_report != null && _report.Files.TryGetValue(file, out MigrationReportItem item))
-                {
-                    item.Tokens.Add(tokenInfo);
-                }
-                else if (_report != null)
-                {
-                    _report.Files.Add(file, new MigrationReportItem
-                    {
-                        Tokens = new List<MigratedTokenInfo> { tokenInfo},
-                        Migrated = true
-                    });
-
-                }
+                ReportUtility.Add(file, tokenInfo);
             }
 
             return migrated;

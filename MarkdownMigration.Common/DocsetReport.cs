@@ -9,6 +9,6 @@ namespace MarkdownMigration.Common
         public string DocsetName { get; set; }
 
         [JsonProperty("files")]
-        public Dictionary<string, MigrationReportItem> Files { get; set; }
+        public Dictionary<string, ReportItem> Files { get; set; }
     }
 }

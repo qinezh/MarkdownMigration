@@ -10,10 +10,16 @@ namespace MarkdownMigration.Common
         BAD
     }
 
-    public class MigrationReportItem
+    public class ReportItem
     {
-        public MigrationReportItem()
+        public ReportItem()
         {
+        }
+
+        public ReportItem(MigratedTokenInfo tokenInfo)
+        {
+            Migrated = true;
+            Tokens = new List<MigratedTokenInfo> { tokenInfo };
         }
 
         [JsonProperty("diffstatus")]
