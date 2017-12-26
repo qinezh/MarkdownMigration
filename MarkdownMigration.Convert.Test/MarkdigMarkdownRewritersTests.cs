@@ -280,9 +280,7 @@ content...";
             var source = @"2. a
   2. b";
             var expected = @"2. a
-   2. b
-
-";
+   2. b";
             var result = _tool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }
@@ -296,7 +294,6 @@ content...";
 ";
             var expected = @"- a
   * b
-
 ";
             var result = _tool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
@@ -331,14 +328,12 @@ content...";
   ![Search for ](b.png)
 ";
             var expected = @"1. One
-   
-   ![page](a.png)
-   
-2. Two
-   
-   ![Search for ](b.png)
-   
 
+   ![page](a.png)
+
+2. Two
+
+   ![Search for ](b.png)
 ";
             var result = _tool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
