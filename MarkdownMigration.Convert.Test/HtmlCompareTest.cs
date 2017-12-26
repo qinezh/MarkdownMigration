@@ -8,8 +8,10 @@
         [Fact]
         public void HtmlCompareSimpleTest()
         {
-            var htmlA = @"<yamlheader start=""1"" end=""4"" sourceFile=""sample.md"">title: abc</yamlheader>";
-            var htmlB = @"<yamlheader start=""1"" end=""4"">title: abc</yamlheader>";
+            var htmlA = @"<div class=""embeddedvideo""><iframe src=""https://channel9.msdn.com/Blogs/Azure/b2b-collaboration-redemption/Player"" frameborder=""0"" allowfullscreen=""true""></iframe></div> ";
+            var htmlB = @"<div class=""embeddedvideo""><iframe src=""https://channel9.msdn.com/Blogs/Azure/b2b-collaboration-redemption/Player"" frameborder=""0"" allowfullscreen=""true""></iframe></div>
+<blockquote>
+</blockquote> ";
 
             Assert.True(MarkdownMigrateDiffUtility.ComapreHtml(htmlA, htmlB));
         }

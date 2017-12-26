@@ -81,11 +81,11 @@ namespace HtmlCompare
             IgnoreCodeLastLine,
             IgnorePre,
             IgnorePinli,
+            IgnoreEmptyBlockquote,
+            IgnoreEmptyConnectedBlockQuote,
 
             // need parse to html
             //Xhtml,
-            UnifySpaceAndNewLine,
-            TrimCustomTag,
             IgnoreHeadingIdDash,
             IgnoreTrimTd,
             IgnoreDel,            
@@ -94,6 +94,7 @@ namespace HtmlCompare
             IgnoreNewlineAroundTag,
             UnifySpaceAndNewLine,
             TrimCustomTag,
+            IgnoreSpan,
             DecodeAndFormatXml
         };
 
@@ -543,6 +544,13 @@ namespace HtmlCompare
         static string IgnoreXref(string source)
         {
             return Xref.Replace(source, m => m.Groups[1].Value);
+        }
+
+        static string IgnoreSpan(string source)
+        {
+            //var result = Regex.Replace(source, "<td>\n* *", "<td>");
+            //result = Regex.Replace(result, " *\n*</td>", "</td>");
+            return source.Replace("<span>", "").Replace("</span>", "");
         }
 
         static string IgnoreDel(string source)
