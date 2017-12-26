@@ -1,76 +1,56 @@
 param (
-    [string]$repoRoot
+    [string]$repoRoot,
+    [string]$repoUrl,
+    [string]$outputFolder
 )
-if (-not $repoRoot)
-{
-    $repoRoot = $pwd.Path
+$repoName = "TestRepo"
+if ($repoUrl) {
+    $repoName = ($repoUrl -split "/")[-1] -replace ".git",""
 }
-$repoRoot = Resolve-Path $repoRoot
-$tempFolder = Join-Path $repoRoot "_temp"
-New-Item $tempFolder -type directory -Force
+$repoReport = @{repo_name=$repoName}
+$scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
+if (-Not $outputFolder) {
+    $outputFolder = Join-Path $scriptPath "_output"
+}
+New-Item $outputFolder -type directory -Force
 Push-Location $repoRoot
 
-$migrationToolUrl = "https://github.com/qinezh/MarkdownMigration/releases/download/0.1/Migration.zip"
-$migrationToolZipPath = Join-Path $repoRoot "_tools/Migration.zip"
-$migrationToolPath = Join-Path $repoRoot "_tools/Migration"
+$markDigVersion = "1.0.127-alpha"
+$docFxVersion = "2.28.3"
+
+$toolsPath = Join-Path $scriptPath "_tools"
+New-Item $toolsPath -type directory -Force
+$nugetPath = Join-Path $toolsPath "nuget.exe"
 $nugetUrl = "https://dist.nuget.org/win-x86-commandline/latest/nuget.exe"
-$nugetPath = "_tools/nuget.exe"
 
-
-Add-Type -AssemblyName System.IO.Compression.FileSystem
-function Unzip
-{
-    param([string]$zipfile, [string]$outpath)
-
-    [System.IO.Compression.ZipFile]::ExtractToDirectory($zipfile, $outpath)
-}
-
-New-Item _tools -type directory -Force
 if (-not (Test-Path $nugetPath))
 {
     Invoke-WebRequest -Uri $nugetUrl -OutFile $nugetPath
 }
-if (Test-path $migrationToolZipPath)
-{
-    Remove-Item $migrationToolZipPath
-}
-if (Test-Path $migrationToolPath)
-{
-    #Remove-Item $migrationToolPath -Recurse
-}
-#Invoke-WebRequest -Uri $migrationToolUrl -OutFile $migrationToolZipPath
-#New-Item $migrationToolPath -type directory
-#Unzip $migrationToolZipPath (Join-Path $repoRoot "_tools")
-$migrationExePath = Join-Path $migrationToolPath "MarkdownMigration.ConsoleApp.exe"
+$migrationExePath = Join-Path $scriptPath "MarkdownMigration.ConsoleApp.exe"
 
-& $nugetPath install Microsoft.DocAsCode.MarkdigEngine -Version 1.0.127-alpha -Source https://www.myget.org/F/op-dev/api/v2 -OutputDirectory _tools
-& $nugetPath install docfx.console -Version 2.28.3 -Source https://www.myget.org/F/docfx/api/v3/index.json -OutputDirectory _tools
-$markdigPackPath = Join-Path @(get-childitem -path .\_tools\Microsoft.DocAsCode.MarkdigEngine*)[0] "content/plugins"
-$docfxFolder = Join-Path @(get-childitem -path .\_tools\docfx.console*)[0] "tools"
+& $nugetPath install Microsoft.DocAsCode.MarkdigEngine -Version $markDigVersion -Source https://www.myget.org/F/op-dev/api/v2 -OutputDirectory $toolsPath
+& $nugetPath install docfx.console -Version $docFxVersion -Source https://www.myget.org/F/docfx/api/v3/index.json -OutputDirectory $toolsPath
+$markdigPackPath = Join-Path $toolsPath "Microsoft.DocAsCode.MarkdigEngine.$markDigVersion\content\plugins"
+$docfxFolder = Join-Path $toolsPath "docfx.console.$docFxVersion\tools"
 $docfxExePath = Join-Path $docfxFolder "docfx.exe"
 Copy-Item $markdigPackPath $docfxFolder -Recurse -Force
 
 $repoConfig = Get-Content -Raw -Path .openpublishing.publish.config.json | ConvertFrom-Json
-if ($repoConfig -and $repoConfig.dependent_repositories)
-{
-    foreach ($r in $repoConfig.dependent_repositories) {
-       if (-not (Test-Path $r.path_to_root) -and -not $r.path_to_root.StartsWith("_themes"))
-       {
-            & git clone $r.url $r.path_to_root
-       } 
-    }
-}
 
 if ($repoConfig.docsets_to_publish)
 {
+    $repoReport.docsets = @()
     foreach ($docset in $repoConfig.docsets_to_publish)
     {
         $docsetName = $docset.docset_name
         $docsetFolder = Join-Path $repoRoot "$($docset.build_source_folder)"  
 
-        $htmlBaseFolder = Join-Path $tempFolder $docsetName
+        $htmlBaseFolder = Join-Path $outputFolder $docsetName
         $dfmOutput = Join-Path $htmlBaseFolder "dfm"
+        $dfmHtmlOutput = Join-Path $htmlBaseFolder "dfm-html"
         $markdigOutput = Join-Path $htmlBaseFolder "markdig"
+        $markdigHtmlOutput = Join-Path $htmlBaseFolder "markdig-html"
 
         $docfxJsonPath = Join-Path $docsetFolder "docfx.json"
         $docfxJson = Get-Content -Raw -Path $docfxJsonPath | ConvertFrom-Json
@@ -86,7 +66,6 @@ if ($repoConfig.docsets_to_publish)
         Remove-Item -path "$docsetFolder\obj" -recurse
 
         & $migrationExePath -m -c $docsetFolder -p "**.md"
-
         $reportPath = Join-Path $docsetFolder "report.json"
         $reportDestPath = Join-Path $htmlBaseFolder "report.json"
         Copy-Item -Path $reportPath -Destination $reportDestPath -recurse -Force
@@ -98,7 +77,19 @@ if ($repoConfig.docsets_to_publish)
         Remove-Item -path "$docsetFolder\obj" -recurse
 
         & $migrationExePath -d -j "$dfmOutput,$markdigOutput" -rpf $reportDestPath -crp "$htmlBaseFolder\Compare"
-    }
-}
 
+        Remove-Item -path $dfmOutput -recurse
+        Remove-Item -path $markdigOutput -recurse
+        Remove-Item -path $dfmHtmlOutput -recurse
+        Remove-Item -path $markdigHtmlOutput -recurse
+
+        $docset = [IO.File]::ReadAllText($reportDestPath) | ConvertFrom-Json
+        $docset.docset_name = $docsetName
+        $repoReport.docsets += $docset
+    }
+    
+    $repoReportPath = "$outputFolder\repoReport.json"
+    $repoReport | ConvertTo-Json -Depth 100 | Out-File $repoReportPath
+    & $migrationExePath -ge -rpf $repoReportPath
+}
 Pop-Location
