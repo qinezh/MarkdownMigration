@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.IO;
 
 using Microsoft.DocAsCode.Dfm;
 using Microsoft.DocAsCode.MarkdownLite;
@@ -19,6 +20,7 @@ namespace MarkdownMigration.Convert
         private static readonly Regex _lheading = new Regex(@"^(?<text>[^\n]+)(?<post>\n *(?:=|-){2,} *(?:\n+|$))", RegexOptions.Compiled);
         private static readonly Regex _orderListStart = new Regex(@"^(?<start>\d+)\.", RegexOptions.Compiled);
         private static readonly Regex _unorderListStart = new Regex(@"^\s*(?<start>.)", RegexOptions.Compiled);
+        private static readonly Regex _incRegex = new Regex(@"(?<=\()(?<path>.+?)(?=\)\])", RegexOptions.Compiled);
 
         #region override default renderer
         public override StringBuffer Render(IMarkdownRenderer render, IMarkdownToken token, IMarkdownContext context)
@@ -164,6 +166,21 @@ namespace MarkdownMigration.Convert
             }
 
             return token.SourceInfo.Markdown;
+        }
+
+        public override StringBuffer Render(IMarkdownRenderer render, DfmIncludeBlockToken token, MarkdownBlockContext context)
+        {
+            return RenderIncludeToken(token.SourceInfo.Markdown);
+        }
+
+        public override StringBuffer Render(IMarkdownRenderer render, DfmIncludeInlineToken token, MarkdownInlineContext context)
+        {
+            return RenderIncludeToken(token.SourceInfo.Markdown);
+        }
+
+        private string RenderIncludeToken(string markdown)
+        {
+            return _incRegex.Replace(markdown, m => m.Groups["path"].Value.Replace(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
         }
 
         public override StringBuffer Render(IMarkdownRenderer render, MarkdownHtmlBlockToken token, MarkdownBlockContext context)
