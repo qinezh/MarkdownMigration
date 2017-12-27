@@ -186,19 +186,9 @@ namespace MarkdownMigration.Convert
         public override StringBuffer Render(IMarkdownRenderer render, MarkdownHtmlBlockToken token, MarkdownBlockContext context)
         {
             var result = StringBuffer.Empty;
-            var inside = false;
             foreach (var inline in token.Content.Tokens)
             {
-                if (inline is MarkdownTagInlineToken)
-                {
-                    inside = !inside;
-                    result += MarkupInlineToken(render, inline);
-                }
-                else
-                {
-                    result += inside ? MarkupInlineToken(render, inline)
-                                     : Render(render, inline, inline.Context);
-                }
+                result += MarkupInlineToken(render, inline);
             }
 
             return result;
@@ -307,7 +297,7 @@ namespace MarkdownMigration.Convert
                     {
                         content += indent;
                     }
-                    
+
                     content += lines[index];
 
                     if (last && index == lines.Count() - 1)
