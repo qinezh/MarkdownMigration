@@ -392,6 +392,12 @@ namespace MarkdownMigration.Convert
                 {
                     insideHtml = !insideHtml;
                     result += MarkupInlineToken(render, tokens[index]);
+
+                    var post = index + 1 < tokens.Count() ? tokens[index + 1] : null;
+                    if (post != null && !insideHtml && !(post is MarkdownTagInlineToken) && !(post is MarkdownNewLineBlockToken))
+                    {
+                        result += '\n';
+                    }
                 }
                 else
                 {

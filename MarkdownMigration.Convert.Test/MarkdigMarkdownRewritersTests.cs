@@ -156,6 +156,24 @@ This is <strong>markdown</strong> content.
 
         [Fact]
         [Trait("Related", "MarkdigMarkdownRewriters")]
+        public void TestHtml3()
+        {
+            var source = @"
+<h2>abc</h2>
+![](a.png)
+";
+            var expected = @"
+<h2>abc</h2>
+
+![](a.png)
+";
+
+            var result = _tool.Convert(source, "topic.md");
+            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+        }
+
+        [Fact]
+        [Trait("Related", "MarkdigMarkdownRewriters")]
         public void TestHeadingWithHref()
         {
             var source = @"## <a id=""WhatIs""></a>What is Twilio?
