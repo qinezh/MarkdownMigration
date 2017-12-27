@@ -81,7 +81,7 @@
 
         [Fact]
         [Trait("Related", "MarkdigMarkdownRewriters")]
-        public void TestHtml()
+        public void TestHtml0()
         {
             var source = @"
 
@@ -115,6 +115,40 @@ This is <strong>markdown</strong> content.
 <div>
 This is <strong>markdown</strong> content.
 </div>";
+
+            var result = _tool.Convert(source, "topic.md");
+            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+        }
+
+        [Fact]
+        [Trait("Related", "MarkdigMarkdownRewriters")]
+        public void TestHtml1()
+        {
+            var source = @"
+<br>
+![](a.png)
+<br>";
+            var expected = @"
+<br>
+<img src=""a.png"" alt=""""/>
+<br>";
+
+            var result = _tool.Convert(source, "topic.md");
+            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+        }
+
+        [Fact]
+        [Trait("Related", "MarkdigMarkdownRewriters")]
+        public void TestHtml2()
+        {
+            var source = @"
+1. list
+  <center>![](a.png)</center>
+";
+            var expected = @"
+1. list
+   <center><img src=""a.png"" alt=""""/></center>
+";
 
             var result = _tool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result);

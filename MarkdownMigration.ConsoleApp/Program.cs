@@ -1,8 +1,8 @@
-﻿using MarkdownMigration.Common;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using MarkdownMigration.Common;
 using MarkdownMigration.Convert;
 using MarkdownMigration.GenerateExcel;
 using Newtonsoft.Json;
@@ -13,6 +13,9 @@ namespace MarkdownMigration.ConsoleApp
     {
         private static void Main(string[] args)
         {
+            TestSample();
+            return;
+
             var opt = new CommandLineOptions();
 
             try
@@ -116,6 +119,15 @@ namespace MarkdownMigration.ConsoleApp
             }
 
             File.WriteAllText(output, JsonConvert.SerializeObject(migrationReport, Formatting.Indented));
+        }
+
+        private static void TestSample()
+        {
+            var content = File.ReadAllText("sample.md");
+            var tool = new MarkdownMigrateTool();
+            var migratedContent = tool.Convert(content, "sample.md");
+
+            Console.WriteLine(migratedContent);
         }
     }
 }

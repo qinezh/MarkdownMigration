@@ -109,6 +109,17 @@ namespace MarkdownMigration.Convert
 
         public override StringBuffer Render(IMarkdownRenderer render, MarkdownNonParagraphBlockToken token, MarkdownBlockContext context)
         {
+            var source = token.SourceInfo.Markdown;
+            if (source.EndsWith("\n"))
+            {
+                return RenderInlineTokens(token.Content.Tokens, render) + "\n";
+            }
+
+            return RenderInlineTokens(token.Content.Tokens, render);
+        }
+
+        public StringBuffer Render(IMarkdownRenderer render, MarkdownTagInlineToken token, IMarkdownContext context)
+        {
             return token.SourceInfo.Markdown;
         }
 
@@ -365,6 +376,7 @@ namespace MarkdownMigration.Convert
         private StringBuffer RenderInlineTokens(ImmutableArray<IMarkdownToken> tokens, IMarkdownRenderer render)
         {
             var result = StringBuffer.Empty;
+            var insideHtml = false;
             for (var index = 0; index < tokens.Count(); index++)
             {
                 if (tokens[index] is MarkdownLinkInlineToken token && token.LinkType is MarkdownLinkType.UrlLink)
@@ -376,7 +388,15 @@ namespace MarkdownMigration.Convert
                         continue;
                     }
                 }
-                result += render.Render(tokens[index]);
+                else if (tokens[index] is MarkdownTagInlineToken)
+                {
+                    insideHtml = !insideHtml;
+                    result += MarkupInlineToken(render, tokens[index]);
+                }
+                else
+                {
+                    result += insideHtml ? MarkupInlineToken(render, tokens[index]) : render.Render(tokens[index]);
+                }
             }
 
             return result;
