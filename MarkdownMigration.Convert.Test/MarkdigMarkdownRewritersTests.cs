@@ -53,14 +53,12 @@
 >
 >[!VIDEO https://channel9.msdn.com]
 >
-> *abc*
 ";
             var expected = @"> Video Sample
 > [!VIDEO https://channel9.msdn.com]
-> 
-> [!VIDEO https://channel9.msdn.com]
-> 
-> *abc*
+>
+>[!VIDEO https://channel9.msdn.com]
+>
 ";
 
             var result = _tool.Convert(source, "topic.md");
