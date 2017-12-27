@@ -336,5 +336,39 @@ content...";
             var result = _tool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }
+
+        [Fact]
+        [Trait("Related", "MarkdigMarkdownRewriters")]
+        public void TestMigrateTableBlock0()
+        {
+            var source = @"a|a
+-|-
+b|b
+---";
+            var expected = @"a|a
+-|-
+b|b
+
+---";
+            var result = _tool.Convert(source, "topic.md");
+            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+        }
+
+        [Fact]
+        [Trait("Related", "MarkdigMarkdownRewriters")]
+        public void TestMigrateTableBlock1()
+        {
+            var source = @"a|a
+-|-
+b|b
+text";
+            var expected = @"a|a
+-|-
+b|b
+
+text";
+            var result = _tool.Convert(source, "topic.md");
+            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+        }
     }
 }

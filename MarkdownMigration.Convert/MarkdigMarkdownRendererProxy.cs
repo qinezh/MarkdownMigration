@@ -38,17 +38,39 @@ namespace MarkdownMigration.Convert
 
         public new StringBuffer Render(IMarkdownRenderer render, IMarkdownToken token, IMarkdownContext context)
         {
+            if (!NeedMigration(token))
+            {
+                return token.SourceInfo.Markdown;
+            }
+
+            var migrated = renderer.Render((dynamic)render, (dynamic)token, (dynamic)context);
+            UpdateReport(token, migrated);
+
+            return migrated;
+        }
+
+        private bool NeedMigration(IMarkdownToken token)
+        {
             var file = token.SourceInfo.File;
-            var original = token.SourceInfo.Markdown;
+            var markdown = token.SourceInfo.Markdown;
+
+            if (token is MarkdownTableBlockToken)
+            {
+                var newLineCount = Helper.CountEndNewLine(markdown);
+                if (newLineCount < 2)
+                {
+                    return true;
+                }
+            }
 
             try
             {
-                var dfmHtml = _dfmEngine.Markup(original, file);
-                var markdigHtml = _service.Markup(original, file).Html;
+                var dfmHtml = _dfmEngine.Markup(markdown, file);
+                var markdigHtml = _service.Markup(markdown, file).Html;
 
                 if (MarkdownMigrateDiffUtility.ComapreHtml(dfmHtml, markdigHtml))
                 {
-                    return original;
+                    return false;
                 }
             }
             catch (Exception ex)
@@ -56,16 +78,19 @@ namespace MarkdownMigration.Convert
                 // TODO
             }
 
+            return true;
+        }
 
-            var migrated = renderer.Render((dynamic)render, (dynamic)token, (dynamic)context);
-            if (!string.Equals(original.ToString(), migrated.ToString()))
+        private void UpdateReport(IMarkdownToken token, string migrated)
+        {
+            var file = token.SourceInfo.File;
+            var markdown = token.SourceInfo.Markdown;
+            if (!string.Equals(markdown.ToString(), migrated.ToString()))
             {
                 var tokenName = GetTokenName(token);
                 var tokenInfo = new MigratedTokenInfo(tokenName, token.SourceInfo.LineNumber);
                 ReportUtility.Add(file, tokenInfo);
             }
-
-            return migrated;
         }
 
         private string GetTokenName(IMarkdownToken token)

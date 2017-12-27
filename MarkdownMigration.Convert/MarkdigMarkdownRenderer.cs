@@ -8,6 +8,7 @@ using System.IO;
 
 using Microsoft.DocAsCode.Dfm;
 using Microsoft.DocAsCode.MarkdownLite;
+using MarkdownMigration.Common;
 
 namespace MarkdownMigration.Convert
 {
@@ -87,29 +88,8 @@ namespace MarkdownMigration.Convert
                 }
             }
 
-            var newlinesCount = CountEndNewLine(source);
+            var newlinesCount = Helper.CountEndNewLine(source);
             return content + new string('\n', newlinesCount);
-        }
-
-        private int CountEndNewLine(string source)
-        {
-            var last = source.Length - 1;
-            var count = 0;
-            while (last >= 0)
-            {
-                if (source[last] == '\n')
-                {
-                    ++count;
-                }
-                else
-                {
-                    return count;
-                }
-
-                --last;
-            }
-
-            return count;
         }
 
         public override StringBuffer Render(IMarkdownRenderer render, MarkdownEmInlineToken token, MarkdownInlineContext context)
@@ -145,7 +125,13 @@ namespace MarkdownMigration.Convert
 
         public override StringBuffer Render(IMarkdownRenderer render, MarkdownTableBlockToken token, MarkdownBlockContext context)
         {
-            return token.SourceInfo.Markdown;
+            var markdown = token.SourceInfo.Markdown;
+            var newLineCount = Helper.CountEndNewLine(markdown);
+            if (newLineCount < 2)
+            {
+                return markdown + '\n';
+            }
+            return markdown;
         }
 
         #endregion
