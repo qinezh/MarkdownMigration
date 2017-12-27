@@ -1,0 +1,24 @@
+branches:
+  only:
+    - master
+version: 1.0.{build}
+image: Visual Studio 2017
+build_script: powershell ./build.ps1
+
+test: off
+artifacts:
+  - path: artifacts
+    name: migration
+    type: zip
+
+deploy:
+  release: 0.1
+  provider: GitHub
+  auth_token:
+    secure: 6niupbDN/eHdvrTJhzHqDa5xELzBCs7WlRghSKdgO5dr0l3rYur0jQ5V5mtnQ+Xt
+  artifact: migration.zip
+  draft: false
+  prerelease: true
+  force_update: true
+  on:
+    branch: master

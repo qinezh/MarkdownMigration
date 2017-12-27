@@ -1,6 +1,6 @@
 $ErrorActionPreference = 'Stop'
 $scriptHome = Split-Path $MyInvocation.MyCommand.Path
-$releaseFolder = "$scriptHome/release"
+$releaseFolder = "$scriptHome/artifacts"
 $proj = "MarkdownMigration.ConsoleApp/MarkdownMigration.ConsoleApp.csproj"
 
 & dotnet restore $proj
