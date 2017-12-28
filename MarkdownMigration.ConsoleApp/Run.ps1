@@ -76,7 +76,7 @@ if ($repoConfig.docsets_to_publish)
         Remove-Item -path $dest -recurse
         Remove-Item -path "$docsetFolder\obj" -recurse
 
-        & $migrationExePath -d -j "$dfmOutput,$markdigOutput" -rpf $reportDestPath -crp "$htmlBaseFolder\Compare"
+        & $migrationExePath -d -j "$dfmOutput,$markdigOutput" -rpf $reportDestPath -crp "$htmlBaseFolder\Compare" -bp $docsetFolder
 
         Remove-Item -path $dfmOutput -recurse
         Remove-Item -path $markdigOutput -recurse
