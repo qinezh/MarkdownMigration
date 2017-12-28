@@ -67,8 +67,7 @@ namespace MarkdownMigration.GenerateExcel
                 "DFMHtml",
                 "MarkdigHtml",
                 "SourceSpan",
-                "Rule Name",
-                "Changed LineNumber"
+                "Migration History(Token/ChangedLineNumber)"
             };
 
             contentTable.Add(title);
@@ -79,35 +78,24 @@ namespace MarkdownMigration.GenerateExcel
                 foreach (var file in docset.Files)
                 {
                     if (file.Value.DiffStatus == DiffStatus.OK) continue;
-                    if (file.Value.Tokens == null)
+
+                    var list = new List<object>();
+                    list.Add(docset.DocsetName);
+                    list.Add(file.Key);
+                    list.Add(file.Value.Migrated);
+                    list.Add(file.Value.SourceMarkDown);
+                    list.Add(file.Value.DFMHtml);
+                    list.Add(file.Value.MarkdigHtml);
+                    list.Add(file.Value.SourceStart + "-" + file.Value.SourceEnd);
+
+                    if(file.Value.Tokens != null)
                     {
-                        var list = new List<object>();
-                        list.Add(docset.DocsetName);
-                        list.Add(file.Key);
-                        list.Add(file.Value.Migrated);
-                        list.Add(file.Value.SourceMarkDown);
-                        list.Add(file.Value.DFMHtml);
-                        list.Add(file.Value.MarkdigHtml);
-                        list.Add(file.Value.SourceStart + "-" + file.Value.SourceEnd);
-                        contentTable.Add(list);
+                        list.Add(string.Join("\n", file.Value.Tokens.Select(token =>
+                            token.Name + "/" + token.Line
+                        )));
                     }
-                    else
-                    {
-                        foreach (var token in file.Value.Tokens)
-                        {
-                            var list = new List<object>();
-                            list.Add(docset.DocsetName);
-                            list.Add(file.Key);
-                            list.Add(file.Value.Migrated);
-                            list.Add(file.Value.SourceMarkDown);
-                            list.Add(file.Value.DFMHtml);
-                            list.Add(file.Value.MarkdigHtml);
-                            list.Add(file.Value.SourceStart + "-" + file.Value.SourceEnd);
-                            list.Add(token.Name);
-                            list.Add(token.Line);
-                            contentTable.Add(list);
-                        }
-                    }
+
+                    contentTable.Add(list);
                 }
             }
 
