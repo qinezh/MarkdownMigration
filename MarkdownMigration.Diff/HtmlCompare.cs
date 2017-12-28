@@ -100,7 +100,7 @@ namespace HtmlCompare
         static string targetFileName = "docs-recommendation-function-spec.html";
         static ConcurrentDictionary<string, string> htmlToSourceFileMapping = new ConcurrentDictionary<string, string>();
 
-        public static void CompareHtmlFromFolder(string folderA, string folderB, string jsonReportPath, string outPutFolder,out List<DiffResult> differentFiles, out List<string> allFiles,  bool startWinMerge = false)
+        public static void CompareHtmlFromFolder(string folderA, string folderB, string outPutFolder,out List<DiffResult> differentFiles, out List<string> allFiles,  bool startWinMerge = false)
         {
             // Prepare
             string timeStampStr = DateTime.Now.ToString("yy-MM-dd-hh-mm-ss");

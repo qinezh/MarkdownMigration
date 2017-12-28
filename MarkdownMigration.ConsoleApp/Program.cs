@@ -53,7 +53,7 @@ namespace MarkdownMigration.ConsoleApp
                             //Diff html
                             List<string> allFiles;
                             List<DiffResult> differentResult;
-                            HtmlCompare.HtmlCompare.CompareHtmlFromFolder(jsonfolders[0] + "-html", jsonfolders[1] + "-html", opt.JsonReportFile, opt.CompareResultPath,out differentResult, out allFiles);
+                            HtmlCompare.HtmlCompare.CompareHtmlFromFolder(jsonfolders[0] + "-html", jsonfolders[1] + "-html", opt.CompareResultPath,out differentResult, out allFiles);
                             
                             //Update report.json
                             var docsetReport = new DocsetReport();

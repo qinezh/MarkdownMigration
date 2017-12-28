@@ -75,8 +75,8 @@ namespace HtmlCompare
 
                 if (dfmNode == null && markdigNode == null) return true;
 
-                dfmHtml = dfmNode != null ? dfmNode.InnerHtml : string.Empty;
-                markdigHtml = markdigNode!= null? markdigNode.InnerHtml : string.Empty;
+                dfmHtml = dfmNode != null ? dfmNode.OuterHtml : string.Empty;
+                markdigHtml = markdigNode!= null? markdigNode.OuterHtml : string.Empty;
 
                 if (dfmNode == null || markdigNode == null || dfmNode.Name != markdigNode.Name)
                 {
