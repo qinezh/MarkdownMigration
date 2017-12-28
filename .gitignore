@@ -5,3 +5,4 @@
 packages/
 Properties/
 artifacts/
+**/sample.md

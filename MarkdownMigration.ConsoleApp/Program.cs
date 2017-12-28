@@ -13,9 +13,6 @@ namespace MarkdownMigration.ConsoleApp
     {
         private static void Main(string[] args)
         {
-            TestSample();
-            return;
-
             var opt = new CommandLineOptions();
 
             try
@@ -119,15 +116,6 @@ namespace MarkdownMigration.ConsoleApp
             }
 
             File.WriteAllText(output, JsonConvert.SerializeObject(migrationReport, Formatting.Indented));
-        }
-
-        private static void TestSample()
-        {
-            var content = File.ReadAllText("sample.md");
-            var tool = new MarkdownMigrateTool();
-            var migratedContent = tool.Convert(content, "sample.md");
-
-            Console.WriteLine(migratedContent);
         }
     }
 }
