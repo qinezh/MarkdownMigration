@@ -18,7 +18,8 @@ namespace MarkdownMigration.Convert
             var result = line
                 .ReplaceRegex(NormalizeNewLine, "\n")
                 .Replace("\u00a0", " ")
-                .Replace("\u2424", "\n");
+                .Replace("\u2424", "\n")
+                .Replace("\u200b", " ");
             result = Regex.Replace(result, "\\t", m =>
             {
                 if (m.Index == 0)
