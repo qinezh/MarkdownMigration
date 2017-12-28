@@ -382,7 +382,7 @@ namespace MarkdownMigration.Convert
                 if (tokens[index] is MarkdownLinkInlineToken token && token.LinkType is MarkdownLinkType.UrlLink)
                 {
                     var pre = index - 1 >= 0 ? tokens[index - 1] : null;
-                    if (pre is MarkdownTextToken t && (t.Content.EndsWith("&quot;") || t.Content.EndsWith("&#39;")))
+                    if (pre is MarkdownTextToken t && (!IsValidPreviousCharacter(t.Content.Last())))
                     {
                         result += "<" + render.Render(token) + ">";
                         continue;
@@ -470,6 +470,29 @@ namespace MarkdownMigration.Convert
             }
 
             return false;
+        }
+
+        private static bool IsValidPreviousCharacter(char c)
+        {
+            // All such recognized autolinks can only come at the beginning of a line, after whitespace, or any of the delimiting characters *, _, ~, and (.
+            return IsWhiteSpaceOrZero(c) || c == '*' || c == '_' || c == '~' || c == '(';
+        }
+
+        public static bool IsWhiteSpaceOrZero(char c)
+        {
+            return IsWhitespace(c) || IsZero(c);
+        }
+
+        public static bool IsWhitespace(char c)
+        {
+            // 2.1 Characters and lines 
+            // A whitespace character is a space(U + 0020), tab(U + 0009), newline(U + 000A), line tabulation (U + 000B), form feed (U + 000C), or carriage return (U + 000D).
+            return c == ' ' || c == '\t' || c == '\n' || c == '\v' || c == '\f' || c == '\r';
+        }
+
+        public static bool IsZero(char c)
+        {
+            return c == '\0';
         }
     }
 }
