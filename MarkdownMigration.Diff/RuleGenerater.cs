@@ -11,10 +11,7 @@ namespace HtmlCompare
     {
         public static Dictionary<string, DiffRule> AppendTextRule(this Dictionary<string, DiffRule> rules)
         {
-            rules.Add("#text", new DiffRule
-            {
-                IsIgnore = (node) => String.IsNullOrEmpty(node.InnerText.Nomalize())
-            });
+            rules.Add("#text", new DiffRule());
 
             return rules;
         }

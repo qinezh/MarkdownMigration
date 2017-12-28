@@ -11,7 +11,7 @@ namespace HtmlCompare
     public class DiffRule
     {
         public Func<HtmlNode, bool> CompareChildrenOnly { get; set; }
-        public Func<HtmlNode, bool> IsIgnore { get; set; } = (node) => node.InnerHtml.Trim() == string.Empty;
+        public Func<HtmlNode, bool> IsIgnore { get; set; } = (node) => string.IsNullOrEmpty(node.InnerHtml.LocalNomalize());
         public Action<HtmlNode> Process { get; set; }
         public string[] CompareAttributes { get; set; }
     }

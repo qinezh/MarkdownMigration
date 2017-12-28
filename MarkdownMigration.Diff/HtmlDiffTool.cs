@@ -92,8 +92,8 @@ namespace HtmlCompare
 
                 if (dfmNode.Name == "#text")
                 {
-                    var dfmText = dfmNode.InnerText.Nomalize();
-                    var markdigText = markdigNode.InnerText.Nomalize();
+                    var dfmText = dfmNode.InnerText.LocalNomalize();
+                    var markdigText = markdigNode.InnerText.LocalNomalize();
 
                     if (dfmText.Length == markdigText.Length)
                     {
