@@ -26,7 +26,7 @@ namespace HtmlCompare
             var node = root;
             while (node != null)
             {
-                while (node != null && Rules.ContainsKey(node.Name) && Rules[node.Name].IsIgnore(node))
+                while (node != null && Rules.ContainsKey(node.Name) && Rules[node.Name].IsIgnore != null && Rules[node.Name].IsIgnore(node))
                 {
                     node = node.NextSibling;
                 }

@@ -40,8 +40,9 @@ namespace HtmlCompare
 
         public static Dictionary<string, DiffRule> AppendXrefRule(this Dictionary<string, DiffRule> rules)
         {
-            rules.Add("Xref", new DiffRule
+            rules.Add("xref", new DiffRule
             {
+                IsIgnore = null,
                 CompareChildrenOnly = (node) =>
                 {
                     var rawSource = node.Attributes["data-raw-source"].Value;
