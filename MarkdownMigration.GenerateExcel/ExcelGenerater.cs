@@ -63,6 +63,10 @@ namespace MarkdownMigration.GenerateExcel
                 "Docset Name",
                 "File Name",
                 "Migrated",
+                "SourceMarkdown",
+                "DFMHtml",
+                "MarkdigHtml",
+                "SourceSpan",
                 "Rule Name",
                 "Changed LineNumber"
             };
@@ -81,7 +85,10 @@ namespace MarkdownMigration.GenerateExcel
                         list.Add(docset.DocsetName);
                         list.Add(file.Key);
                         list.Add(file.Value.Migrated);
-
+                        list.Add(file.Value.SourceMarkDown);
+                        list.Add(file.Value.DFMHtml);
+                        list.Add(file.Value.MarkdigHtml);
+                        list.Add(file.Value.SourceStart + "-" + file.Value.SourceEnd);
                         contentTable.Add(list);
                     }
                     else
@@ -92,9 +99,12 @@ namespace MarkdownMigration.GenerateExcel
                             list.Add(docset.DocsetName);
                             list.Add(file.Key);
                             list.Add(file.Value.Migrated);
+                            list.Add(file.Value.SourceMarkDown);
+                            list.Add(file.Value.DFMHtml);
+                            list.Add(file.Value.MarkdigHtml);
+                            list.Add(file.Value.SourceStart + "-" + file.Value.SourceEnd);
                             list.Add(token.Name);
                             list.Add(token.Line);
-
                             contentTable.Add(list);
                         }
                     }

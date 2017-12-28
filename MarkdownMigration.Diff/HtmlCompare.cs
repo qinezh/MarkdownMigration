@@ -3,7 +3,6 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -12,7 +11,6 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
-using TidyManaged;
 
 namespace HtmlCompare
 {
@@ -21,12 +19,12 @@ namespace HtmlCompare
         static ConcurrentDictionary<string, ConcurrentBag<string>> migrationChangeResults = new ConcurrentDictionary<string, ConcurrentBag<string>>();
         static ConcurrentDictionary<string, ConcurrentBag<string>> migrationEqualResults = new ConcurrentDictionary<string, ConcurrentBag<string>>();
         static ConcurrentDictionary<string, ConcurrentBag<string>> migrationErrorResults = new ConcurrentDictionary<string, ConcurrentBag<string>>();
+
+        static ConcurrentBag<DiffResult> Result = new ConcurrentBag<DiffResult>();
         //static ConcurrentDictionary<string, HtmlDocument> docs = new ConcurrentDictionary<string, HtmlDocument>();
 
         static List<Func<string, string>> StringMigrationSteps = new List<Func<string, string>>()
         {
-            DecodeAndFormatXml,
-
             // need string
             IgnoreComments,
             IgnoreSourceInfo,
@@ -102,7 +100,7 @@ namespace HtmlCompare
         static string targetFileName = "docs-recommendation-function-spec.html";
         static ConcurrentDictionary<string, string> htmlToSourceFileMapping = new ConcurrentDictionary<string, string>();
 
-        public static void CompareHtmlFromFolder(string folderA, string folderB, string jsonReportPath, string outPutFolder,out List<string> sameFiles, out List<string> allFiles,  bool startWinMerge = false)
+        public static void CompareHtmlFromFolder(string folderA, string folderB, string jsonReportPath, string outPutFolder,out List<DiffResult> differentFiles, out List<string> allFiles,  bool startWinMerge = false)
         {
             // Prepare
             string timeStampStr = DateTime.Now.ToString("yy-MM-dd-hh-mm-ss");
@@ -170,20 +168,32 @@ namespace HtmlCompare
                 else
                 {
                     // Step 2: Migrate Html
-                    string migratedContentA, migratedContentB;
+                    //string migratedContentA, migratedContentB;
+                    HtmlDiffTool hdt = new HtmlDiffTool(rawContentA, rawContentB);
+                    Span sourceDiffSpan;
+                    string dfmHtml, markdigHtml;
 
-                    if (CompareMigratedHtml(fileA, rawContentA, rawContentB, out migratedContentA, out migratedContentB))
+                    if (hdt.Compare(out sourceDiffSpan, out dfmHtml, out markdigHtml))
                     {
                         result_Equal.Add(fileA);
                     }
                     else
                     {
+                        var diffResult = new DiffResult
+                        {
+                            FileName = htmlToSourceFileMapping[fileA],
+                            DFMHtml = dfmHtml,
+                            MarkdigHtml = markdigHtml,
+                            SourceDiffSpan = sourceDiffSpan
+                        };
+
+                        Result.Add(diffResult);
                         // Step 3: Write the Different Files
-                        var targetFileA = fileA.Replace(folderA, targetA);
-                        var targetFileB = fileB.Replace(folderB, targetB);
-                        CreateFile(targetFileA, migratedContentA);
-                        CreateFile(targetFileB, migratedContentB);
-                        result_Different.Add(fileA);
+                        //var targetFileA = fileA.Replace(folderA, targetA);
+                        //var targetFileB = fileB.Replace(folderB, targetB);
+                        //CreateFile(targetFileA, rawContentA);
+                        //CreateFile(targetFileB, rawContentB);
+                        //result_Different.Add(fileA);
                     }
                 }
                 //ph0.Increase();
@@ -201,7 +211,7 @@ namespace HtmlCompare
             {
                 Console.WriteLine($"        {migrationChangeResults[step.Method.Name].Count()}\t{migrationEqualResults[step.Method.Name].Count()}\t{migrationErrorResults[step.Method.Name].Count()}\t{step.Method.Name}");
             }
-            Console.WriteLine($"    Different Files: {result_Different.Count()}");
+            Console.WriteLine($"    Different Files: {Result.Count()}");
             Console.WriteLine($"Unique Files: {uniqueFiles}");
             
             string exe = @"E:\Program\WinMerge\WinMergeU.exe";
@@ -212,7 +222,7 @@ namespace HtmlCompare
                 Process.Start(exe, exeArgs);
             }
             //filesA all
-            sameFiles = result_Equal.Concat(result_Same).Select(html => htmlToSourceFileMapping[html]).ToList();
+            differentFiles = Result.ToList();
             allFiles = filesA.Select(html => htmlToSourceFileMapping[html]).ToList();
             //Console.ReadKey();
         }

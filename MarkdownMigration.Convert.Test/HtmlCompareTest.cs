@@ -13,7 +13,10 @@
 <blockquote>
 </blockquote> ";
 
-            Assert.True(MarkdownMigrateDiffUtility.ComapreHtml(htmlA, htmlB));
+            HtmlDiffTool hdt = new HtmlDiffTool(htmlA, htmlB);
+            Span diffSpan;
+            string dfmHtml, markdigHtml;
+            Assert.True(hdt.Compare(out diffSpan, out dfmHtml, out markdigHtml));
         }
     }
 }
