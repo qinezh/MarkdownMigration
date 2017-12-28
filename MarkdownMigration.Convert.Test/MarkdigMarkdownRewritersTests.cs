@@ -130,7 +130,8 @@ This is <strong>markdown</strong> content.
 <br>";
             var expected = @"
 <br>
-<img src=""a.png"" alt=""""/>
+
+![](a.png)
 <br>";
 
             var result = _tool.Convert(source, "topic.md");
@@ -167,6 +168,22 @@ This is <strong>markdown</strong> content.
 
 ![](a.png)
 ";
+
+            var result = _tool.Convert(source, "topic.md");
+            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+        }
+
+        [Fact]
+        [Trait("Related", "MarkdigMarkdownRewriters")]
+        public void TestHtml4()
+        {
+            var source = @"
+ <br>
+ <center>![](a.png)</center>";
+            var expected = @"
+ <br>
+
+ <center><img src=""a.png"" alt=""""/></center>";
 
             var result = _tool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result);

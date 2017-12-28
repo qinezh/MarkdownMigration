@@ -390,7 +390,10 @@ namespace MarkdownMigration.Convert
                 }
                 else if (tokens[index] is MarkdownTagInlineToken)
                 {
-                    insideHtml = !insideHtml;
+                    if (!string.Equals(tokens[index].SourceInfo.Markdown, "<br>"))
+                    {
+                        insideHtml = !insideHtml;
+                    }
                     result += MarkupInlineToken(render, tokens[index]);
 
                     var post = index + 1 < tokens.Count() ? tokens[index + 1] : null;
