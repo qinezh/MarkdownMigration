@@ -47,8 +47,13 @@ namespace MarkdownMigration.GenerateExcel
                 var migrationDetailSheet = package.Workbook.Worksheets.Add("MigrationDetail");
                 WriteMigrationDetailSheet(migrationDetailSheet);
 
-                var differenceAfterMigrateSheet = package.Workbook.Worksheets.Add("DifferenceAfterMigrate");
-                WriteDifferenceAfterMigrateSheet(differenceAfterMigrateSheet);
+                foreach (DiffStatus status in Enum.GetValues(typeof(DiffStatus)))
+                {
+                    if (status == DiffStatus.OK) continue;
+
+                    var differenceAfterMigrateSheet = package.Workbook.Worksheets.Add(status.ToString() + "_ISSUE");
+                    WriteDifferenceAfterMigrateSheet(differenceAfterMigrateSheet, status);
+                }
 
                 // save to file
                 var file = new FileInfo(OutputFilename);
@@ -56,7 +61,7 @@ namespace MarkdownMigration.GenerateExcel
             }
         }
 
-        private void WriteDifferenceAfterMigrateSheet(ExcelWorksheet sheet)
+        private void WriteDifferenceAfterMigrateSheet(ExcelWorksheet sheet, DiffStatus status)
         {
             var contentTable = new List<IReadOnlyList<object>>();
             var title = new List<string>() {
@@ -77,7 +82,7 @@ namespace MarkdownMigration.GenerateExcel
 
                 foreach (var file in docset.Files)
                 {
-                    if (file.Value.DiffStatus == DiffStatus.OK) continue;
+                    if (file.Value.DiffStatus != status) continue;
 
                     var list = new List<object>();
                     list.Add(docset.DocsetName);
@@ -151,7 +156,7 @@ namespace MarkdownMigration.GenerateExcel
                 .Count())
                 .ToString() });
             contentTable.Add(new List<object>() { "TotalDifferentFiles", validDocsets.
-                Sum(d => d.Files.Count(f => f.Value.DiffStatus == DiffStatus.BAD))
+                Sum(d => d.Files.Count(f => f.Value.DiffStatus != DiffStatus.OK))
                 .ToString() });
             contentTable.Add(new List<string>() { "TotalUsedRules", allRules.Count().ToString() });
 

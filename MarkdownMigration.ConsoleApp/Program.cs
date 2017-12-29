@@ -108,7 +108,7 @@ namespace MarkdownMigration.ConsoleApp
             foreach (var reportItem in migrationReport.Files.Where(f => fileResultMapping.ContainsKey(f.Key)))
             {
                 var singleResult = fileResultMapping[reportItem.Key];
-                reportItem.Value.DiffStatus = DiffStatus.BAD;
+                reportItem.Value.DiffStatus = fileResultMapping[reportItem.Key].Status;
                 reportItem.Value.MarkdigHtml = singleResult.MarkdigHtml;
                 reportItem.Value.DFMHtml = singleResult.DFMHtml;
                 reportItem.Value.SourceStart = singleResult.SourceDiffSpan.Start;
@@ -125,7 +125,7 @@ namespace MarkdownMigration.ConsoleApp
             {
                 migrationReport.Files[result.FileName] = new ReportItem
                 {
-                    DiffStatus = DiffStatus.BAD,
+                    DiffStatus = result.Status,
                     Migrated = false,
                     MarkdigHtml = result.MarkdigHtml,
                     DFMHtml = result.DFMHtml,

@@ -1,4 +1,5 @@
 ﻿using HtmlAgilityPack;
+using MarkdownMigration.Common;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
@@ -172,8 +173,9 @@ namespace HtmlCompare
                     HtmlDiffTool hdt = new HtmlDiffTool(rawContentA, rawContentB);
                     Span sourceDiffSpan;
                     string dfmHtml, markdigHtml;
+                    DiffStatus diffStatus;
 
-                    if (hdt.Compare(out sourceDiffSpan, out dfmHtml, out markdigHtml))
+                    if (hdt.Compare(out sourceDiffSpan, out dfmHtml, out markdigHtml, out diffStatus))
                     {
                         result_Equal.Add(fileA);
                     }
@@ -184,7 +186,8 @@ namespace HtmlCompare
                             FileName = htmlToSourceFileMapping[fileA],
                             DFMHtml = dfmHtml,
                             MarkdigHtml = markdigHtml,
-                            SourceDiffSpan = sourceDiffSpan
+                            SourceDiffSpan = sourceDiffSpan,
+                            Status = diffStatus
                         };
 
                         Result.Add(diffResult);

@@ -7,7 +7,12 @@ namespace MarkdownMigration.Common
     public enum DiffStatus
     {
         OK,
-        BAD
+        UNKNOW,
+        LIST,
+        TABLE,
+        LINK,
+        NOTE,
+        HEADING
     }
 
     public class ReportItem
