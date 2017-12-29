@@ -41,9 +41,9 @@ namespace HtmlCompare
                 .AppendCodeRule()
                 .AppendVideoRule()
                 .AppendHeadingRule()
-                .AppendALinkRule()
-                .AppendStrongRule()
-                .AppendEmRule()
+                //.AppendALinkRule()
+                //.AppendStrongRule()
+                //.AppendEmRule()
                 .AppendDelRule()
                 .AppendBlockquoteRule();
         }
