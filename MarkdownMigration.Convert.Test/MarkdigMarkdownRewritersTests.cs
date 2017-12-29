@@ -24,7 +24,7 @@
 
         [Fact]
         [Trait("Related", "MarkdigMarkdownRewriters")]
-        public void TestUnresloved_ShortcutXref()
+        public void TestMigrateUnresloved_ShortcutXref()
         {
             var source = "@outlook.com";
             var expected = "@outlook.com";
@@ -35,10 +35,21 @@
 
         [Fact]
         [Trait("Related", "MarkdigMarkdownRewriters")]
-        public void TestAutoLinkXref()
+        public void TestMigrateAutoLinkXref()
         {
             var source = "<xref:system.string>";
             var expected = "<xref:system.string>";
+
+            var result = _tool.Convert(source, "topic.md");
+            Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        [Trait("Related", "MarkdigMarkdownRewriters")]
+        public void TestMigrateNormalLink()
+        {
+            var source = "[github] (https://github.com)";
+            var expected = "[github](https://github.com)";
 
             var result = _tool.Convert(source, "topic.md");
             Assert.Equal(expected, result);
@@ -67,7 +78,7 @@
 
         [Fact]
         [Trait("Related", "MarkdigMarkdownRewriters")]
-        public void TestMailTo()
+        public void TestMigrateMailTo()
         {
             var source = "<Mailto:docs@microsoft.com>";
             var expected = "<docs@microsoft.com>";
@@ -81,7 +92,7 @@
 
         [Fact]
         [Trait("Related", "MarkdigMarkdownRewriters")]
-        public void TestHtml0()
+        public void TestMigrateHtml0()
         {
             var source = @"
 
@@ -122,7 +133,7 @@ This is <strong>markdown</strong> content.
 
         [Fact]
         [Trait("Related", "MarkdigMarkdownRewriters")]
-        public void TestHtml1()
+        public void TestMigrateHtml1()
         {
             var source = @"
 <br>
@@ -140,7 +151,7 @@ This is <strong>markdown</strong> content.
 
         [Fact]
         [Trait("Related", "MarkdigMarkdownRewriters")]
-        public void TestHtml2()
+        public void TestMigrateHtml2()
         {
             var source = @"
 1. list
@@ -157,7 +168,7 @@ This is <strong>markdown</strong> content.
 
         [Fact]
         [Trait("Related", "MarkdigMarkdownRewriters")]
-        public void TestHtml3()
+        public void TestMigrateHtml3()
         {
             var source = @"
 <h2>abc</h2>
@@ -175,7 +186,7 @@ This is <strong>markdown</strong> content.
 
         [Fact]
         [Trait("Related", "MarkdigMarkdownRewriters")]
-        public void TestHtml4()
+        public void TestMigrateHtml4()
         {
             var source = @"
  <br>
@@ -191,7 +202,7 @@ This is <strong>markdown</strong> content.
 
         [Fact]
         [Trait("Related", "MarkdigMarkdownRewriters")]
-        public void TestHeadingWithHref()
+        public void TestMigrateHeadingWithHref()
         {
             var source = @"## <a id=""WhatIs""></a>What is Twilio?
 ";
@@ -251,7 +262,7 @@ content...";
 
         [Fact]
         [Trait("Related", "MarkdigMarkdownRewriters")]
-        public void TestStrongAndEm()
+        public void TestMigrateStrongAndEm()
         {
             var source = "__a__ and _b_ and **a** and **b** and *__ab__*";
             var expected = "__a__ and _b_ and **a** and **b** and *__ab__*";
@@ -262,7 +273,7 @@ content...";
 
         [Fact]
         [Trait("Related", "MarkdigMarkdownRewriters")]
-        public void TestAutoLinkWithQuota()
+        public void TestMigrateAutoLinkWithQuota()
         {
             var source = "This kind of url link such as \'https://github.com\' are not supported in markdig";
             var expected = "This kind of url link such as \'<https://github.com>\' are not supported in markdig";
@@ -273,7 +284,7 @@ content...";
 
         [Fact]
         [Trait("Related", "MarkdigMarkdownRewriters")]
-        public void TestBlockQuote()
+        public void TestMigrateBlockQuote()
         {
             var source = @">- One
 - Two
@@ -288,7 +299,7 @@ content...";
 
         [Fact]
         [Trait("Related", "MarkdigMarkdownRewriters")]
-        public void TestImportant()
+        public void TestMigrateImportant()
         {
             var source = @">[!IMPORTANT]
 >one

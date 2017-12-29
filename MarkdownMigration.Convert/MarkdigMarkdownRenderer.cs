@@ -23,7 +23,7 @@ namespace MarkdownMigration.Convert
         private static readonly Regex _orderListStart = new Regex(@"^(?<start>\d+)\.", RegexOptions.Compiled);
         private static readonly Regex _unorderListStart = new Regex(@"^\s*(?<start>.)", RegexOptions.Compiled);
         private static readonly Regex _incRegex = new Regex(@"(?<=\()(?<path>.+?)(?=\)\])", RegexOptions.Compiled);
-
+        private static readonly Regex _whitespaceInNormalLinkregex = new Regex(@"(?<=\]) (?=\(.+?\))", RegexOptions.Compiled);
         private Stack<IMarkdownToken> _processedBlockTokens;
 
         public MarkdigMarkdownRenderer(Stack<IMarkdownToken> processedBlockTokens)
@@ -44,15 +44,34 @@ namespace MarkdownMigration.Convert
 
         public override StringBuffer Render(IMarkdownRenderer render, MarkdownLinkInlineToken token, MarkdownInlineContext context)
         {
-            if (token.LinkType is MarkdownLinkType.AutoLink &&
-                token.SourceInfo.Markdown.StartsWith("<mailto:", StringComparison.OrdinalIgnoreCase) &&
+            switch(token.LinkType)
+            {
+                case MarkdownLinkType.AutoLink:
+                    return RenderAutoLink(token);
+                case MarkdownLinkType.NormalLink:
+                    return RenderNormalLink(token);
+                default:
+                    return token.SourceInfo.Markdown;
+            }
+        }
+
+        private StringBuffer RenderNormalLink(MarkdownLinkInlineToken token)
+        {
+            var markdown = token.SourceInfo.Markdown;
+            return _whitespaceInNormalLinkregex.Replace(markdown, "");
+        }
+
+        private StringBuffer RenderAutoLink(MarkdownLinkInlineToken token)
+        {
+            var markdown = token.SourceInfo.Markdown;
+            if (markdown.StartsWith("<mailto:", StringComparison.OrdinalIgnoreCase) &&
                 token.Content.Length == 1)
             {
                 var content = token.Content.First();
                 return $"<{content.SourceInfo.Markdown}>";
             }
 
-            return token.SourceInfo.Markdown;
+            return markdown;
         }
 
         public override StringBuffer Render(IMarkdownRenderer render, GfmDelInlineToken token, MarkdownInlineContext context)
