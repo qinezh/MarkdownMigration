@@ -427,11 +427,14 @@ b|b
         [Trait("Related", "MarkdigMarkdownRewriters")]
         public void TestMigrateTableBlock1()
         {
-            var source = @"a|a
+            var source = @"text
+a|a
 -|-
 b|b
 text";
-            var expected = @"a|a
+            var expected = @"text
+
+a|a
 -|-
 b|b
 

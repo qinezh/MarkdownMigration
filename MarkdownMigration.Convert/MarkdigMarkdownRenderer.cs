@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Immutable;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
@@ -22,6 +23,13 @@ namespace MarkdownMigration.Convert
         private static readonly Regex _orderListStart = new Regex(@"^(?<start>\d+)\.", RegexOptions.Compiled);
         private static readonly Regex _unorderListStart = new Regex(@"^\s*(?<start>.)", RegexOptions.Compiled);
         private static readonly Regex _incRegex = new Regex(@"(?<=\()(?<path>.+?)(?=\)\])", RegexOptions.Compiled);
+
+        private Stack<IMarkdownToken> _processedBlockTokens;
+
+        public MarkdigMarkdownRenderer(Stack<IMarkdownToken> processedBlockTokens)
+        {
+            _processedBlockTokens = processedBlockTokens;
+        }
 
         #region override default renderer
         public override StringBuffer Render(IMarkdownRenderer render, IMarkdownToken token, IMarkdownContext context)
@@ -136,13 +144,27 @@ namespace MarkdownMigration.Convert
 
         public override StringBuffer Render(IMarkdownRenderer render, MarkdownTableBlockToken token, MarkdownBlockContext context)
         {
+            var result = StringBuffer.Empty;
+
+            if (_processedBlockTokens != null && _processedBlockTokens.Count > 0)
+            {
+                var preToken = _processedBlockTokens.Peek();
+                var preTokenNewLinecount = Helper.CountEndNewLine(preToken.SourceInfo.Markdown);
+                if (preTokenNewLinecount < 2)
+                {
+                    result += '\n';
+                }
+            }
+
             var markdown = token.SourceInfo.Markdown;
+            result += markdown;
+
             var newLineCount = Helper.CountEndNewLine(markdown);
             if (newLineCount < 2)
             {
-                return markdown + '\n';
+                result += '\n';
             }
-            return markdown;
+            return result;
         }
 
         #endregion
