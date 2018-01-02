@@ -12,6 +12,15 @@ $scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
 if (-Not $outputFolder) {
     $outputFolder = Join-Path $scriptPath "_output"
 }
+
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+function Zip
+{
+    param([string]$source, [string]$outzippath)
+
+    [System.IO.Compression.ZipFile]::CreateFromDirectory($source, $outzippath)
+}
+
 New-Item $outputFolder -type directory -Force
 Push-Location $repoRoot
 
@@ -78,10 +87,10 @@ if ($repoConfig.docsets_to_publish)
 
         & $migrationExePath -d -j "$dfmOutput,$markdigOutput" -rpf $reportDestPath -crp "$htmlBaseFolder\Compare" -bp $docsetFolder
 
-        Remove-Item -path $dfmOutput -recurse
-        Remove-Item -path $markdigOutput -recurse
-        Remove-Item -path $dfmHtmlOutput -recurse
-        Remove-Item -path $markdigHtmlOutput -recurse
+        Zip $dfmOutput "$dfmOutput.zip"
+        Zip $markdigOutput "$markdigOutput.zip" 
+        Zip $dfmHtmlOutput "$dfmHtmlOutput.zip" 
+        Zip $markdigHtmlOutput "$markdigHtmlOutput.zip" 
 
         $docset = [IO.File]::ReadAllText($reportDestPath) | ConvertFrom-Json
         $docset.docset_name = $docsetName
