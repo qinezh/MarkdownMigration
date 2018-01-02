@@ -90,6 +90,6 @@ if ($repoConfig.docsets_to_publish)
     
     $repoReportPath = "$outputFolder\repoReport.json"
     $repoReport | ConvertTo-Json -Depth 100 | Out-File $repoReportPath
-    & $migrationExePath -ge -rpf $repoReportPath
+    & $migrationExePath -ge -rpf $repoReportPath -repourl $repoUrl
 }
 Pop-Location

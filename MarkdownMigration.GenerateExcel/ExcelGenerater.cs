@@ -19,10 +19,13 @@ namespace MarkdownMigration.GenerateExcel
 
         public string OutputFilename { get; set; }
 
-        public ExcelGenerater(RepoReport report, string outputFile)
+        public string GitRepoUrl { get; set; }
+
+        public ExcelGenerater(RepoReport report, string outputFile, string url)
         {
             this.Report = report;
             this.OutputFilename = outputFile;
+            this.GitRepoUrl = url;
         }
 
         public void GenerateExcel()
@@ -86,7 +89,7 @@ namespace MarkdownMigration.GenerateExcel
 
                     var list = new List<object>();
                     list.Add(docset.DocsetName);
-                    list.Add(file.Key);
+                    list.Add(GetRemotePath(file.Key));
                     list.Add(file.Value.Migrated);
                     list.Add(file.Value.SourceMarkDown);
                     list.Add(file.Value.DFMHtml);
@@ -130,7 +133,7 @@ namespace MarkdownMigration.GenerateExcel
                     {
                         var list = new List<object>();
                         list.Add(docset.DocsetName);
-                        list.Add(file.Key);
+                        list.Add(GetRemotePath(file.Key));
                         list.Add(token.Name);
                         list.Add(token.Line);
 
@@ -161,6 +164,11 @@ namespace MarkdownMigration.GenerateExcel
             contentTable.Add(new List<string>() { "TotalUsedRules", allRules.Count().ToString() });
 
             WriteToSheet(overviewSheet, contentTable, false);
+        }
+
+        private string GetRemotePath(string relativePath)
+        {
+            return Path.Combine(this.GitRepoUrl, "blob/master", relativePath);
         }
 
         private static void WriteToSheet(ExcelWorksheet sheet, IReadOnlyList<IReadOnlyList<object>> contentTable, bool isWithHeader)

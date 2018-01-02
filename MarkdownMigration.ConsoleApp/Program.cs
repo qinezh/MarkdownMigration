@@ -73,7 +73,7 @@ namespace MarkdownMigration.ConsoleApp
                                 throw new Exception("json file is not valid.");
                             }
                             var reportName = string.IsNullOrEmpty(repoReport.RepoName) ? "repo_report.xlsx" : repoReport.RepoName + ".xlsx";
-                            var excelGenerater = new ExcelGenerater(repoReport, Path.Combine(Path.GetDirectoryName(opt.JsonReportFile), reportName));
+                            var excelGenerater = new ExcelGenerater(repoReport, Path.Combine(Path.GetDirectoryName(opt.JsonReportFile), reportName), opt.GitRepoUrl);
                             excelGenerater.GenerateExcel();
                             break;
                     }

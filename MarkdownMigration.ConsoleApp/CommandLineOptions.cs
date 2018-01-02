@@ -29,6 +29,7 @@ namespace MarkdownMigration.Convert
         public string JsonReportFile { get; set; }
         public string CompareResultPath { get; set; }
         public string BasePath { get; set; }
+        public string GitRepoUrl { get; set; }
 
         OptionSet _options = null;
 
@@ -48,6 +49,7 @@ namespace MarkdownMigration.Convert
                 { "crp|compareResultPath=", "this path is used to store diff result", (crp) => CompareResultPath = crp },
                 { "ge|generateExcelReport", "generate excel report from json report", (ge) => RunMode = Mode.GenerateExcel },
                 { "bp|docsetBasePath=", "git local docset basepath", (bp) => BasePath = bp },
+                { "repourl|repourl=", "git remote url", (grp) => GitRepoUrl = grp },
             };
         }
 
