@@ -24,12 +24,19 @@ namespace HtmlCompare
         public string DfmHtml { get; set; }
         public string MarkdigHtml { get; set; }
 
-        public HtmlDiffTool(string dfmHtml, string markdigHtml)
+        public HtmlDiffTool(string dfmHtml, string markdigHtml, bool isPureCompare = false)
         {
             this.DfmHtml = dfmHtml;
             this.MarkdigHtml = markdigHtml;
 
-            Build();
+            if(isPureCompare)
+            {
+                PureCompareBuild();
+            }
+            else
+            {
+                Build();
+            }
         }
 
         private void Build()
@@ -44,6 +51,16 @@ namespace HtmlCompare
                 //.AppendALinkRule()
                 //.AppendStrongRule()
                 //.AppendEmRule()
+                .AppendDelRule()
+                .AppendBlockquoteRule();
+        }
+
+        private void PureCompareBuild()
+        {
+            this.Rules.AppendPreRule()
+                .AppendTextRule()
+                .AppendPRule()
+                .AppendCodeRule()
                 .AppendDelRule()
                 .AppendBlockquoteRule();
         }
@@ -167,11 +184,17 @@ namespace HtmlCompare
 
                 //Heading
                 if (trimedHtml.StartsWith("#")) return DiffStatus.HEADING;
+                
+                //StrongEm
+                if (trimedHtml.StartsWith("*")) return DiffStatus.STRONGEM;
             }
 
             if (dfmHtml != null)
             {
                 var trimedHtml = dfmHtml.Trim();
+
+                //A link
+                if (trimedHtml.StartsWith("<a")) return DiffStatus.ALINK;
 
                 //Note
                 if (NoteTypes.Contains(trimedHtml)) return DiffStatus.NOTE;

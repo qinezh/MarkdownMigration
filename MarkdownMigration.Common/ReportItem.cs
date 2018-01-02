@@ -12,7 +12,9 @@ namespace MarkdownMigration.Common
         TABLE,
         LINK,
         NOTE,
-        HEADING
+        HEADING,
+        ALINK,
+        STRONGEM
     }
 
     public class ReportItem

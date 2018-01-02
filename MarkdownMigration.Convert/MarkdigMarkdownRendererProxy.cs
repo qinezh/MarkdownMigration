@@ -78,7 +78,7 @@ namespace MarkdownMigration.Convert
                 var dfmHtml = _dfmEngine.Markup(markdown, file);
                 var markdigHtml = _service.Markup(markdown, file).Html;
 
-                var compareTool = new HtmlDiffTool(dfmHtml, markdigHtml);
+                var compareTool = new HtmlDiffTool(dfmHtml, markdigHtml, true);
                 if (compareTool.Compare())
                 {
                     return false;
