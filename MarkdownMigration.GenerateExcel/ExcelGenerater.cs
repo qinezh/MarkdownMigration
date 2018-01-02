@@ -55,7 +55,7 @@ namespace MarkdownMigration.GenerateExcel
 
                 foreach (var diffTagName in allDiffTags)
                 {
-                    if (!string.IsNullOrEmpty(diffTagName)) continue;
+                    if (string.IsNullOrEmpty(diffTagName)) continue;
 
                     var differenceAfterMigrateSheet = package.Workbook.Worksheets.Add(diffTagName + "_ISSUE");
                     WriteDifferenceAfterMigrateSheet(differenceAfterMigrateSheet, diffTagName);
