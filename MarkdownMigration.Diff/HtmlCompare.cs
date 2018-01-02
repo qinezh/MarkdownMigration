@@ -173,9 +173,8 @@ namespace HtmlCompare
                     HtmlDiffTool hdt = new HtmlDiffTool(rawContentA, rawContentB);
                     Span sourceDiffSpan;
                     string dfmHtml, markdigHtml;
-                    DiffStatus diffStatus;
 
-                    if (hdt.Compare(out sourceDiffSpan, out dfmHtml, out markdigHtml, out diffStatus))
+                    if (hdt.Compare(out sourceDiffSpan, out dfmHtml, out markdigHtml))
                     {
                         result_Equal.Add(fileA);
                     }
@@ -187,7 +186,7 @@ namespace HtmlCompare
                             DFMHtml = dfmHtml,
                             MarkdigHtml = markdigHtml,
                             SourceDiffSpan = sourceDiffSpan,
-                            Status = diffStatus
+                            DiffTagName = string.IsNullOrEmpty(sourceDiffSpan.TagName) ? "html" : sourceDiffSpan.TagName
                         };
 
                         Result.Add(diffResult);

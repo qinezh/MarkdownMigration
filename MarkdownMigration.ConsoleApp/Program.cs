@@ -100,15 +100,10 @@ namespace MarkdownMigration.ConsoleApp
                 migrationReport.Files = new Dictionary<string, ReportItem>();
             }
 
-            foreach (var reportItem in migrationReport.Files.Where(f => sameFiles.Contains(f.Key)))
-            {
-                reportItem.Value.DiffStatus = DiffStatus.OK;
-            }
-
             foreach (var reportItem in migrationReport.Files.Where(f => fileResultMapping.ContainsKey(f.Key)))
             {
                 var singleResult = fileResultMapping[reportItem.Key];
-                reportItem.Value.DiffStatus = fileResultMapping[reportItem.Key].Status;
+                reportItem.Value.DiffTagName = fileResultMapping[reportItem.Key].DiffTagName;
                 reportItem.Value.MarkdigHtml = singleResult.MarkdigHtml;
                 reportItem.Value.DFMHtml = singleResult.DFMHtml;
                 reportItem.Value.SourceStart = singleResult.SourceDiffSpan.Start;
@@ -118,14 +113,14 @@ namespace MarkdownMigration.ConsoleApp
 
             foreach (var file in sameFiles.Except(migrationReport.Files.Select(f => f.Key)))
             {
-                migrationReport.Files[file] = new ReportItem { DiffStatus = DiffStatus.OK, Migrated = false };
+                migrationReport.Files[file] = new ReportItem {Migrated = false };
             }
             var filesInReport = migrationReport.Files.Select(f => f.Key).ToList();
             foreach (var result in differentResult.Where(dr => !filesInReport.Contains(dr.FileName)))
             {
                 migrationReport.Files[result.FileName] = new ReportItem
                 {
-                    DiffStatus = result.Status,
+                    DiffTagName = result.DiffTagName,
                     Migrated = false,
                     MarkdigHtml = result.MarkdigHtml,
                     DFMHtml = result.DFMHtml,

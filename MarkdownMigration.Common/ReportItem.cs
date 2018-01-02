@@ -4,19 +4,6 @@ using Newtonsoft.Json.Converters;
 
 namespace MarkdownMigration.Common
 {
-    public enum DiffStatus
-    {
-        OK,
-        UNKNOW,
-        LIST,
-        TABLE,
-        LINK,
-        NOTE,
-        HEADING,
-        ALINK,
-        STRONGEM
-    }
-
     public class ReportItem
     {
         public ReportItem()
@@ -29,9 +16,8 @@ namespace MarkdownMigration.Common
             Tokens = new List<MigratedTokenInfo> { tokenInfo };
         }
 
-        [JsonProperty("diffstatus")]
-        [JsonConverter(typeof(StringEnumConverter))]
-        public DiffStatus DiffStatus { get; set; }
+        [JsonProperty("diff_tag_name")]
+        public string DiffTagName { get; set; }
 
         [JsonProperty("migrated")]
         public bool Migrated { get; set; }

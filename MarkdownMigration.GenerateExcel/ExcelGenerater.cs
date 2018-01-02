@@ -50,12 +50,15 @@ namespace MarkdownMigration.GenerateExcel
                 var migrationDetailSheet = package.Workbook.Worksheets.Add("MigrationDetail");
                 WriteMigrationDetailSheet(migrationDetailSheet);
 
-                foreach (DiffStatus status in Enum.GetValues(typeof(DiffStatus)))
-                {
-                    if (status == DiffStatus.OK) continue;
+                var allDiffTags = Report.Docsets.Where(d => d != null && d.Files != null)
+                    .SelectMany(d => d.Files.Select(f => f.Value.DiffTagName)).Distinct().ToList();
 
-                    var differenceAfterMigrateSheet = package.Workbook.Worksheets.Add(status.ToString() + "_ISSUE");
-                    WriteDifferenceAfterMigrateSheet(differenceAfterMigrateSheet, status);
+                foreach (var diffTagName in allDiffTags)
+                {
+                    if (!string.IsNullOrEmpty(diffTagName)) continue;
+
+                    var differenceAfterMigrateSheet = package.Workbook.Worksheets.Add(diffTagName + "_ISSUE");
+                    WriteDifferenceAfterMigrateSheet(differenceAfterMigrateSheet, diffTagName);
                 }
 
                 // save to file
@@ -64,7 +67,7 @@ namespace MarkdownMigration.GenerateExcel
             }
         }
 
-        private void WriteDifferenceAfterMigrateSheet(ExcelWorksheet sheet, DiffStatus status)
+        private void WriteDifferenceAfterMigrateSheet(ExcelWorksheet sheet, string diffTagName)
         {
             var contentTable = new List<IReadOnlyList<object>>();
             var title = new List<string>() {
@@ -85,7 +88,7 @@ namespace MarkdownMigration.GenerateExcel
 
                 foreach (var file in docset.Files)
                 {
-                    if (file.Value.DiffStatus != status) continue;
+                    if (file.Value.DiffTagName != diffTagName) continue;
 
                     var list = new List<object>();
                     list.Add(docset.DocsetName);
@@ -159,7 +162,7 @@ namespace MarkdownMigration.GenerateExcel
                 .Count())
                 .ToString() });
             contentTable.Add(new List<object>() { "TotalDifferentFiles", validDocsets.
-                Sum(d => d.Files.Count(f => f.Value.DiffStatus != DiffStatus.OK))
+                Sum(d => d.Files.Count(f => !string.IsNullOrEmpty(f.Value.DiffTagName)))
                 .ToString() });
             contentTable.Add(new List<string>() { "TotalUsedRules", allRules.Count().ToString() });
 

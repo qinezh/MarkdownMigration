@@ -13,6 +13,6 @@ namespace HtmlCompare
         public string DFMHtml { get; set; }
         public string MarkdigHtml { get; set; }
         public Span SourceDiffSpan { get; set; }
-        public DiffStatus Status { get; set; }
+        public string DiffTagName { get; set; }
     }
 }

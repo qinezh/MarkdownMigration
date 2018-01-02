@@ -102,7 +102,8 @@ namespace HtmlCompare
                 return new Span
                 {
                     Start = int.Parse(current.Attributes[StartLine].Value),
-                    End = int.Parse(current.Attributes[EndLine].Value)
+                    End = int.Parse(current.Attributes[EndLine].Value),
+                    TagName = current.Name
                 };
             }
             return default(Span);

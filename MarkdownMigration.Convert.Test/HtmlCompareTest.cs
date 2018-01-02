@@ -18,8 +18,7 @@
             HtmlDiffTool hdt = new HtmlDiffTool(htmlA, htmlB);
             Span diffSpan;
             string dfmHtml, markdigHtml;
-            DiffStatus diffStatus;
-            Assert.True(hdt.Compare(out diffSpan, out dfmHtml, out markdigHtml, out diffStatus));
+            Assert.True(hdt.Compare(out diffSpan, out dfmHtml, out markdigHtml));
         }
     }
 }
