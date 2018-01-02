@@ -87,8 +87,8 @@ if ($repoConfig.docsets_to_publish)
 
         & $migrationExePath -d -j "$dfmOutput,$markdigOutput" -rpf $reportDestPath -crp "$htmlBaseFolder\Compare" -bp $docsetFolder
 
-        Zip $dfmOutput "$dfmOutput.zip"
-        Zip $markdigOutput "$markdigOutput.zip" 
+        Remove-Item -path $dfmOutput -recurse
+        Remove-Item -path $markdigOutput -recurse 
         Zip $dfmHtmlOutput "$dfmHtmlOutput.zip" 
         Zip $markdigHtmlOutput "$markdigHtmlOutput.zip" 
 
