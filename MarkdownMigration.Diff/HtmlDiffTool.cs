@@ -104,10 +104,10 @@ namespace HtmlCompare
                     return false;
                 }
 
-                //if(!CompareAttributes(dfmNode, markdigNode))
-                //{
-                //    return false;
-                //}
+                if (!CompareAttributes(dfmNode, markdigNode))
+                {
+                    return false;
+                }
 
                 if (dfmNode.Name == "#text")
                 {
@@ -220,10 +220,12 @@ namespace HtmlCompare
             {
                 foreach (var attribute in Rules[dfmNode.Name].CompareAttributes)
                 {
-                    if (dfmNode.Attributes[attribute].Value != markdigNode.Attributes[attribute].Value)
-                    {
+                    var dfmAttribute = dfmNode.Attributes[attribute];
+                    var markdigAttribute = markdigNode.Attributes[attribute];
+                    if (dfmAttribute == null && markdigAttribute == null) continue;
+                    if (dfmAttribute == null || markdigAttribute == null) return false;
+                    if (dfmAttribute.Value.LocalNomalize() != markdigAttribute.Value.LocalNomalize())
                         return false;
-                    }
                 }
             }
 

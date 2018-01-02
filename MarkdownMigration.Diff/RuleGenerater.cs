@@ -86,7 +86,10 @@ namespace HtmlCompare
             {
                 Process = (node) =>
                 {
-                    var src = node.Attributes["src"].Value;
+                    var srcAttribute = node.Attributes["src"];
+                    if (node.Attributes["src"] == null) return;
+
+                    var src = srcAttribute.Value;
                     
                     if(src.StartsWith("https://channel9.msdn.com") && !src.EndsWith("?nocookie=true"))
                     {
@@ -98,6 +101,7 @@ namespace HtmlCompare
                         node.Attributes["src"].Value = src.Replace("https://www.youtube", "https://www.youtube-nocookie");
                     }
                 },
+                IsIgnore = null,
                 CompareAttributes = new string[] { "src" }
             });
 
