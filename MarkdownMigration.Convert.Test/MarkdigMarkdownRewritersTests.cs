@@ -204,7 +204,7 @@ This is <strong>markdown</strong> content.
         [Trait("Related", "MarkdigMarkdownRewriters")]
         public void TestMigrateHeadingWithHref()
         {
-            var source = @"## <a id=""WhatIs""></a>What is Twilio?
+            var source = @"##<a id=""WhatIs""></a>What is Twilio?
 ";
             var expected = @"## <a id=""WhatIs""></a>What is Twilio?
 ";

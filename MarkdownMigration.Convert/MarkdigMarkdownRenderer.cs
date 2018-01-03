@@ -45,7 +45,7 @@ namespace MarkdownMigration.Convert
 
         public override StringBuffer Render(IMarkdownRenderer render, MarkdownLinkInlineToken token, MarkdownInlineContext context)
         {
-            switch(token.LinkType)
+            switch (token.LinkType)
             {
                 case MarkdownLinkType.AutoLink:
                     return RenderAutoLink(token);
@@ -362,25 +362,27 @@ namespace MarkdownMigration.Convert
         {
             var source = token.SourceInfo.Markdown;
 
-            // TODO: improve
-            if (source.Contains("<a "))
-            {
-                return source;
-            }
-
             var match = _headingRegex.Match(source);
             if (match.Success)
             {
                 var result = StringBuffer.Empty;
                 var whitespace = match.Groups["whitespace"].Value;
-                var content = RenderInlineTokens(token.Content.Tokens, render);
-
+                var text = match.Groups["text"].Value;
                 result += match.Groups["pre"].Value;
+
                 if (string.IsNullOrEmpty(whitespace))
                 {
                     result += " ";
                 }
-                result += content;
+
+                if (text.StartsWith("<a id="))
+                {
+                    result += text;
+                }
+                else
+                {
+                    result += RenderInlineTokens(token.Content.Tokens, render);
+                }
                 result += match.Groups["post"].Value;
 
                 return result;
