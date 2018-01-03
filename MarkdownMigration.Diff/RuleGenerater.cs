@@ -9,6 +9,17 @@ namespace HtmlCompare
 {
     public  static class RuleGenerater
     {
+        public static Dictionary<string, DiffRule> AppendDocumentRule(this Dictionary<string, DiffRule> rules)
+        {
+            rules.Add("#document", new DiffRule
+            {
+                CompareChildrenOnly = (node) => true,
+                IsIgnore = null
+            });
+
+            return rules;
+        }
+
         public static Dictionary<string, DiffRule> AppendTextRule(this Dictionary<string, DiffRule> rules)
         {
             rules.Add("#text", new DiffRule());
@@ -25,6 +36,7 @@ namespace HtmlCompare
 
             return rules;
         }
+
         public static Dictionary<string, DiffRule> AppendPreRule(this Dictionary<string, DiffRule> rules)
         {
             rules.Add("pre", new DiffRule
