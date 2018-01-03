@@ -453,5 +453,21 @@ text";
             var result = _tool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }
+
+        [Fact]
+        [Trait("Related", "MarkdigMarkdownRewriters")]
+        public void TestMigrateNewlineInCodeBlock()
+        {
+            var source = @"  ```
+code
+
+
+```";
+            var expected = @"  ```
+code
+```";
+            var result = _tool.Convert(source, "topic.md");
+            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+        }
     }
 }

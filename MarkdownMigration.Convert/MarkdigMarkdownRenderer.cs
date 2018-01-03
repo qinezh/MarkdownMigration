@@ -24,6 +24,7 @@ namespace MarkdownMigration.Convert
         private static readonly Regex _unorderListStart = new Regex(@"^\s*(?<start>.)", RegexOptions.Compiled);
         private static readonly Regex _incRegex = new Regex(@"(?<=\()(?<path>.+?)(?=\)\])", RegexOptions.Compiled);
         private static readonly Regex _whitespaceInNormalLinkregex = new Regex(@"(?<=\]) (?=\(.+?\))", RegexOptions.Compiled);
+        private static readonly Regex _fenceCodeRegex = new Regex(@"(?<pre> *`{3,}\w*\n)(?<code>[\s\S]+?)(?<post>\n *`{3,}\n?)", RegexOptions.Compiled);
         private Stack<IMarkdownToken> _processedBlockTokens;
 
         public MarkdigMarkdownRenderer(Stack<IMarkdownToken> processedBlockTokens)
@@ -77,6 +78,15 @@ namespace MarkdownMigration.Convert
         public override StringBuffer Render(IMarkdownRenderer render, GfmDelInlineToken token, MarkdownInlineContext context)
         {
             return token.SourceInfo.Markdown;
+        }
+
+        public StringBuffer Render(IMarkdownRenderer render, MarkdownCodeBlockToken token, MarkdownBlockContext context)
+        {
+            var markdown = token.SourceInfo.Markdown;
+            return _fenceCodeRegex.Replace(markdown, m =>
+            {
+                return m.Groups["pre"].Value + m.Groups["code"].Value.TrimEnd('\n') + m.Groups["post"].Value;
+            });
         }
 
         public override StringBuffer Render(IMarkdownRenderer render, MarkdownBlockquoteBlockToken token, MarkdownBlockContext context)

@@ -73,6 +73,12 @@ namespace MarkdownMigration.Convert
                 return true;
             }
 
+            // remvoe end newlines in code block
+            if (token is MarkdownCodeBlockToken)
+            {
+                return true;
+            }
+
             try
             {
                 var dfmHtml = _dfmEngine.Markup(markdown, file);
