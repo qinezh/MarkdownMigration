@@ -9,7 +9,6 @@ namespace MarkdownMigration.Common
     public static class ReportUtility
     {
         private static DocsetReport _report;
-        private static object _sync = new object();
 
         static ReportUtility()
         {
@@ -21,17 +20,14 @@ namespace MarkdownMigration.Common
 
         public static void Add(string file, MigratedTokenInfo tokenInfo)
         {
-            lock(_sync)
+            if (_report.Files.TryGetValue(file, out ReportItem item))
             {
-                if (_report.Files.TryGetValue(file, out ReportItem item))
-                {
-                    item.Tokens.Add(tokenInfo);
-                }
-                else
-                {
-                    var reportItem = new ReportItem(tokenInfo);
-                    _report.Files.Add(file, reportItem);
-                }
+                item.Tokens.Add(tokenInfo);
+            }
+            else
+            {
+                var reportItem = new ReportItem(tokenInfo);
+                _report.Files.Add(file, reportItem);
             }
         }
 

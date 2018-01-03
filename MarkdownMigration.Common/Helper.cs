@@ -1,14 +1,21 @@
-﻿namespace MarkdownMigration.Common
+﻿using System;
+
+namespace MarkdownMigration.Common
 {
     public static class Helper
     {
-        public static int CountEndNewLine(string source)
+        public static int CountEndNewLine(string content)
         {
-            var last = source.Length - 1;
+            if (content == null)
+            {
+                throw new ArgumentException($"{nameof(content)} can't be null");
+            }
+
+            var last = content.Length - 1;
             var count = 0;
             while (last >= 0)
             {
-                if (source[last] == '\n')
+                if (content[last] == '\n')
                 {
                     ++count;
                 }

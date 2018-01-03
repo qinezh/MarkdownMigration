@@ -11,19 +11,18 @@ namespace MarkdownMigration.Convert
 
     using Microsoft.DocAsCode.Dfm;
     using Microsoft.DocAsCode.Glob;
-    using Microsoft.DocAsCode.MarkdownLite;
 
     public class MarkdownMigrateTool
     {
         private readonly DfmEngineBuilder _builder;
-        private readonly MarkdownRenderer _render;
+        private readonly string _workingFolder;
 
         public MarkdownMigrateTool(string workingFolder = ".")
         {
             var option = DocfxFlavoredMarked.CreateDefaultOptions();
             option.LegacyMode = true;
             _builder = new DfmEngineBuilder(option);
-            _render = new MarkdigMarkdownRendererProxy(workingFolder);
+            _workingFolder = workingFolder;
         }
 
         public void MigrateFromPattern(string cwd, List<string> patterns, List<string> excludePatterns, string outputFolder)
@@ -71,7 +70,7 @@ namespace MarkdownMigration.Convert
 
         public string Convert(string markdown, string inputFile)
         {
-            var engine = _builder.CreateDfmEngine(_render);
+            var engine = _builder.CreateDfmEngine(new MarkdigMarkdownRendererProxy(_workingFolder));
             var result = engine.Markup(markdown, inputFile);
 
             result = RevertNormalizedPart(result, markdown);
