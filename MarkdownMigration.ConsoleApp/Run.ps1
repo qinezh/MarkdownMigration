@@ -91,6 +91,8 @@ if ($repoConfig.docsets_to_publish)
         Remove-Item -path $markdigOutput -recurse 
         Zip $dfmHtmlOutput "$dfmHtmlOutput.zip" 
         Zip $markdigHtmlOutput "$markdigHtmlOutput.zip" 
+        Remove-Item -path $dfmHtmlOutput -recurse
+        Remove-Item -path $markdigHtmlOutput -recurse 
 
         $docset = [IO.File]::ReadAllText($reportDestPath) | ConvertFrom-Json
         $docset.docset_name = $docsetName
