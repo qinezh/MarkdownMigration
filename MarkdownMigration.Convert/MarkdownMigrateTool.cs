@@ -95,7 +95,7 @@ namespace MarkdownMigration.Convert
                 }
             }
 
-            if (string.Equals(lines[index], "---"))
+            if (index < lines.Count() && string.Equals(lines[index], "---"))
             {
                 return string.Join("\n", lines.Skip(index));
             }
