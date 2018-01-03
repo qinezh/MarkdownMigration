@@ -3,6 +3,23 @@ param (
     [string]$repoUrl,
     [string]$outputFolder
 )
+
+$ErrorActionPreference = 'Stop'
+
+function CheckExitCode {
+    param($exitCode, $msg)
+    if ($exitCode -eq 0) {
+        Write-Host "Success: $msg
+        " -ForegroundColor Green
+    }
+    else {
+        Write-Host "Error $($exitCode): $msg
+        " -ForegroundColor Red
+        Pop-Location
+        Exit 1
+    }
+}
+
 $repoName = "TestRepo"
 if ($repoUrl) {
     $repoName = ($repoUrl -split "/")[-1] -replace ".git",""
@@ -75,6 +92,8 @@ if ($repoConfig.docsets_to_publish)
         Remove-Item -path "$docsetFolder\obj" -recurse
 
         & $migrationExePath -m -c $docsetFolder -p "**.md"
+        CheckExitCode $lastexitcode "migration failed."
+
         $reportPath = Join-Path $docsetFolder "report.json"
         $reportDestPath = Join-Path $htmlBaseFolder "report.json"
         Copy-Item -Path $reportPath -Destination $reportDestPath -recurse -Force
