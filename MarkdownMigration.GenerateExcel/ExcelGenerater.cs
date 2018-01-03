@@ -49,17 +49,9 @@ namespace MarkdownMigration.GenerateExcel
 
                 var migrationDetailSheet = package.Workbook.Worksheets.Add("MigrationDetail");
                 WriteMigrationDetailSheet(migrationDetailSheet);
-
-                var allDiffTags = Report.Docsets.Where(d => d != null && d.Files != null)
-                    .SelectMany(d => d.Files.Select(f => f.Value.DiffTagName)).Distinct().ToList();
-
-                foreach (var diffTagName in allDiffTags)
-                {
-                    if (string.IsNullOrEmpty(diffTagName)) continue;
-
-                    var differenceAfterMigrateSheet = package.Workbook.Worksheets.Add(diffTagName + "_ISSUE");
-                    WriteDifferenceAfterMigrateSheet(differenceAfterMigrateSheet, diffTagName);
-                }
+                
+                var differenceAfterMigrateSheet = package.Workbook.Worksheets.Add("DifferenceAfterMigration");
+                WriteDifferenceAfterMigrateSheet(differenceAfterMigrateSheet);
 
                 // save to file
                 var file = new FileInfo(OutputFilename);
@@ -67,11 +59,12 @@ namespace MarkdownMigration.GenerateExcel
             }
         }
 
-        private void WriteDifferenceAfterMigrateSheet(ExcelWorksheet sheet, string diffTagName)
+        private void WriteDifferenceAfterMigrateSheet(ExcelWorksheet sheet)
         {
             var contentTable = new List<IReadOnlyList<object>>();
             var title = new List<string>() {
                 "Docset Name",
+                "Diff TagName",
                 "File Name",
                 "Migrated",
                 "SourceMarkdown",
@@ -88,10 +81,11 @@ namespace MarkdownMigration.GenerateExcel
 
                 foreach (var file in docset.Files)
                 {
-                    if (file.Value.DiffTagName != diffTagName) continue;
+                    if (string.IsNullOrEmpty(file.Value.DiffTagName)) continue;
 
                     var list = new List<object>();
                     list.Add(docset.DocsetName);
+                    list.Add(file.Value.DiffTagName);
                     list.Add(GetRemotePath(file.Key));
                     list.Add(file.Value.Migrated);
                     list.Add(file.Value.SourceMarkDown);
