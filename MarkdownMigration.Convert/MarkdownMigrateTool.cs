@@ -71,11 +71,38 @@ namespace MarkdownMigration.Convert
         public string Convert(string markdown, string inputFile)
         {
             var engine = _builder.CreateDfmEngine(new MarkdigMarkdownRendererProxy(_workingFolder));
+
+            markdown = TrimNewlineBeforeYamlHeader(markdown);
+
             var result = engine.Markup(markdown, inputFile);
 
             result = RevertNormalizedPart(result, markdown);
 
             return result;
+        }
+
+        private string TrimNewlineBeforeYamlHeader(string markdown)
+        {
+            markdown = NormalizeUtility.Normalize(markdown);
+            var lines = markdown.Split('\n');
+            var index = 0;
+            for(; index < lines.Count(); index++)
+            {
+                var line = lines[index];
+                if (!string.Equals(line, string.Empty))
+                {
+                    break;
+                }
+            }
+
+            if (string.Equals(lines[index], "---"))
+            {
+                return string.Join("\n", lines.Skip(index));
+            }
+            else
+            {
+                return markdown;
+            }
         }
 
         private string RevertNormalizedPart(string result, string source)

@@ -469,5 +469,25 @@ code
             var result = _tool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }
+
+        [Fact]
+        [Trait("Related", "MarkdigMarkdownRewriters")]
+        public void TestMigrateYamlHeader()
+        {
+            var source = @"
+
+---
+a: b
+
+---
+#title";
+            var expected = @"---
+a: b
+
+---
+# title";
+            var result = _tool.Convert(source, "topic.md");
+            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+        }
     }
 }
