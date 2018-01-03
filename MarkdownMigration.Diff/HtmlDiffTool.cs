@@ -95,8 +95,8 @@ namespace HtmlCompare
 
                 if (dfmNode == null && markdigNode == null) return true;
 
-                dfmHtml = dfmNode != null ? dfmNode.OuterHtml : string.Empty;
-                markdigHtml = markdigNode!= null? markdigNode.OuterHtml : string.Empty;
+                dfmHtml = dfmNode != null && dfmNode.Name != "#document" ? dfmNode.OuterHtml : string.Empty;
+                markdigHtml = markdigNode!= null && markdigNode.Name != "#document" ? markdigNode.OuterHtml : string.Empty;
                 if (dfmNode == null || markdigNode == null || dfmNode.Name != markdigNode.Name)
                 {
                     dfmStack.Push(dfmNode);

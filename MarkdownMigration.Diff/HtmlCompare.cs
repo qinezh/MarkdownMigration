@@ -17,10 +17,6 @@ namespace HtmlCompare
 {
     public class HtmlCompare
     {
-        static ConcurrentDictionary<string, ConcurrentBag<string>> migrationChangeResults = new ConcurrentDictionary<string, ConcurrentBag<string>>();
-        static ConcurrentDictionary<string, ConcurrentBag<string>> migrationEqualResults = new ConcurrentDictionary<string, ConcurrentBag<string>>();
-        static ConcurrentDictionary<string, ConcurrentBag<string>> migrationErrorResults = new ConcurrentDictionary<string, ConcurrentBag<string>>();
-
         static ConcurrentBag<DiffResult> Result = new ConcurrentBag<DiffResult>();
         //static ConcurrentDictionary<string, HtmlDocument> docs = new ConcurrentDictionary<string, HtmlDocument>();
 
@@ -101,30 +97,15 @@ namespace HtmlCompare
         static string targetFileName = "docs-recommendation-function-spec.html";
         static ConcurrentDictionary<string, string> htmlToSourceFileMapping = new ConcurrentDictionary<string, string>();
 
-        public static void CompareHtmlFromFolder(string folderA, string folderB, string outPutFolder,out List<DiffResult> differentFiles, out List<string> allFiles,  bool startWinMerge = false)
+        public static void CompareHtmlFromFolder(string folderA, string folderB, out List<DiffResult> differentFiles, out List<string> allFiles)
         {
             // Prepare
             string timeStampStr = DateTime.Now.ToString("yy-MM-dd-hh-mm-ss");
             
             htmlToSourceFileMapping = JsonConvert.DeserializeObject<ConcurrentDictionary<string, string>>(File.ReadAllText(Path.Combine(folderA, "htmlSourceMapping.json")));
             
-            var target = outPutFolder;
-            string targetA = Path.Combine(target, $"{timeStampStr}-FolderA"); //$@"D:\Compare\{timeStampStr}-FolderA";
-            string targetB = Path.Combine(target, $"{timeStampStr}-FolderB");  //$@"D:\Compare\{timeStampStr}-FolderB";
-
             Console.WriteLine($"folderA: {folderA}");
             Console.WriteLine($"folderB: {folderB}");
-            Console.WriteLine($"targetA: {targetA}");
-            Console.WriteLine($"targetB: {targetB}");
-            Console.WriteLine($"Clear target folder if exists.");
-            if (Directory.Exists(targetA))
-            {
-                Directory.Delete(targetA, true);
-            }
-            if (Directory.Exists(targetB))
-            {
-                Directory.Delete(targetB, true);
-            }
 
             string filePattern = debug ? targetFileName : "*.html";
 
@@ -141,13 +122,6 @@ namespace HtmlCompare
             List<string> result_Unique = new List<string>();
             result_Unique.AddRange(AnotB);
             result_Unique.AddRange(BnotA);
-
-            foreach (var step in StringMigrationSteps)
-            {
-                migrationChangeResults[step.Method.Name] = new ConcurrentBag<string>();
-                migrationEqualResults[step.Method.Name] = new ConcurrentBag<string>();
-                migrationErrorResults[step.Method.Name] = new ConcurrentBag<string>();
-            }
 
             // Compare
             //ProgressHelper ph0 = ProgressHelper.CreateStartedInstance(AinB.Count(), "Proccessing Files");
@@ -190,12 +164,6 @@ namespace HtmlCompare
                         };
 
                         Result.Add(diffResult);
-                        // Step 3: Write the Different Files
-                        //var targetFileA = fileA.Replace(folderA, targetA);
-                        //var targetFileB = fileB.Replace(folderB, targetB);
-                        //CreateFile(targetFileA, rawContentA);
-                        //CreateFile(targetFileB, rawContentB);
-                        //result_Different.Add(fileA);
                     }
                 }
                 //ph0.Increase();
@@ -206,27 +174,13 @@ namespace HtmlCompare
             int allFilesCount = (filesA.Count() + filesB.Count() + uniqueFiles) / 2;
             Console.WriteLine($"All Files: {allFilesCount}");
             Console.WriteLine($"Shared Files: {allFilesCount - uniqueFiles}");
-            Console.WriteLine($"    Same Files: {result_Same.Count()}");
-            Console.WriteLine($"    Equal Files: {result_Equal.Count()}");
-            Console.WriteLine($"        Change\tEqueal\tError\tStep");
-            foreach (var step in StringMigrationSteps)
-            {
-                Console.WriteLine($"        {migrationChangeResults[step.Method.Name].Count()}\t{migrationEqualResults[step.Method.Name].Count()}\t{migrationErrorResults[step.Method.Name].Count()}\t{step.Method.Name}");
-            }
-            Console.WriteLine($"    Different Files: {Result.Count()}");
+            Console.WriteLine($"Same Files: {result_Same.Count()}");
+            Console.WriteLine($"Equal Files: {result_Equal.Count()}");
+            Console.WriteLine($"Different Files: {Result.Count()}");
             Console.WriteLine($"Unique Files: {uniqueFiles}");
             
-            string exe = @"E:\Program\WinMerge\WinMergeU.exe";
-            if (startWinMerge && !string.IsNullOrEmpty(exe))
-            {
-                String exeArgs = $@"/r ""{targetA}"" ""{targetB}""";
-                Console.WriteLine($"Starting WinMerge...");
-                Process.Start(exe, exeArgs);
-            }
-            //filesA all
             differentFiles = Result.ToList();
             allFiles = filesA.Select(html => htmlToSourceFileMapping[html]).ToList();
-            //Console.ReadKey();
         }
 
         #region Heplers
@@ -383,49 +337,6 @@ namespace HtmlCompare
             var removedDeclaration = Regex.Replace(rawOuterHtml, @"^<\?xml version=""1\.0"" encoding=""gb2312""\?>", "");
             removedDeclaration = Regex.Replace(removedDeclaration, @"^<\?xml version=""1\.0"" encoding=""iso-8859-1""\?>", "");
             return removedDeclaration;
-        }
-
-        public static bool CompareMigratedHtml(string fileA, string contentA, string contentB, out string migratedA, out string migratedB, bool enableLog = true, bool enableAllRules = true)
-        {
-            migratedA = contentA.Trim();
-            migratedB = contentB.Trim();
-
-            var steps = enableAllRules ? StringMigrationSteps : NoMatterSteps;
-
-            foreach (var stepFunc in steps)
-            {
-                try
-                {
-                    var tempMigratedA = stepFunc(migratedA);
-                    var tempMigratedB = stepFunc(migratedB);
-                    if (tempMigratedA != migratedA || tempMigratedB != migratedB)
-                    {
-                        //PauseWhenDebug();
-                        migratedA = tempMigratedA;
-                        migratedB = tempMigratedB;
-                        if (enableLog) migrationChangeResults[stepFunc.Method.Name].Add(fileA);
-                    }
-                    if (migratedA == migratedB)
-                    {
-                        if (enableLog) migrationEqualResults[stepFunc.Method.Name].Add(fileA);
-                        return true;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    PauseWhenDebug();
-                    if (enableLog)
-                    {
-                        migrationErrorResults[stepFunc.Method.Name].Add(fileA);
-                    }
-                    else
-                    {
-                        throw ex;
-                    }
-                }
-            }
-
-            return false;
         }
         #endregion
 

@@ -27,7 +27,6 @@ namespace MarkdownMigration.Convert
         public Mode RunMode { get; set; }
         public string JsonFolders { get; set; }
         public string JsonReportFile { get; set; }
-        public string CompareResultPath { get; set; }
         public string BasePath { get; set; }
         public string GitRepoUrl { get; set; }
 
@@ -46,7 +45,6 @@ namespace MarkdownMigration.Convert
                 { "d|diff", "run diff mode", (d) => RunMode = Mode.Diff },
                 { "j|jsonfolders=", "difffolders, split compare json folders with comma", (j) => JsonFolders = j },
                 { "rpf|reportFile=", "json report file path", (rpf) => JsonReportFile = rpf },
-                { "crp|compareResultPath=", "this path is used to store diff result", (crp) => CompareResultPath = crp },
                 { "ge|generateExcelReport", "generate excel report from json report", (ge) => RunMode = Mode.GenerateExcel },
                 { "bp|docsetBasePath=", "git local docset basepath", (bp) => BasePath = bp },
                 { "repourl|reporemoteurl=", "git remote url", (grp) => GitRepoUrl = grp },
