@@ -60,6 +60,8 @@ $migrationExePath = Join-Path $scriptPath "MarkdownMigration.ConsoleApp.exe"
 $markdigPackPath = Join-Path $toolsPath "Microsoft.DocAsCode.MarkdigEngine.$markDigVersion\content\plugins"
 $docfxFolder = Join-Path $toolsPath "docfx.console.$docFxVersion\tools"
 $docfxExePath = Join-Path $docfxFolder "docfx.exe"
+$tempdfmfolder = Join-Path $outputFolder "tempdfm"
+
 Copy-Item $markdigPackPath $docfxFolder -Recurse -Force
 
 $repoConfig = Get-Content -Raw -Path .openpublishing.publish.config.json | ConvertFrom-Json
@@ -86,13 +88,17 @@ if ($repoConfig.docsets_to_publish)
             $dest = Join-Path $docsetFolder $docfxJson.build.dest
         }
 
+        Copy-Item -Path $docsetFolder -Destination $tempdfmfolder -recurse -Force
+
         & $docfxExePath $docfxJsonPath --exportRawModel --dryRun --force --markdownEngineName dfm 
+        CheckExitCode $lastexitcode "dfm build"
+
         Copy-Item -Path $dest -Destination $dfmOutput -recurse -Force
         Remove-Item -path $dest -recurse
         Remove-Item -path "$docsetFolder\obj" -recurse
 
         & $migrationExePath -m -c $docsetFolder -p "**.md"
-        CheckExitCode $lastexitcode "migration failed."
+        CheckExitCode $lastexitcode "migration"
 
         $reportPath = Join-Path $docsetFolder "report.json"
         $reportDestPath = Join-Path $htmlBaseFolder "report.json"
@@ -100,12 +106,16 @@ if ($repoConfig.docsets_to_publish)
         Remove-Item -path $reportPath
 
         & $docfxExePath $docfxJsonPath --exportRawModel --dryRun --force --markdownEngineName markdig
+        CheckExitCode $lastexitcode "markdig build"
+
         Copy-Item -Path $dest -Destination $markdigOutput -recurse -Force
         Remove-Item -path $dest -recurse
         Remove-Item -path "$docsetFolder\obj" -recurse
 
-        & $migrationExePath -d -j "$dfmOutput,$markdigOutput" -rpf $reportDestPath -bp $docsetFolder
+        & $migrationExePath -d -j "$dfmOutput,$markdigOutput" -rpf $reportDestPath -bp $tempdfmfolder
+        CheckExitCode $lastexitcode "diff"
 
+        Remove-Item -path $tempdfmfolder -recurse
         Remove-Item -path $dfmOutput -recurse
         Remove-Item -path $markdigOutput -recurse 
         Zip $dfmHtmlOutput "$dfmHtmlOutput.zip" 
