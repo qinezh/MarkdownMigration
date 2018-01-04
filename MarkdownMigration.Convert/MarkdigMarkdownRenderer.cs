@@ -382,7 +382,7 @@ namespace MarkdownMigration.Convert
                     result += " ";
                 }
 
-                if (text.StartsWith("<a id="))
+                if (text.StartsWith("<a "))
                 {
                     result += text;
                 }
