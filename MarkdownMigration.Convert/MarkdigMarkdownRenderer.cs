@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.IO;
 
@@ -15,7 +16,7 @@ namespace MarkdownMigration.Convert
 {
     public class MarkdigMarkdownRenderer : DfmMarkdownRenderer
     {
-        private static HttpClient _client = new HttpClient();
+        private static ThreadLocal<HttpClient> _client = new ThreadLocal<HttpClient>(() => new HttpClient());
         private static readonly string _requestTemplate = "https://xref.docs.microsoft.com/query?uid={0}";
         private static DfmRenderer _dfmHtmlRender = new DfmRenderer();
         private static readonly Regex _headingRegex = new Regex(@"^(?<pre> *#{1,6}(?<whitespace> *))(?<text>[^\n]+?)(?<post>(?: +#*)? *(?:\n+|$))", RegexOptions.Compiled);
@@ -516,7 +517,7 @@ namespace MarkdownMigration.Convert
         private async Task<bool> CanResolveUidAsync(string uid)
         {
             var requestUrl = string.Format(_requestTemplate, Uri.EscapeDataString(uid));
-            using (var response = await _client.GetAsync(requestUrl))
+            using (var response = await _client.Value.GetAsync(requestUrl))
             {
                 response.EnsureSuccessStatusCode();
                 using (var content = response.Content)
