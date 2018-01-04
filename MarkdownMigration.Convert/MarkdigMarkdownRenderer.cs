@@ -486,7 +486,7 @@ namespace MarkdownMigration.Convert
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error occured while resolving uid, {ex.Message}");
+                Console.WriteLine($"Error occured while resolving uid, {ex}");
                 return true;
             }
         }
