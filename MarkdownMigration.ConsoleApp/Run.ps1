@@ -88,7 +88,7 @@ if ($repoConfig.docsets_to_publish)
             $dest = Join-Path $docsetFolder $docfxJson.build.dest
         }
 
-        Copy-Item -Path $docsetFolder -Destination $tempdfmfolder -recurse -Force
+        robocopy $docsetFolder $tempdfmfolder *.md /s
 
         & $docfxExePath $docfxJsonPath --exportRawModel --dryRun --force --markdownEngineName dfm 
         CheckExitCode $lastexitcode "dfm build"
