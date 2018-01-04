@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
-using System;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 using MarkdigEngine;
 using MarkdigEngine.Extensions;
@@ -79,6 +80,11 @@ namespace MarkdownMigration.Convert
                 return true;
             }
 
+            if (token is MarkdownParagraphBlockToken paragraph && NeedMigrationParagrah(paragraph))
+            {
+                return true;
+            }
+
             try
             {
                 var dfmHtml = _dfmEngine.Markup(markdown, file);
@@ -96,6 +102,22 @@ namespace MarkdownMigration.Convert
             }
 
             return true;
+        }
+
+        private bool NeedMigrationParagrah(MarkdownParagraphBlockToken token)
+        {
+            var markdown = token.SourceInfo.Markdown;
+            var tokens = token.InlineTokens.Tokens;
+            if (tokens != null && tokens.LastOrDefault() is MarkdownTagInlineToken tag)
+            {
+                var newLineCount = Helper.CountEndNewLine(markdown);
+                if (newLineCount < 2)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private bool NeedMigrationTable(MarkdownTableBlockToken token)

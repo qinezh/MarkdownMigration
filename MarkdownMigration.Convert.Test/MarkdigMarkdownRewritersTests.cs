@@ -138,12 +138,15 @@ This is <strong>markdown</strong> content.
             var source = @"
 <br>
 ![](a.png)
-<br>";
+<br>
+#title";
             var expected = @"
 <br>
 
 ![](a.png)
-<br>";
+<br>
+
+# title";
 
             var result = _tool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result);

@@ -163,12 +163,19 @@ namespace MarkdownMigration.Convert
         public override StringBuffer Render(IMarkdownRenderer render, MarkdownParagraphBlockToken token, MarkdownBlockContext context)
         {
             var source = token.SourceInfo.Markdown;
-            if (source.EndsWith("\n"))
+            var tokens = token.InlineTokens.Tokens;
+
+            if (tokens.LastOrDefault() is MarkdownTagInlineToken)
             {
-                return RenderInlineTokens(token.InlineTokens.Tokens, render) + "\n";
+                return RenderInlineTokens(token.InlineTokens.Tokens, render) + "\n\n";
             }
 
-            return RenderInlineTokens(token.InlineTokens.Tokens, render);
+            if (source.EndsWith("\n"))
+            {
+                return RenderInlineTokens(tokens, render) + "\n";
+            }
+
+            return RenderInlineTokens(tokens, render);
         }
 
         public override StringBuffer Render(IMarkdownRenderer render, MarkdownTableBlockToken token, MarkdownBlockContext context)
