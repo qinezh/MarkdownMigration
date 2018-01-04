@@ -224,6 +224,11 @@ namespace MarkdownMigration.Convert
             return token.SourceInfo.Markdown;
         }
 
+        public override StringBuffer Render(IMarkdownRenderer render, DfmNoteBlockToken token, MarkdownBlockContext context)
+        {
+            return $"[!{token.NoteType}]\n";
+        }
+
         public override StringBuffer Render(IMarkdownRenderer render, DfmIncludeBlockToken token, MarkdownBlockContext context)
         {
             return RenderIncludeToken(token.SourceInfo.Markdown);

@@ -85,6 +85,11 @@ namespace MarkdownMigration.Convert
                 return true;
             }
 
+            if (token is DfmNoteBlockToken)
+            {
+                return true;
+            }
+
             try
             {
                 var dfmHtml = _dfmEngine.Markup(markdown, file);

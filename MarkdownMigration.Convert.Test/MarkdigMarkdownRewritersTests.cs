@@ -494,5 +494,19 @@ a: b
             var result = _tool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }
+
+        [Fact]
+        [Trait("Related", "MarkdigMarkdownRewriters")]
+        public void TestMigrateNote()
+        {
+            var source = @"
+>  [!NOTE]
+> here's note";
+            var expected = @"
+> [!NOTE]
+> here's note";
+            var result = _tool.Convert(source, "topic.md");
+            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+        }
     }
 }
