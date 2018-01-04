@@ -15,7 +15,9 @@ namespace HtmlCompare
             var result = source.Replace("&amp;", "&");
             result = HttpUtility.HtmlDecode(result);
             result = HttpUtility.UrlDecode(result);
-            result = result.Replace(' ', ' ')
+            result = result.Replace("\u00a0", " ")
+                .Replace("\u2424", "\n")
+                .Replace("\u200b", " ")
                 .Replace('\t', ' ');
             result = Regex.Replace(result, "[ \n]+", m =>
             {
