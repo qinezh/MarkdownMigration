@@ -1,16 +1,20 @@
 ﻿using System;
-using System.Collections.Immutable;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using System.IO;
 
+using HtmlCompare;
+using MarkdigEngine;
+using MarkdigEngine.Extensions;
+using MarkdownMigration.Common;
 using Microsoft.DocAsCode.Dfm;
 using Microsoft.DocAsCode.MarkdownLite;
-using MarkdownMigration.Common;
+using Microsoft.DocAsCode.Plugins;
 
 namespace MarkdownMigration.Convert
 {
@@ -27,11 +31,46 @@ namespace MarkdownMigration.Convert
         private static readonly Regex _whitespaceInNormalLinkregex = new Regex(@"(?<=\]) (?=\(.+?\))", RegexOptions.Compiled);
         private static readonly Regex _fenceCodeRegex = new Regex(@"(?<pre> *`{3,}\w*\n)(?<code>[\s\S]+?)(?<post>\n *`{3,}\n?)", RegexOptions.Compiled);
         private static readonly Regex _tagName = new Regex(@"\<([\/a-zA-Z1-9]+)", RegexOptions.Compiled);
+
+        private MarkdownEngine _dfmEngine;
+        private MarkdigMarkdownService _service;
         private Stack<IMarkdownToken> _processedBlockTokens;
 
-        public MarkdigMarkdownRenderer(Stack<IMarkdownToken> processedBlockTokens)
+        public MarkdigMarkdownRenderer(Stack<IMarkdownToken> processedBlockTokens, string basePath)
         {
+            var option = DocfxFlavoredMarked.CreateDefaultOptions();
+            option.LegacyMode = true;
+            var builder = new DfmEngineBuilder(option);
+            var render = new DfmRenderer();
+            _dfmEngine = builder.CreateDfmEngine(render);
+
+            var parameter = new MarkdownServiceParameters
+            {
+                BasePath = basePath,
+                Extensions = new Dictionary<string, object>
+                {
+                    { LineNumberExtension.EnableSourceInfo, false }
+                }
+            };
+            _service = new MarkdigMarkdownService(parameter);
             _processedBlockTokens = processedBlockTokens;
+        }
+
+        public bool CompareMarkupResult(string markdown, string file)
+        {
+            try
+            {
+                var dfmHtml = _dfmEngine.Markup(markdown, file);
+                var markdigHtml = _service.Markup(markdown, file).Html;
+
+                var compareTool = new HtmlDiffTool(dfmHtml, markdigHtml, true);
+                return compareTool.Compare();
+            }
+            catch (Exception)
+            {
+                // TODO
+                return false;
+            }
         }
 
         #region override default renderer

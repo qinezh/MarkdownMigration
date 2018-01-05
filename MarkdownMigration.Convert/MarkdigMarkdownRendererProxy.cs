@@ -1,43 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
-using MarkdigEngine;
-using MarkdigEngine.Extensions;
 using MarkdownMigration.Common;
 using Microsoft.DocAsCode.Dfm;
 using Microsoft.DocAsCode.MarkdownLite;
-using Microsoft.DocAsCode.Plugins;
-using HtmlCompare;
 
 namespace MarkdownMigration.Convert
 {
     public class MarkdigMarkdownRendererProxy : MarkdownRenderer
     {
-        private MarkdownEngine _dfmEngine;
-        private MarkdigMarkdownService _service;
         private MarkdigMarkdownRenderer _renderer;
         private Stack<IMarkdownToken> _processedBlockTokens;
 
         public MarkdigMarkdownRendererProxy(string basePath = ".")
         {
-            var option = DocfxFlavoredMarked.CreateDefaultOptions();
-            option.LegacyMode = true;
-            var builder = new DfmEngineBuilder(option);
-            var render = new DfmRenderer();
-            _dfmEngine = builder.CreateDfmEngine(render);
-
-            var parameter = new MarkdownServiceParameters
-            {
-                BasePath = basePath,
-                Extensions = new Dictionary<string, object>
-                {
-                    { LineNumberExtension.EnableSourceInfo, false }
-                }
-            };
-            _service = new MarkdigMarkdownService(parameter);
             _processedBlockTokens = new Stack<IMarkdownToken>();
-            _renderer = new MarkdigMarkdownRenderer(_processedBlockTokens);
+            _renderer = new MarkdigMarkdownRenderer(_processedBlockTokens, basePath);
         }
 
         public new StringBuffer Render(IMarkdownRenderer render, IMarkdownToken token, IMarkdownContext context)
@@ -90,23 +68,7 @@ namespace MarkdownMigration.Convert
                 return true;
             }
 
-            try
-            {
-                var dfmHtml = _dfmEngine.Markup(markdown, file);
-                var markdigHtml = _service.Markup(markdown, file).Html;
-
-                var compareTool = new HtmlDiffTool(dfmHtml, markdigHtml, true);
-                if (compareTool.Compare())
-                {
-                    return false;
-                }
-            }
-            catch (Exception)
-            {
-                // TODO
-            }
-
-            return true;
+            return !_renderer.CompareMarkupResult(markdown, file);
         }
 
         private bool NeedMigrationParagrah(MarkdownParagraphBlockToken token)
