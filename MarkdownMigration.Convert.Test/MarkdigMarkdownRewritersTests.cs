@@ -430,9 +430,9 @@ content...";
 -|-
 b|b
 ---";
-            var expected = @"a|a
--|-
-b|b
+            var expected = @"| a | a |
+|---|---|
+| b | b |
 
 ---";
             var result = _tool.Convert(source, "topic.md");
@@ -447,6 +447,28 @@ b|b
 a|a
 -|-
 b|b
+text";
+            var expected = @"text
+
+| a | a |
+|---|---|
+| b | b |
+
+text";
+            var result = _tool.Convert(source, "topic.md");
+            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+        }
+
+        [Fact]
+        [Trait("Related", "MarkdigMarkdownRewriters")]
+        public void TestMigrateTableBlock2()
+        {
+            var source = @"text
+
+a|a
+-|-
+b|b
+
 text";
             var expected = @"text
 

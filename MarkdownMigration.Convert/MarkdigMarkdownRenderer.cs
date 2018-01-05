@@ -181,7 +181,55 @@ namespace MarkdownMigration.Convert
 
         public override StringBuffer Render(IMarkdownRenderer render, MarkdownTableBlockToken token, MarkdownBlockContext context)
         {
-            var result = StringBuffer.Empty;
+            const int SpaceCount = 2;
+            var rowCount = token.Cells.Length + 2;
+            var columnCount = token.Header.Length;
+            var maxLengths = new int[columnCount];
+            var matrix = new StringBuffer[rowCount, columnCount];
+
+            for (var column = 0; column < columnCount; column++)
+            {
+                var header = token.Header[column];
+                var content = RenderInlineTokens(header.Content.Tokens, render);
+                matrix[0, column] = content;
+                maxLengths[column] = Math.Max(1, content.GetLength()) + SpaceCount;
+            }
+
+            for (var row = 0; row < token.Cells.Length; row++)
+            {
+                var cell = token.Cells[row];
+                for (var column = 0; column < columnCount; column++)
+                {
+                    var item = cell[column];
+                    var content = RenderInlineTokens(item.Content.Tokens, render);
+                    matrix[row + 2, column] = content;
+                    maxLengths[column] = Math.Max(maxLengths[column], content.GetLength() + SpaceCount);
+                }
+            }
+
+            for (var column = 0; column < columnCount; column++)
+            {
+                var align = token.Align[column];
+                switch (align)
+                {
+                    case Align.NotSpec:
+                        matrix[1, column] = "---";
+                        break;
+                    case Align.Left:
+                        matrix[1, column] = ":--";
+                        break;
+                    case Align.Right:
+                        matrix[1, column] = "--:";
+                        break;
+                    case Align.Center:
+                        matrix[1, column] = ":-:";
+                        break;
+                    default:
+                        throw new NotSupportedException($"align:{align} doesn't support in GFM table");
+                }
+            }
+
+            var result = BuildTable(matrix, maxLengths, rowCount, columnCount);
 
             if (_processedBlockTokens != null && _processedBlockTokens.Count > 0)
             {
@@ -189,19 +237,80 @@ namespace MarkdownMigration.Convert
                 var preTokenNewLinecount = Helper.CountEndNewLine(preToken.SourceInfo.Markdown);
                 if (preTokenNewLinecount < 2)
                 {
-                    result += '\n';
+                    return '\n' + result;
                 }
             }
 
-            var markdown = token.SourceInfo.Markdown;
-            result += markdown;
-
-            var newLineCount = Helper.CountEndNewLine(markdown);
-            if (newLineCount < 2)
-            {
-                result += '\n';
-            }
             return result;
+        }
+
+        private StringBuffer BuildTable(StringBuffer[,] matrix, int[] maxLenths, int rowCount, int nCol)
+        {
+            var content = StringBuffer.Empty;
+            for (var row = 0; row < rowCount; row++)
+            {
+                content += "|";
+                for (var j = 0; j < nCol; j++)
+                {
+                    var align = matrix[1, j];
+                    if (row == 1)
+                    {
+                        content += BuildAlign(align, maxLenths[j]);
+                    }
+                    else
+                    {
+                        content += BuildItem(align, matrix[row, j], maxLenths[j]);
+                    }
+                    content += "|";
+                }
+                content += "\n";
+            }
+
+            return content + "\n";
+        }
+
+        private string BuildAlign(StringBuffer align, int maxLength)
+        {
+            switch (align)
+            {
+                case "---":
+                    return new string('-', maxLength);
+                case ":--":
+                    return ":" + new string('-', maxLength - 1);
+                case "--:":
+                    return new string('-', maxLength - 1) + ":";
+                case ":-:":
+                    return ":" + new string('-', maxLength - 2) + ":";
+                default:
+                    throw new NotSupportedException($"align:{align} doesn't support in GFM table");
+            }
+        }
+
+        private StringBuffer BuildItem(StringBuffer align, StringBuffer value, int maxLength)
+        {
+            var length = value.GetLength();
+            var totalPad = maxLength - value.GetLength();
+
+            switch (align)
+            {
+                case "---":
+                case ":-:":
+                    var leftPad = totalPad / 2;
+                    return BuildItem(value, leftPad, totalPad - leftPad);
+                case ":--":
+                    return BuildItem(value, 1, totalPad - 1);
+                case "--:":
+                    return BuildItem(value, totalPad - 1, 1);
+                default:
+                    throw new NotSupportedException($"align:{align} doesn't support in GFM table");
+            }
+        }
+
+        private StringBuffer BuildItem(StringBuffer value, int leftPad, int rightPad)
+        {
+            var leftValue = leftPad == 1 ? " " : new string(' ', leftPad);
+            var rightValue = rightPad == 1 ? " " : new string(' ', rightPad);
+            return StringBuffer.Empty + leftValue + value + rightValue;
         }
 
         #endregion
