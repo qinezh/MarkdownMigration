@@ -428,7 +428,7 @@ content...";
         {
             var source = @"a|a
 -|-
-b|b
+b|b| |
 ---";
             var expected = @"| a | a |
 |---|---|
