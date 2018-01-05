@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Text;
+
+using HtmlCompare;
 using MarkdownMigration.Common;
 using MarkdownMigration.Convert;
 using MarkdownMigration.GenerateExcel;
 using Newtonsoft.Json;
-using HtmlCompare;
-using System.Text;
-using System.Web;
 
 namespace MarkdownMigration.ConsoleApp
 {
@@ -16,6 +17,7 @@ namespace MarkdownMigration.ConsoleApp
     {
         private static void Main(string[] args)
         {
+            ServicePointManager.DefaultConnectionLimit = 64;
             var opt = new CommandLineOptions();
 
             try
