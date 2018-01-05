@@ -483,6 +483,27 @@ text";
 
         [Fact]
         [Trait("Related", "MarkdigMarkdownRewriters")]
+        public void TestMigrateTableBlock3()
+        {
+            var source = @"text
+a|a
+-|-
+b|<ul><li>[text](#bookmark)</li></ul>
+
+text";
+            var expected = @"text
+
+| a |                                         a                                          |
+|---|------------------------------------------------------------------------------------|
+| b | <ul><li><a href=""#bookmark"" data-raw-source=""[text](#bookmark)"">text</a></li></ul> |
+
+text";
+            var result = _tool.Convert(source, "topic.md");
+            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+        }
+
+        [Fact]
+        [Trait("Related", "MarkdigMarkdownRewriters")]
         public void TestMigrateNewlineInCodeBlock()
         {
             var source = @"  ```

@@ -26,6 +26,7 @@ namespace MarkdownMigration.Convert
         private static readonly Regex _incRegex = new Regex(@"(?<=\()(?<path>.+?)(?=\)\])", RegexOptions.Compiled);
         private static readonly Regex _whitespaceInNormalLinkregex = new Regex(@"(?<=\]) (?=\(.+?\))", RegexOptions.Compiled);
         private static readonly Regex _fenceCodeRegex = new Regex(@"(?<pre> *`{3,}\w*\n)(?<code>[\s\S]+?)(?<post>\n *`{3,}\n?)", RegexOptions.Compiled);
+        private static readonly Regex _tagName = new Regex(@"\<([\/a-zA-Z1-9]+)", RegexOptions.Compiled);
         private Stack<IMarkdownToken> _processedBlockTokens;
 
         public MarkdigMarkdownRenderer(Stack<IMarkdownToken> processedBlockTokens)
@@ -552,6 +553,8 @@ namespace MarkdownMigration.Convert
         {
             var result = StringBuffer.Empty;
             var insideHtml = false;
+            var tags = new Stack<string>();
+            
             for (var index = 0; index < tokens.Count(); index++)
             {
                 if (tokens[index] is MarkdownLinkInlineToken token && token.LinkType is MarkdownLinkType.UrlLink)
@@ -567,7 +570,24 @@ namespace MarkdownMigration.Convert
                 {
                     if (!string.Equals(tokens[index].SourceInfo.Markdown, "<br>"))
                     {
-                        insideHtml = !insideHtml;
+                        var tagMatch = _tagName.Match(tokens[index].SourceInfo.Markdown);
+                        if(tagMatch.Success)
+                        {
+                            var tag = tagMatch.Groups[1].Value;
+                            if(IsEndTag(tag))
+                            {
+                                if(tags.Count > 0)
+                                {
+                                    var expectedEndTag = tags.Peek();
+                                    if (tag == expectedEndTag) tags.Pop();
+                                }
+                            }
+                            else
+                            {
+                                tags.Push(GetEndTagFromStartTag(tag));
+                            }
+                        }
+                        insideHtml = tags.Count > 0;
                     }
                     result += MarkupInlineToken(render, tokens[index]);
 
@@ -584,6 +604,16 @@ namespace MarkdownMigration.Convert
             }
 
             return result;
+        }
+
+        private string GetEndTagFromStartTag(string tag)
+        {
+            return '/' + tag;
+        }
+
+        private bool IsEndTag(string tagName)
+        {
+            return !string.IsNullOrEmpty(tagName) && tagName[0] == '/';
         }
 
         private bool TryResolveUid(string uid)
