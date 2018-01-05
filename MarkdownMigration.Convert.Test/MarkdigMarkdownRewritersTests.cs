@@ -489,7 +489,6 @@ text";
 a|a
 -|-
 b|<ul><li>[text](#bookmark)</li></ul>
-
 text";
             var expected = @"text
 

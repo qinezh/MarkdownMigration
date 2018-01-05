@@ -56,7 +56,7 @@ namespace MarkdownMigration.Convert
             _processedBlockTokens = processedBlockTokens;
         }
 
-        public bool CompareMarkupResult(string markdown, string file)
+        public bool CompareMarkupResult(string markdown, string file = "topic.md")
         {
             try
             {
@@ -221,6 +221,14 @@ namespace MarkdownMigration.Convert
 
         public override StringBuffer Render(IMarkdownRenderer render, MarkdownTableBlockToken token, MarkdownBlockContext context)
         {
+            var markdown = token.SourceInfo.Markdown;
+            var newLineCount = Helper.CountEndNewLine(markdown);
+
+            if (CompareMarkupResult("\n" + markdown) && newLineCount >= 2)
+            {
+                return "\n" + markdown;
+            }
+
             const int SpaceCount = 2;
             var rowCount = token.Cells.Length + 2;
             var columnCount = token.Header.Length;
