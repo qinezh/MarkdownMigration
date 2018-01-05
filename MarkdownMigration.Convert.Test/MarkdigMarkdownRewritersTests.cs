@@ -196,10 +196,37 @@ This is <strong>markdown</strong> content.
  <center>![](a.png)</center>";
             var expected = @"
  <br>
-
- <center><img src=""a.png"" alt=""""/></center>
+ 
+<center><img src=""a.png"" alt=""""/></center>
 
 ";
+
+            var result = _tool.Convert(source, "topic.md");
+            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+        }
+
+        [Fact]
+        [Trait("Related", "MarkdigMarkdownRewriters")]
+        public void TestMigrateHtml5()
+        {
+            var source = @"
+<br> 
+[link](text)
+
+<br> [link](text)
+
+<br>
+[link](text)";
+            var expected = @"
+<br> 
+
+[link](text)
+
+<br> [link](text)
+
+<br>
+
+[link](text)";
 
             var result = _tool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
@@ -486,15 +513,15 @@ text";
         public void TestMigrateTableBlock3()
         {
             var source = @"text
-a|a
+f<br>g|a
 -|-
 b|<ul><li>[text](#bookmark)</li></ul>
 text";
             var expected = @"text
 
-| a |                                         a                                          |
-|---|------------------------------------------------------------------------------------|
-| b | <ul><li><a href=""#bookmark"" data-raw-source=""[text](#bookmark)"">text</a></li></ul> |
+| f<br>g |                                         a                                          |
+|--------|------------------------------------------------------------------------------------|
+|   b    | <ul><li><a href=""#bookmark"" data-raw-source=""[text](#bookmark)"">text</a></li></ul> |
 
 text";
             var result = _tool.Convert(source, "topic.md");

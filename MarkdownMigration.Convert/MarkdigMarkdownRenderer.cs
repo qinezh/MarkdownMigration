@@ -601,7 +601,7 @@ namespace MarkdownMigration.Convert
             var result = StringBuffer.Empty;
             var insideHtml = false;
             var tags = new Stack<string>();
-            
+
             for (var index = 0; index < tokens.Count(); index++)
             {
                 if (tokens[index] is MarkdownLinkInlineToken token && token.LinkType is MarkdownLinkType.UrlLink)
@@ -618,12 +618,12 @@ namespace MarkdownMigration.Convert
                     if (!string.Equals(tokens[index].SourceInfo.Markdown, "<br>"))
                     {
                         var tagMatch = _tagName.Match(tokens[index].SourceInfo.Markdown);
-                        if(tagMatch.Success)
+                        if (tagMatch.Success)
                         {
                             var tag = tagMatch.Groups[1].Value;
-                            if(IsEndTag(tag))
+                            if (IsEndTag(tag))
                             {
-                                if(tags.Count > 0)
+                                if (tags.Count > 0)
                                 {
                                     var expectedEndTag = tags.Peek();
                                     if (tag == expectedEndTag) tags.Pop();
@@ -637,9 +637,16 @@ namespace MarkdownMigration.Convert
                         insideHtml = tags.Count > 0;
                     }
                     result += MarkupInlineToken(render, tokens[index]);
+                }
+                else if (tokens[index] is MarkdownTextToken textToken)
+                {
+                    var pre = index - 1 >= 0 ? tokens[index - 1] : null;
+                    result += render.Render(textToken);
 
-                    var post = index + 1 < tokens.Count() ? tokens[index + 1] : null;
-                    if (post != null && !insideHtml && !(post is MarkdownTagInlineToken) && !(post is MarkdownNewLineBlockToken))
+                    if (pre != null && !insideHtml
+                        && pre is MarkdownTagInlineToken
+                        && textToken.Content.Contains('\n')
+                        && !textToken.Content.EndsWith("\n\n"))
                     {
                         result += '\n';
                     }
