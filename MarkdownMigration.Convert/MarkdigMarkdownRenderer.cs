@@ -407,6 +407,19 @@ namespace MarkdownMigration.Convert
             return RenderIncludeToken(token.SourceInfo.Markdown);
         }
 
+        public StringBuffer Render(IMarkdownRenderer render, DfmFencesBlockToken token, MarkdownBlockContext context)
+        {
+            var markdown = token.SourceInfo.Markdown;
+            var originPath = token.Path;
+            var path = originPath.Replace(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            if (!string.Equals(path, originPath))
+            {
+                return markdown.Replace(originPath, path);
+            }
+            
+            return base.Render(render, token, context);
+        }
+
         private string RenderIncludeToken(string markdown)
         {
             return _incRegex.Replace(markdown, m => m.Groups["path"].Value.Replace(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));

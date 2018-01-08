@@ -616,5 +616,15 @@ code
             var result = _tool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }
+
+        [Fact]
+        [Trait("Related", "MarkdigMarkdownRewriters")]
+        public void TestMigrateCodeSnippet()
+        {
+            var source = @"[!code-csharp[main](../a\b.cs?name=add ""Startup.cs"")]";
+            var expected = @"[!code-csharp[main](../a/b.cs?name=add ""Startup.cs"")]";
+            var result = _tool.Convert(source, "topic.md");
+            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+        }
     }
 }
