@@ -52,7 +52,7 @@ namespace HtmlCompare
                 .AppendHeadingRule()
                 //.AppendALinkRule()
                 .AppendStrongRule()
-                //.AppendEmRule()
+                .AppendEmRule()
                 .AppendDelRule()
                 .AppendBlockquoteRule();
         }

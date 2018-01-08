@@ -159,14 +159,20 @@ namespace HtmlCompare
         {
             rules.Add("strong", new DiffRule
             {
+                CompareChildrenOnly = (node) => true,
                 Process = (node) =>
                 {
-                    if(node.LastChild.Name == "em" && node.ChildNodes.Count == 1)
-                    {
-                        node.Name = "em";
-                        node.LastChild.Name = "strong";
-                    }
+                    node.InsertBefore(node.OwnerDocument.CreateTextNode("**"), node.FirstChild);
+                    node.InsertAfter(node.OwnerDocument.CreateTextNode("**"), node.LastChild);
                 }
+                //Process = (node) =>
+                //{
+                //    if(node.LastChild.Name == "em" && node.ChildNodes.Count == 1)
+                //    {
+                //        node.Name = "em";
+                //        node.LastChild.Name = "strong";
+                //    }
+                //}
             });
 
             return rules;
