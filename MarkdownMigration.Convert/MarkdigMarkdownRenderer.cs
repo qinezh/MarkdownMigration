@@ -124,6 +124,17 @@ namespace MarkdownMigration.Convert
         public StringBuffer Render(IMarkdownRenderer render, MarkdownCodeBlockToken token, MarkdownBlockContext context)
         {
             var markdown = token.SourceInfo.Markdown;
+
+            if (token.Rule is MarkdownCodeBlockRule)
+            {
+                var newlineCount = Helper.CountEndNewLine(markdown);
+                var preToken = _processedBlockTokens.Peek();
+                if (preToken is MarkdownListBlockToken)
+                {
+                    return $"```\n{token.Code}\n```" + new string('\n', newlineCount);
+                }
+            }
+
             return _fenceCodeRegex.Replace(markdown, m =>
             {
                 return m.Groups["pre"].Value + m.Groups["code"].Value.TrimEnd('\n') + m.Groups["post"].Value;

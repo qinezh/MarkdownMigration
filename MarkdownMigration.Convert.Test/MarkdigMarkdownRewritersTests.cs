@@ -577,5 +577,27 @@ a: b
             var result = _tool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }
+
+        [Fact]
+        [Trait("Related", "MarkdigMarkdownRewriters")]
+        public void TestMigrateIndentCodeInList()
+        {
+            var source = @"
+1. list
+
+
+    code
+";
+            var expected = @"
+1. list
+
+
+```
+code
+```
+";
+            var result = _tool.Convert(source, "topic.md");
+            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+        }
     }
 }
