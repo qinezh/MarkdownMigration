@@ -399,12 +399,30 @@ namespace MarkdownMigration.Convert
 
         public override StringBuffer Render(IMarkdownRenderer render, DfmIncludeBlockToken token, MarkdownBlockContext context)
         {
-            return RenderIncludeToken(token.SourceInfo.Markdown);
+            var src = token.Src.Replace(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+            if (!string.Equals(src, token.Src))
+            {
+                return string.IsNullOrEmpty(token.Title)
+                        ? $"[!INCLUDE [{token.Name}]({src})]\n\n"
+                        : $"[!INCLUDE [{token.Name}]({src} \"{token.Title}\")]\n\n";
+            }
+
+            return base.Render(render, token, context);
         }
 
         public override StringBuffer Render(IMarkdownRenderer render, DfmIncludeInlineToken token, MarkdownInlineContext context)
         {
-            return RenderIncludeToken(token.SourceInfo.Markdown);
+            var src = token.Src.Replace(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+            if (!string.Equals(src, token.Src))
+            {
+                return string.IsNullOrEmpty(token.Title)
+                    ? $"[!INCLUDE [{token.Name}]({src})]"
+                    : $"[!INCLUDE [{token.Name}]({src} \"{token.Title}\")]";
+            }
+
+            return base.Render(render, token, context);
         }
 
         public StringBuffer Render(IMarkdownRenderer render, DfmFencesBlockToken token, MarkdownBlockContext context)
@@ -416,7 +434,7 @@ namespace MarkdownMigration.Convert
             {
                 return markdown.Replace(originPath, path);
             }
-            
+
             return base.Render(render, token, context);
         }
 

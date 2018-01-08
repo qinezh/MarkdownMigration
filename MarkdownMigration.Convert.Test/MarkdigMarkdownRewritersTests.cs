@@ -626,5 +626,18 @@ code
             var result = _tool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }
+
+        [Fact]
+        [Trait("Related", "MarkdigMarkdownRewriters")]
+        public void TestMarkdigMarkdownRewriters_InclusionPath()
+        {
+            var source = @"[!INCLUDE [title](.\..\..\..\includes\a.md)]";
+            var expected = @"[!INCLUDE [title](./../../../includes/a.md)]
+
+";
+            var result = _tool.Convert(source, "topic.md");
+
+            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+        }
     }
 }
