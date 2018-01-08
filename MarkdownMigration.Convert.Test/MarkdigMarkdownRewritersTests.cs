@@ -609,9 +609,9 @@ a: b
 1. list
 
 
-```
+~~~
 code
-```
+~~~
 ";
             var result = _tool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result);

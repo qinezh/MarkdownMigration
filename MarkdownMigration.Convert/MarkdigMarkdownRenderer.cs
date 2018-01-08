@@ -131,7 +131,7 @@ namespace MarkdownMigration.Convert
                 var preToken = _processedBlockTokens.Peek();
                 if (preToken is MarkdownListBlockToken)
                 {
-                    return $"```\n{token.Code}\n```" + new string('\n', newlineCount);
+                    return $"~~~\n{token.Code}\n~~~" + new string('\n', newlineCount);
                 }
             }
 
