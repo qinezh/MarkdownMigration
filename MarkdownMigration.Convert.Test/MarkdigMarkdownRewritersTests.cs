@@ -328,7 +328,7 @@ content...";
 ";
 
             var result = _tool.Convert(source, "topic.md");
-            Assert.Equal(expected, result);
+            Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }
 
         [Fact]
