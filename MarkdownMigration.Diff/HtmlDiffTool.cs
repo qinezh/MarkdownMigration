@@ -100,15 +100,10 @@ namespace HtmlCompare
 
                 dfmHtml = dfmNode != null ? dfmNode.OuterHtml : string.Empty;
                 markdigHtml = markdigNode!= null ? markdigNode.OuterHtml : string.Empty;
-                if (dfmNode == null || markdigNode == null || dfmNode.Name != markdigNode.Name)
+                if (dfmNode == null || markdigNode == null || dfmNode.Name != markdigNode.Name || !CompareAttributes(dfmNode, markdigNode))
                 {
                     dfmStack.Push(dfmNode);
                     sourceDiffSpan = dfmStack.GetSpanFromStack();
-                    return false;
-                }
-
-                if (!CompareAttributes(dfmNode, markdigNode))
-                {
                     return false;
                 }
 
@@ -165,57 +160,6 @@ namespace HtmlCompare
 
             return true;
         }
-
-        //private DiffStatus GetDiffStatus(string dfmHtml, string markdigHtml)
-        //{
-        //    if (markdigHtml != null)
-        //    {
-        //        var trimedHtml = markdigHtml.TrimStart();
-
-        //        //Table
-        //        if (trimedHtml.StartsWith("|")) return DiffStatus.TABLE;
-
-        //        //List
-        //        int temp;
-        //        if(trimedHtml != string.Empty && int.TryParse(trimedHtml.Substring(0, 1), out temp) || trimedHtml.StartsWith("-"))
-        //        {
-        //            return DiffStatus.LIST;
-        //        }
-
-        //        //Heading
-        //        if (trimedHtml.StartsWith("#")) return DiffStatus.HEADING;
-
-        //        //StrongEm
-        //        if (trimedHtml.StartsWith("*")) return DiffStatus.STRONGEM;
-        //    }
-
-        //    if (dfmHtml != null)
-        //    {
-        //        var trimedHtml = dfmHtml.Trim();
-
-        //        //A link
-        //        if (trimedHtml.StartsWith("<a")) return DiffStatus.ALINK;
-
-        //        //Note
-        //        if (NoteTypes.Contains(trimedHtml)) return DiffStatus.NOTE;
-
-        //        //List
-        //        int temp;
-        //        if (trimedHtml != string.Empty && int.TryParse(trimedHtml.Substring(0, 1), out temp) || trimedHtml.StartsWith("-"))
-        //        {
-        //            return DiffStatus.LIST;
-        //        }
-        //    }
-
-        //    if(dfmHtml != null && markdigHtml != null)
-        //    {
-        //        //Link
-        //        if (markdigHtml.TrimStart().StartsWith("[" + dfmHtml)) return DiffStatus.LINK;
-
-        //    }
-
-        //    return DiffStatus.UNKNOW;
-        //}
 
         private bool CompareAttributes(HtmlNode dfmNode, HtmlNode markdigNode)
         {
