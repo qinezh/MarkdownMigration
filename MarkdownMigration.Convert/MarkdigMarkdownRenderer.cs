@@ -623,6 +623,8 @@ namespace MarkdownMigration.Convert
                         result += "<" + render.Render(token) + ">";
                         continue;
                     }
+
+                    result += render.Render(token);
                 }
                 else if (tokens[index] is MarkdownTagInlineToken)
                 {

@@ -316,6 +316,23 @@ content...";
 
         [Fact]
         [Trait("Related", "MarkdigMarkdownRewriters")]
+        public void TestMigrateAutoLinkInTable()
+        {
+            var source = @"|Claim type (URI)|
+| ----- |
+|http://schemas.microsoft.com/ws/2008/06/identity/claims/expiration|";
+            var expected = @"|                          Claim type (URI)                          |
+|--------------------------------------------------------------------|
+| http://schemas.microsoft.com/ws/2008/06/identity/claims/expiration |
+
+";
+
+            var result = _tool.Convert(source, "topic.md");
+            Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        [Trait("Related", "MarkdigMarkdownRewriters")]
         public void TestMigrateBlockQuote()
         {
             var source = @">- One
