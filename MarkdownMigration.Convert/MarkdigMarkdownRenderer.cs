@@ -628,12 +628,12 @@ namespace MarkdownMigration.Convert
                 }
                 else if (tokens[index] is MarkdownTagInlineToken)
                 {
-                    if (!string.Equals(tokens[index].SourceInfo.Markdown, "<br>"))
+                    var tagMatch = _tagName.Match(tokens[index].SourceInfo.Markdown);
+                    if (tagMatch.Success)
                     {
-                        var tagMatch = _tagName.Match(tokens[index].SourceInfo.Markdown);
-                        if (tagMatch.Success)
+                        var tag = tagMatch.Groups[1].Value;
+                        if (tag.ToLower() != "br")
                         {
-                            var tag = tagMatch.Groups[1].Value;
                             if (IsEndTag(tag))
                             {
                                 if (tags.Count > 0)
@@ -647,8 +647,8 @@ namespace MarkdownMigration.Convert
                                 tags.Push(GetEndTagFromStartTag(tag));
                             }
                         }
-                        insideHtml = tags.Count > 0;
                     }
+                    insideHtml = tags.Count > 0;
                     result += MarkupInlineToken(render, tokens[index]);
                 }
                 else if (tokens[index] is MarkdownTextToken textToken)

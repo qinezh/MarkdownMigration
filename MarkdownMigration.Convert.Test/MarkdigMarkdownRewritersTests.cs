@@ -530,13 +530,13 @@ text";
         public void TestMigrateTableBlock3()
         {
             var source = @"text
-f<br>g|a
+f<br>g|a <br />*b*
 -|-
 b|<ul><li>[text](#bookmark)</li></ul>
 text";
             var expected = @"text
 
-| f<br>g |                                         a                                          |
+| f<br>g |                                    a <br />*b*                                     |
 |--------|------------------------------------------------------------------------------------|
 |   b    | <ul><li><a href=""#bookmark"" data-raw-source=""[text](#bookmark)"">text</a></li></ul> |
 
