@@ -188,7 +188,13 @@ namespace MarkdownMigration.Convert
 
         public override StringBuffer Render(IMarkdownRenderer render, MarkdownStrongInlineToken token, MarkdownInlineContext context)
         {
-            return token.SourceInfo.Markdown;
+            var source = token.SourceInfo.Markdown;
+            if (source.EndsWith("\n"))
+            {
+                return RenderInlineTokens(token.Content, render) + "\n";
+            }
+
+            return RenderInlineTokens(token.Content, render);
         }
 
         public override StringBuffer Render(IMarkdownRenderer render, MarkdownHrBlockToken token, MarkdownBlockContext context)
