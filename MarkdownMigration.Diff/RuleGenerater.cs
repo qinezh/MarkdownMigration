@@ -132,8 +132,7 @@ namespace HtmlCompare
                     {
                         return "&lt;a name=" + m.Groups[1].Value + "&gt;";
                     });
-                },
-                CompareAttributes = new string[] { "id" }
+                }
             };
 
             rules.Add("h1", headingRule);
