@@ -181,20 +181,30 @@ namespace MarkdownMigration.Convert
             return content + new string('\n', newlinesCount);
         }
 
-        public override StringBuffer Render(IMarkdownRenderer render, MarkdownEmInlineToken token, MarkdownInlineContext context)
-        {
-            return token.SourceInfo.Markdown;
-        }
-
         public override StringBuffer Render(IMarkdownRenderer render, MarkdownStrongInlineToken token, MarkdownInlineContext context)
         {
             var source = token.SourceInfo.Markdown;
+            var strongDelimiter = token.SourceInfo.Markdown.Substring(0, 2);
+            var result = strongDelimiter + RenderInlineTokens(token.Content, render) + strongDelimiter;
             if (source.EndsWith("\n"))
             {
-                return RenderInlineTokens(token.Content, render) + "\n";
+                return result + "\n";
             }
 
-            return RenderInlineTokens(token.Content, render);
+            return result;
+        }
+
+        public override StringBuffer Render(IMarkdownRenderer render, MarkdownEmInlineToken token, MarkdownInlineContext context)
+        {
+            var source = token.SourceInfo.Markdown;
+            var emDelimiter = source.Substring(0, 1);
+            var result = emDelimiter + RenderInlineTokens(token.Content, render) + emDelimiter;
+            if (source.EndsWith("\n"))
+            {
+                return result + "\n";
+            }
+
+            return result;
         }
 
         public override StringBuffer Render(IMarkdownRenderer render, MarkdownHrBlockToken token, MarkdownBlockContext context)

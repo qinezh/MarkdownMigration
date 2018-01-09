@@ -63,7 +63,6 @@ namespace HtmlCompare
                 .AppendPreRule()
                 .AppendTextRule()
                 .AppendPRule()
-                .AppendStrongRule()
                 .AppendCodeRule()
                 .AppendDelRule()
                 .AppendBlockquoteRule();

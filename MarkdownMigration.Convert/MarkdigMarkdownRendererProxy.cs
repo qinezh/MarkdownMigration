@@ -47,6 +47,11 @@ namespace MarkdownMigration.Convert
             var file = token.SourceInfo.File;
             var markdown = token.SourceInfo.Markdown;
 
+            if (token is MarkdownEmInlineToken)
+            {
+                return true;
+            }
+
             if (token is MarkdownTableBlockToken t && NeedMigrationTable(t))
             {
                 return true;
