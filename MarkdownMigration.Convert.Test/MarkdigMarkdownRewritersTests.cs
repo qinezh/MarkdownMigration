@@ -333,6 +333,17 @@ content...";
 
         [Fact]
         [Trait("Related", "MarkdigMarkdownRewriters")]
+        public void TestMigrateAutoLinkInUriLink()
+        {
+            var source = @"[link](text (https://msdn.microsoft.com/library/ms732023(v=vs.110).aspx').";
+            var expected = @"[link](text (<https://msdn.microsoft.com/library/ms732023(v=vs.110).aspx>').";
+
+            var result = _tool.Convert(source, "topic.md");
+            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+        }
+
+        [Fact]
+        [Trait("Related", "MarkdigMarkdownRewriters")]
         public void TestMigrateBlockQuote()
         {
             var source = @">- One

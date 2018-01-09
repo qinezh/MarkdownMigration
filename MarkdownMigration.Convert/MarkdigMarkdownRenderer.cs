@@ -665,7 +665,15 @@ namespace MarkdownMigration.Convert
                 if (tokens[index] is MarkdownLinkInlineToken token && token.LinkType is MarkdownLinkType.UrlLink)
                 {
                     var pre = index - 1 >= 0 ? tokens[index - 1] : null;
+                    var post = index + 1 < tokens.Count() ? tokens[index + 1] : null;
+
                     if (pre is MarkdownTextToken t && (!IsValidPreviousCharacter(t.Content.Last())))
+                    {
+                        result += "<" + render.Render(token) + ">";
+                        continue;
+                    }
+
+                    if (post is MarkdownTextToken tt && (!IsTrailingUrlStopCharacter(tt.Content.First())))
                     {
                         result += "<" + render.Render(token) + ">";
                         continue;
@@ -793,6 +801,11 @@ namespace MarkdownMigration.Convert
             }
 
             return false;
+        }
+
+        private static bool IsTrailingUrlStopCharacter(char c)
+        {
+            return c == '?' || c == '!' || c == '.' || c == ',' || c == ':' || c == '*' || c == '*' || c == '_' || c == '~';
         }
 
         private static bool IsValidPreviousCharacter(char c)
