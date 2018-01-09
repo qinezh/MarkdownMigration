@@ -30,7 +30,7 @@ namespace MarkdownMigration.Convert
         private static readonly Regex _incRegex = new Regex(@"(?<=\()(?<path>.+?)(?=\)\])", RegexOptions.Compiled);
         private static readonly Regex _whitespaceInNormalLinkregex = new Regex(@"(?<=\]) (?=\(.+?\))", RegexOptions.Compiled);
         private static readonly Regex _fenceCodeRegex = new Regex(@"(?<pre> *`{3,}\w*\n)(?<code>[\s\S]+?)(?<post>\n *`{3,}\n?)", RegexOptions.Compiled);
-        private static readonly Regex _tagName = new Regex(@"\<([\/a-zA-Z1-9]+)", RegexOptions.Compiled);
+        private static readonly Regex _tagName = new Regex(@"\<(\/?[a-zA-Z1-9]+)", RegexOptions.Compiled);
 
         private MarkdownEngine _dfmEngine;
         private MarkdigMarkdownService _service;

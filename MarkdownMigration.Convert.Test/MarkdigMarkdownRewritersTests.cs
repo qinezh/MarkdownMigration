@@ -541,15 +541,15 @@ text";
         public void TestMigrateTableBlock3()
         {
             var source = @"text
-f<br>g|a <br />*b*
+f<br>g|a <br/>*b*
 -|-
-b|<ul><li>[te\|xt](#bookmark)</li></ul>
+b|<ul><li>[te\|xt](#bookmark)</li></ul> *b*
 text";
             var expected = @"text
 
-| f<br>g |                                      a <br />*b*                                       |
-|--------|----------------------------------------------------------------------------------------|
-|   b    | <ul><li><a href=""#bookmark"" data-raw-source=""[te\|xt](#bookmark)"">te\|xt</a></li></ul> |
+| f<br>g |                                         a <br/>*b*                                         |
+|--------|--------------------------------------------------------------------------------------------|
+|   b    | <ul><li><a href=""#bookmark"" data-raw-source=""[te\|xt](#bookmark)"">te\|xt</a></li></ul> *b* |
 
 text";
             var result = _tool.Convert(source, "topic.md");
