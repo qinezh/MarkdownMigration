@@ -532,13 +532,13 @@ text";
             var source = @"text
 f<br>g|a <br />*b*
 -|-
-b|<ul><li>[text](#bookmark)</li></ul>
+b|<ul><li>[te\|xt](#bookmark)</li></ul>
 text";
             var expected = @"text
 
-| f<br>g |                                    a <br />*b*                                     |
-|--------|------------------------------------------------------------------------------------|
-|   b    | <ul><li><a href=""#bookmark"" data-raw-source=""[text](#bookmark)"">text</a></li></ul> |
+| f<br>g |                                      a <br />*b*                                       |
+|--------|----------------------------------------------------------------------------------------|
+|   b    | <ul><li><a href=""#bookmark"" data-raw-source=""[te\|xt](#bookmark)"">te\|xt</a></li></ul> |
 
 text";
             var result = _tool.Convert(source, "topic.md");

@@ -711,6 +711,10 @@ namespace MarkdownMigration.Convert
                         result += '\n';
                     }
                 }
+                else if (tokens[index] is MarkdownEscapeInlineToken)
+                {
+                    result += render.Render(tokens[index]);
+                }
                 else
                 {
                     result += insideHtml ? MarkupInlineToken(render, tokens[index]) : render.Render(tokens[index]);
