@@ -673,7 +673,7 @@ namespace MarkdownMigration.Convert
                         continue;
                     }
 
-                    if (post is MarkdownTextToken tt && (!IsTrailingUrlStopCharacter(tt.Content.First())))
+                    if (post is MarkdownTextToken tt && (!IsValidPostCharacters(tt.Content)))
                     {
                         result += "<" + render.Render(token) + ">";
                         continue;
@@ -803,10 +803,24 @@ namespace MarkdownMigration.Convert
             return false;
         }
 
+        private static bool IsValidPostCharacters(string content)
+        {
+            if (string.IsNullOrEmpty(content)) return true;
+
+            return IsTrailingUrlStopCharacter(content[0])
+                && (content.Length > 1 && IsEndOfUri(content[1]) || content.Length == 1);
+        }
+
         private static bool IsTrailingUrlStopCharacter(char c)
         {
             return c == '?' || c == '!' || c == '.' || c == ',' || c == ':' || c == '*' || c == '*' || c == '_' || c == '~';
         }
+
+        private static bool IsEndOfUri(char c)
+        {
+            return c == '\t' || c <= ' ' || Char.IsControl(c); // TODO: specs unclear. space is strict or relaxed? (includes tabs?)
+        }
+
 
         private static bool IsValidPreviousCharacter(char c)
         {
