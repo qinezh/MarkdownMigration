@@ -752,16 +752,20 @@ namespace MarkdownMigration.Convert
                     }
                     else
                     {                        
-                        localTokens.Insert(index, new MarkdownTagInlineToken(null, null, SourceInfo.Create("</strong>", seToken.SourceInfo.File)));
+                        
                         if (seToken is MarkdownStrongInlineToken)
                         {
+                            localTokens.Insert(index, new MarkdownTagInlineToken(null, null, SourceInfo.Create("</strong>", seToken.SourceInfo.File)));
                             localTokens.InsertRange(index, (seToken as MarkdownStrongInlineToken).Content);
+                            localTokens.Insert(index, new MarkdownTagInlineToken(null, null, SourceInfo.Create("<strong>", seToken.SourceInfo.File)));
                         }
                         else
                         {
+                            localTokens.Insert(index, new MarkdownTagInlineToken(null, null, SourceInfo.Create("</em>", seToken.SourceInfo.File)));
                             localTokens.InsertRange(index, (seToken as MarkdownEmInlineToken).Content);
+                            localTokens.Insert(index, new MarkdownTagInlineToken(null, null, SourceInfo.Create("<em>", seToken.SourceInfo.File)));
                         }
-                        localTokens.Insert(index, new MarkdownTagInlineToken(null, null, SourceInfo.Create("<strong>", seToken.SourceInfo.File)));
+                        
                         localTokens.Remove(seToken);
                         index--;
                     }
