@@ -748,7 +748,7 @@ namespace MarkdownMigration.Convert
 
                     if(startCanOpen && endCanClose)
                     {
-                        result += render.Render(seToken);
+                        result += insideHtml ? MarkupInlineToken(render, seToken) : render.Render(seToken);
                     }
                     else
                     {                        

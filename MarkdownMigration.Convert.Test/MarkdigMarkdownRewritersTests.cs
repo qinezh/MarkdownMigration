@@ -305,6 +305,21 @@ content...";
 
         [Fact]
         [Trait("Related", "MarkdigMarkdownRewriters")]
+        public void TestMigrateStrongAndEm1()
+        {
+            var source = @"
+<tr><td>**Current supported framework**</td>";
+            var expected = @"
+<tr><td><strong>Current supported framework</strong></td>
+
+";
+
+            var result = _tool.Convert(source, "topic.md");
+            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+        }
+
+        [Fact]
+        [Trait("Related", "MarkdigMarkdownRewriters")]
         public void TestMigrateAutoLinkWithQuota()
         {
             var source = "This kind of url link such as \'https://github.com\' are not supported in markdig";
