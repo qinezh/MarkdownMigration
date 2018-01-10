@@ -296,8 +296,8 @@ content...";
         [Trait("Related", "MarkdigMarkdownRewriters")]
         public void TestMigrateStrongAndEm()
         {
-            var source = "__a__ and _b_ and **a** and **b** and *__ab__* ***a***";
-            var expected = "__a__ and _b_ and **a** and **b** and *__ab__* ***a***";
+            var source = "__a__ and _b_ and **a** and **b** and *__ab__* ***a*** **a:**a";
+            var expected = "__a__ and _b_ and **a** and **b** and *__ab__* ***a*** <strong>a:</strong>a";
 
             var result = _tool.Convert(source, "topic.md");
             Assert.Equal(expected, result);

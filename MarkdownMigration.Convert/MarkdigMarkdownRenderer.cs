@@ -15,6 +15,7 @@ using MarkdownMigration.Common;
 using Microsoft.DocAsCode.Dfm;
 using Microsoft.DocAsCode.MarkdownLite;
 using Microsoft.DocAsCode.Plugins;
+using System.Globalization;
 
 namespace MarkdownMigration.Convert
 {
@@ -31,6 +32,7 @@ namespace MarkdownMigration.Convert
         private static readonly Regex _whitespaceInNormalLinkregex = new Regex(@"(?<=\]) (?=\(.+?\))", RegexOptions.Compiled);
         private static readonly Regex _fenceCodeRegex = new Regex(@"(?<pre> *`{3,}\w*\n)(?<code>[\s\S]+?)(?<post>\n *`{3,}\n?)", RegexOptions.Compiled);
         private static readonly Regex _tagName = new Regex(@"\<(\/?[a-zA-Z1-9]+)", RegexOptions.Compiled);
+        private static readonly char[] punctuationExceptions = { '−', '-', '†', '‡' };
 
         private MarkdownEngine _dfmEngine;
         private MarkdigMarkdownService _service;
@@ -654,18 +656,19 @@ namespace MarkdownMigration.Convert
             return _dfmHtmlRender.Render((dynamic)render, (dynamic)token, (dynamic)token.Context);
         }
 
-        private StringBuffer RenderInlineTokens(ImmutableArray<IMarkdownToken> tokens, IMarkdownRenderer render)
+        private StringBuffer RenderInlineTokens(ImmutableArray<IMarkdownToken> tokens, IMarkdownRenderer render, bool inSideTable = false)
         {
             var result = StringBuffer.Empty;
             var insideHtml = false;
             var tags = new Stack<string>();
+            var localTokens = tokens.ToList();
 
-            for (var index = 0; index < tokens.Count(); index++)
+            for (var index = 0; index < localTokens.Count(); index++)
             {
-                if (tokens[index] is MarkdownLinkInlineToken token && token.LinkType is MarkdownLinkType.UrlLink)
+                if (localTokens[index] is MarkdownLinkInlineToken token && token.LinkType is MarkdownLinkType.UrlLink)
                 {
-                    var pre = index - 1 >= 0 ? tokens[index - 1] : null;
-                    var post = index + 1 < tokens.Count() ? tokens[index + 1] : null;
+                    var pre = index - 1 >= 0 ? localTokens[index - 1] : null;
+                    var post = index + 1 < localTokens.Count() ? localTokens[index + 1] : null;
 
                     if (pre is MarkdownTextToken t && (!IsValidPreviousCharacter(t.Content.Last())))
                     {
@@ -681,9 +684,9 @@ namespace MarkdownMigration.Convert
 
                     result += render.Render(token);
                 }
-                else if (tokens[index] is MarkdownTagInlineToken)
+                else if (localTokens[index] is MarkdownTagInlineToken)
                 {
-                    var tagMatch = _tagName.Match(tokens[index].SourceInfo.Markdown);
+                    var tagMatch = _tagName.Match(localTokens[index].SourceInfo.Markdown);
                     if (tagMatch.Success)
                     {
                         var tag = tagMatch.Groups[1].Value;
@@ -703,12 +706,12 @@ namespace MarkdownMigration.Convert
                             }
                         }
                     }
-                    insideHtml = tags.Count > 0;
-                    result += MarkupInlineToken(render, tokens[index]);
+                    insideHtml = tags.Count > 0 && !inSideTable;
+                    result += MarkupInlineToken(render, localTokens[index]);
                 }
-                else if (tokens[index] is MarkdownTextToken textToken)
+                else if (localTokens[index] is MarkdownTextToken textToken)
                 {
-                    var pre = index - 1 >= 0 ? tokens[index - 1] : null;
+                    var pre = index - 1 >= 0 ? localTokens[index - 1] : null;
                     result += render.Render(textToken);
 
                     if (pre != null && !insideHtml
@@ -719,13 +722,53 @@ namespace MarkdownMigration.Convert
                         result += '\n';
                     }
                 }
-                else if (tokens[index] is MarkdownEscapeInlineToken)
+                else if (localTokens[index] is MarkdownEscapeInlineToken)
                 {
-                    result += render.Render(tokens[index]);
+                    result += render.Render(localTokens[index]);
+                }
+                else if (localTokens[index] is MarkdownStrongInlineToken || localTokens[index] is MarkdownEmInlineToken)
+                {
+                    var pre = index - 1 >= 0 ? localTokens[index - 1] : null;
+                    var post = index + 1 < localTokens.Count() ? localTokens[index + 1] : null;
+                    var delimiterCount = localTokens[index] is MarkdownStrongInlineToken ? 2 : 1;
+                    var seToken = localTokens[index];
+                    var enableWithinWord = seToken.SourceInfo.Markdown[0] == '*';
+
+                    //Check strart delimiter
+                    var pc = pre == null ? '\0' : pre.SourceInfo.Markdown.Last();
+                    var c = seToken.SourceInfo.Markdown[delimiterCount];
+                    bool startCanOpen, startCanClose;
+                    CheckOpenCloseDelimiter(pc, c, enableWithinWord, out startCanOpen, out startCanClose);
+
+                    //Check end delimiter
+                    pc = seToken.SourceInfo.Markdown[seToken.SourceInfo.Markdown.Length - delimiterCount - 1];
+                    c = post == null ? '\0' : post.SourceInfo.Markdown.First();
+                    bool endCanOpen, endCanClose;
+                    CheckOpenCloseDelimiter(pc, c, enableWithinWord, out endCanOpen, out endCanClose);
+
+                    if(startCanOpen && endCanClose)
+                    {
+                        result += render.Render(seToken);
+                    }
+                    else
+                    {                        
+                        localTokens.Insert(index, new MarkdownTagInlineToken(null, null, SourceInfo.Create("</strong>", seToken.SourceInfo.File)));
+                        if (seToken is MarkdownStrongInlineToken)
+                        {
+                            localTokens.InsertRange(index, (seToken as MarkdownStrongInlineToken).Content);
+                        }
+                        else
+                        {
+                            localTokens.InsertRange(index, (seToken as MarkdownEmInlineToken).Content);
+                        }
+                        localTokens.Insert(index, new MarkdownTagInlineToken(null, null, SourceInfo.Create("<strong>", seToken.SourceInfo.File)));
+                        localTokens.Remove(seToken);
+                        index--;
+                    }
                 }
                 else
                 {
-                    result += insideHtml ? MarkupInlineToken(render, tokens[index]) : render.Render(tokens[index]);
+                    result += insideHtml ? MarkupInlineToken(render, localTokens[index]) : render.Render(localTokens[index]);
                 }
             }
 
@@ -834,6 +877,76 @@ namespace MarkdownMigration.Convert
             return c == '\t' || c <= ' ' || Char.IsControl(c); // TODO: specs unclear. space is strict or relaxed? (includes tabs?)
         }
 
+        private static void CheckOpenCloseDelimiter(char pc, char c, bool enableWithinWord, out bool canOpen, out bool canClose)
+        {
+            // A left-flanking delimiter run is a delimiter run that is 
+            // (a) not followed by Unicode whitespace, and
+            // (b) either not followed by a punctuation character, or preceded by Unicode whitespace 
+            // or a punctuation character. 
+            // For purposes of this definition, the beginning and the end of the line count as Unicode whitespace.
+            bool nextIsPunctuation;
+            bool nextIsWhiteSpace;
+            bool prevIsPunctuation;
+            bool prevIsWhiteSpace;
+            CheckUnicodeCategory(pc, out prevIsWhiteSpace, out prevIsPunctuation);
+            CheckUnicodeCategory(c, out nextIsWhiteSpace, out nextIsPunctuation);
+
+            var prevIsExcepted = prevIsPunctuation && punctuationExceptions.Contains(pc);
+            var nextIsExcepted = nextIsPunctuation && punctuationExceptions.Contains(c);
+
+            canOpen = !nextIsWhiteSpace &&
+                           ((!nextIsPunctuation || nextIsExcepted) || prevIsWhiteSpace || prevIsPunctuation);
+
+
+            // A right-flanking delimiter run is a delimiter run that is 
+            // (a) not preceded by Unicode whitespace, and 
+            // (b) either not preceded by a punctuation character, or followed by Unicode whitespace 
+            // or a punctuation character. 
+            // For purposes of this definition, the beginning and the end of the line count as Unicode whitespace.
+            canClose = !prevIsWhiteSpace &&
+                            ((!prevIsPunctuation || prevIsExcepted) || nextIsWhiteSpace || nextIsPunctuation);
+
+            if (!enableWithinWord)
+            {
+                var temp = canOpen;
+                // A single _ character can open emphasis iff it is part of a left-flanking delimiter run and either 
+                // (a) not part of a right-flanking delimiter run or 
+                // (b) part of a right-flanking delimiter run preceded by punctuation.
+                canOpen = canOpen && (!canClose || prevIsPunctuation);
+
+                // A single _ character can close emphasis iff it is part of a right-flanking delimiter run and either
+                // (a) not part of a left-flanking delimiter run or 
+                // (b) part of a left-flanking delimiter run followed by punctuation.
+                canClose = canClose && (!temp || nextIsPunctuation);
+            }
+        }
+
+        private static void CheckUnicodeCategory(char c, out bool space, out bool punctuation)
+        {
+            // Credits: code from CommonMark.NET
+            // Copyright (c) 2014, Kārlis Gaņģis All rights reserved. 
+            // See license for details:  https://github.com/Knagis/CommonMark.NET/blob/master/LICENSE.md
+            if (c <= 'ÿ')
+            {
+                space = c == '\0' || c == ' ' || (c >= '\t' && c <= '\r') || c == '\u00a0' || c == '\u0085';
+                punctuation = c == '\0' || (c >= 33 && c <= 47 && c != 38) || (c >= 58 && c <= 64) || (c >= 91 && c <= 96) || (c >= 123 && c <= 126);
+            }
+            else
+            {
+                var category = CharUnicodeInfo.GetUnicodeCategory(c);
+                space = category == UnicodeCategory.SpaceSeparator
+                    || category == UnicodeCategory.LineSeparator
+                    || category == UnicodeCategory.ParagraphSeparator;
+                punctuation = !space &&
+                    (category == UnicodeCategory.ConnectorPunctuation
+                    || category == UnicodeCategory.DashPunctuation
+                    || category == UnicodeCategory.OpenPunctuation
+                    || category == UnicodeCategory.ClosePunctuation
+                    || category == UnicodeCategory.InitialQuotePunctuation
+                    || category == UnicodeCategory.FinalQuotePunctuation
+                    || category == UnicodeCategory.OtherPunctuation);
+            }
+        }
 
         private static bool IsValidPreviousCharacter(char c)
         {
