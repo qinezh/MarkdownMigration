@@ -37,7 +37,11 @@ namespace MarkdownMigration.Convert
             }
 
             var migrated = _renderer.Render((dynamic)render, (dynamic)token, (dynamic)context);
-            UpdateReport(token, migrated);
+
+            if (!string.Equals(token.SourceInfo.Markdown.ToString(), migrated.ToString()))
+            {
+                _renderer.UpdateReport(token, _renderer.GetTokenName(token));
+            }
 
             return migrated;
         }
@@ -113,27 +117,6 @@ namespace MarkdownMigration.Convert
             }
 
             return false;
-        }
-
-
-        private void UpdateReport(IMarkdownToken token, string migrated)
-        {
-            var file = token.SourceInfo.File;
-            var markdown = token.SourceInfo.Markdown;
-            if (!string.Equals(markdown.ToString(), migrated.ToString()))
-            {
-                var tokenName = GetTokenName(token);
-                var tokenInfo = new MigratedTokenInfo(tokenName, token.SourceInfo.LineNumber);
-                ReportUtility.Add(file, tokenInfo);
-            }
-        }
-
-        private string GetTokenName(IMarkdownToken token)
-        {
-            var fullName = token.GetType().ToString();
-            var name = fullName.Substring(fullName.LastIndexOf('.') + 1);
-
-            return name;
         }
     }
 }

@@ -751,8 +751,8 @@ namespace MarkdownMigration.Convert
                     //    result += insideHtml ? MarkupInlineToken(render, seToken) : render.Render(seToken);
                     //}
                     //else
-                    {                        
-                        
+                    {
+
                         if (seToken is MarkdownStrongInlineToken)
                         {
                             localTokens.Insert(index, new MarkdownTagInlineToken(null, null, SourceInfo.Create("</strong>", seToken.SourceInfo.File)));
@@ -765,8 +765,9 @@ namespace MarkdownMigration.Convert
                             localTokens.InsertRange(index, (seToken as MarkdownEmInlineToken).Content);
                             localTokens.Insert(index, new MarkdownTagInlineToken(null, null, SourceInfo.Create("<em>", seToken.SourceInfo.File)));
                         }
-                        
+
                         localTokens.Remove(seToken);
+                        UpdateReport(seToken, "StrongEmToTag");
                         index--;
                     }
                 }
@@ -973,6 +974,21 @@ namespace MarkdownMigration.Convert
         public static bool IsZero(char c)
         {
             return c == '\0';
+        }
+
+        public void UpdateReport(IMarkdownToken token, string tokenName)
+        {
+            var file = token.SourceInfo.File;
+            var tokenInfo = new MigratedTokenInfo(tokenName, token.SourceInfo.LineNumber);
+            ReportUtility.Add(file, tokenInfo);
+        }
+
+        public string GetTokenName(IMarkdownToken token)
+        {
+            var fullName = token.GetType().ToString();
+            var name = fullName.Substring(fullName.LastIndexOf('.') + 1);
+
+            return name;
         }
     }
 }
