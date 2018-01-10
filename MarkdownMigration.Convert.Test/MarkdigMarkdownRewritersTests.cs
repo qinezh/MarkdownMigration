@@ -296,11 +296,30 @@ content...";
         [Trait("Related", "MarkdigMarkdownRewriters")]
         public void TestMigrateStrongAndEm()
         {
-            var source = "__a__ and _b_ and **a** and **b** and *__ab__* ***a*** **a:**a";
-            var expected = "__a__ and _b_ and **a** and **b** and *__ab__* ***a*** <strong>a:</strong>a";
+            var source = @"__a__ and _b_ and **a** and **b** and *__ab__* ***a*** 
+
+**a:**a";
+            var expected = @"__a__ and _b_ and **a** and **b** and *__ab__* ***a*** 
+
+<strong>a:</strong>a";
 
             var result = _tool.Convert(source, "topic.md");
-            Assert.Equal(expected, result);
+            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+        }
+
+        [Fact]
+        [Trait("Related", "MarkdigMarkdownRewriters")]
+        public void TestMigrateStrongAndEm1()
+        {
+            var source = @"
+<tr><td>**Current supported framework**</td>";
+            var expected = @"
+<tr><td><strong>Current supported framework</strong></td>
+
+";
+
+            var result = _tool.Convert(source, "topic.md");
+            Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }
 
         [Fact]
@@ -556,15 +575,15 @@ text";
         public void TestMigrateTableBlock3()
         {
             var source = @"text
-f<br>g|a <br/>*b*
+f<br>g|a <br/>`b`
 -|-
-b|<ul><li>[te\|xt](#bookmark)</li></ul> *b*
+b|<ul><li>[te\|xt](#bookmark)</li></ul> `b`
 text";
             var expected = @"text
 
-| f<br>g |                                         a <br/>*b*                                         |
+| f<br>g |                                         a <br/>`b`                                         |
 |--------|--------------------------------------------------------------------------------------------|
-|   b    | <ul><li><a href=""#bookmark"" data-raw-source=""[te\|xt](#bookmark)"">te\|xt</a></li></ul> *b* |
+|   b    | <ul><li><a href=""#bookmark"" data-raw-source=""[te\|xt](#bookmark)"">te\|xt</a></li></ul> `b` |
 
 text";
             var result = _tool.Convert(source, "topic.md");

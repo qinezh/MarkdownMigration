@@ -734,23 +734,23 @@ namespace MarkdownMigration.Convert
                     var seToken = localTokens[index];
                     var enableWithinWord = seToken.SourceInfo.Markdown[0] == '*';
 
-                    //Check strart delimiter
-                    var pc = pre == null ? '\0' : pre.SourceInfo.Markdown.Last();
-                    var c = seToken.SourceInfo.Markdown[delimiterCount];
-                    bool startCanOpen, startCanClose;
-                    CheckOpenCloseDelimiter(pc, c, enableWithinWord, out startCanOpen, out startCanClose);
+                    ////Check strart delimiter
+                    //var pc = pre == null ? '\0' : pre.SourceInfo.Markdown.Last();
+                    //var c = seToken.SourceInfo.Markdown[delimiterCount];
+                    //bool startCanOpen, startCanClose;
+                    //CheckOpenCloseDelimiter(pc, c, enableWithinWord, out startCanOpen, out startCanClose);
 
-                    //Check end delimiter
-                    pc = seToken.SourceInfo.Markdown[seToken.SourceInfo.Markdown.Length - delimiterCount - 1];
-                    c = post == null ? '\0' : post.SourceInfo.Markdown.First();
-                    bool endCanOpen, endCanClose;
-                    CheckOpenCloseDelimiter(pc, c, enableWithinWord, out endCanOpen, out endCanClose);
+                    ////Check end delimiter
+                    //pc = seToken.SourceInfo.Markdown[seToken.SourceInfo.Markdown.Length - delimiterCount - 1];
+                    //c = post == null ? '\0' : post.SourceInfo.Markdown.First();
+                    //bool endCanOpen, endCanClose;
+                    //CheckOpenCloseDelimiter(pc, c, enableWithinWord, out endCanOpen, out endCanClose);
 
-                    if(startCanOpen && endCanClose)
-                    {
-                        result += insideHtml ? MarkupInlineToken(render, seToken) : render.Render(seToken);
-                    }
-                    else
+                    //if(startCanOpen && endCanClose)
+                    //{
+                    //    result += insideHtml ? MarkupInlineToken(render, seToken) : render.Render(seToken);
+                    //}
+                    //else
                     {                        
                         
                         if (seToken is MarkdownStrongInlineToken)
