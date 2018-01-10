@@ -787,7 +787,7 @@ namespace MarkdownMigration.Convert
         private async Task<bool> CanResolveUidAsync(string uid)
         {
             var requestUrl = string.Format(_requestTemplate, Uri.EscapeDataString(uid));
-            using (var response = await _client.Value.GetAsync(requestUrl))
+            using (var response = await GetResponse(requestUrl))
             {
                 response.EnsureSuccessStatusCode();
                 using (var content = response.Content)
@@ -801,6 +801,19 @@ namespace MarkdownMigration.Convert
             }
 
             return false;
+        }
+
+        private static async Task<HttpResponseMessage> GetResponse(string requestUrl)
+        {
+            try
+            {
+                return await _client.Value.GetAsync(requestUrl);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error occurs while get response: {ex}");
+                throw;
+            }
         }
 
         private static bool IsValidPostCharacters(string content)
