@@ -37,11 +37,14 @@ function Zip
 
     [System.IO.Compression.ZipFile]::CreateFromDirectory($source, $outzippath)
 }
-
+if (Test-Path $outputFolder)
+{
+    Remove-Item -Path $outputFolder -Recurse -Force
+}
 New-Item $outputFolder -type directory -Force
 Push-Location $repoRoot
 
-$markDigVersion = "1.0.127-alpha"
+$markDigVersion = "1.0.152-alpha"
 $docFxVersion = "2.28.3"
 
 $toolsPath = Join-Path $scriptPath "_tools"
@@ -82,6 +85,13 @@ if ($repoConfig.docsets_to_publish)
 
         $docfxJsonPath = Join-Path $docsetFolder "docfx.json"
         $docfxJson = Get-Content -Raw -Path $docfxJsonPath | ConvertFrom-Json
+
+        if ($docfxJson.build.markdownEngineName -eq "markdig")
+        {
+            Write-Host "Already markdig, skipping this docset..."
+            continue;
+        }
+
         $dest = "_site"
         if ($docfxJson.build.dest)
         {
@@ -90,20 +100,23 @@ if ($repoConfig.docsets_to_publish)
 
         robocopy $docsetFolder $tempdfmfolder *.md /s
 
-        & $docfxExePath $docfxJsonPath --exportRawModel --dryRun --force --markdownEngineName dfm 
-        CheckExitCode $lastexitcode "dfm build"
+        & $docfxExePath $docfxJsonPath --exportRawModel --dryRun --force
+        CheckExitCode $lastexitcode "baseline build"
 
         Copy-Item -Path $dest -Destination $dfmOutput -recurse -Force
         Remove-Item -path $dest -recurse
         Remove-Item -path "$docsetFolder\obj" -recurse
 
-        & $migrationExePath -m -c $docsetFolder -p "**.md"
-        CheckExitCode $lastexitcode "migration"
+        if (($docfxJson.build.markdownEngineName -ne "dfm-latest") -and ($docfxJson.build.markdownEngineName -ne "markdig"))
+        {
+            & $migrationExePath -m -c $docsetFolder -p "**.md"
+            CheckExitCode $lastexitcode "migration"
 
-        $reportPath = Join-Path $docsetFolder "report.json"
-        $reportDestPath = Join-Path $htmlBaseFolder "report.json"
-        Copy-Item -Path $reportPath -Destination $reportDestPath -recurse -Force
-        Remove-Item -path $reportPath
+            $reportPath = Join-Path $docsetFolder "report.json"
+            $reportDestPath = Join-Path $htmlBaseFolder "report.json"
+            Copy-Item -Path $reportPath -Destination $reportDestPath -recurse -Force
+            Remove-Item -path $reportPath
+        }
 
         & $docfxExePath $docfxJsonPath --exportRawModel --dryRun --force --markdownEngineName markdig
         CheckExitCode $lastexitcode "markdig build"
