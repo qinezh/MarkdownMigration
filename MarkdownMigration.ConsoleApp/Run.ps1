@@ -44,8 +44,7 @@ if (Test-Path $outputFolder)
 New-Item $outputFolder -type directory -Force
 Push-Location $repoRoot
 
-$markDigVersion = "1.0.152-alpha"
-$docFxVersion = "2.28.3"
+$docFxVersion = "2.31.0-alpha-1151-ge1133df"
 
 $toolsPath = Join-Path $scriptPath "_tools"
 New-Item $toolsPath -type directory -Force
@@ -58,14 +57,10 @@ if (-not (Test-Path $nugetPath))
 }
 $migrationExePath = Join-Path $scriptPath "MarkdownMigration.ConsoleApp.exe"
 
-& $nugetPath install Microsoft.DocAsCode.MarkdigEngine -Version $markDigVersion -Source https://www.myget.org/F/op-dev/api/v2 -OutputDirectory $toolsPath
-& $nugetPath install docfx.console -Version $docFxVersion -Source https://www.myget.org/F/docfx/api/v3/index.json -OutputDirectory $toolsPath
-$markdigPackPath = Join-Path $toolsPath "Microsoft.DocAsCode.MarkdigEngine.$markDigVersion\content\plugins"
+& $nugetPath install docfx.console -Version $docFxVersion -Source https://www.myget.org/F/docfx-dev/api/v3/index.json -OutputDirectory $toolsPath
 $docfxFolder = Join-Path $toolsPath "docfx.console.$docFxVersion\tools"
 $docfxExePath = Join-Path $docfxFolder "docfx.exe"
 $tempdfmfolder = Join-Path $outputFolder "tempdfm"
-
-Copy-Item $markdigPackPath $docfxFolder -Recurse -Force
 
 $repoConfig = Get-Content -Raw -Path .openpublishing.publish.config.json | ConvertFrom-Json
 
