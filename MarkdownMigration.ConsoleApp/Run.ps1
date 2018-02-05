@@ -44,7 +44,7 @@ if (Test-Path $outputFolder)
 New-Item $outputFolder -type directory -Force
 Push-Location $repoRoot
 
-$docFxVersion = "2.31.0-alpha-1151-ge1133df"
+$docFxVersion = "2.32.0-alpha-0002-g57aea14"
 
 $toolsPath = Join-Path $scriptPath "_tools"
 New-Item $toolsPath -type directory -Force
