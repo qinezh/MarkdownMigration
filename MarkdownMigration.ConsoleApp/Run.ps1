@@ -78,7 +78,14 @@ if ($repoConfig.docsets_to_publish)
         $markdigOutput = Join-Path $htmlBaseFolder "markdig"
         $markdigHtmlOutput = Join-Path $htmlBaseFolder "markdig-html"
 
+        
         $docfxJsonPath = Join-Path $docsetFolder "docfx.json"
+        if (-not (Test-Path $docfxJsonPath))
+        {
+            $docsetFolder = Join-Path $repoRoot "$($docset.build_output_subfolder)"
+            $docfxJsonPath = Join-Path $docsetFolder "docfx.json"
+        }
+
         $docfxJson = Get-Content -Raw -Path $docfxJsonPath | ConvertFrom-Json
 
         if ($docfxJson.build.markdownEngineName -eq "markdig")
