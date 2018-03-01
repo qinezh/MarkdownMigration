@@ -20,6 +20,24 @@ function CheckExitCode {
     }
 }
 
+# Formats JSON in a nicer format than the built-in ConvertTo-Json does.
+function Format-Json([Parameter(Mandatory, ValueFromPipeline)][String] $json) {
+  $indent = 0;
+  ($json -Split '\n' |
+    % {
+      if ($_ -match '[\}\]]') {
+        # This line contains  ] or }, decrement the indentation level
+        $indent--
+      }
+      $line = (' ' * $indent * 2) + $_.TrimStart().Replace(':  ', ': ')
+      if ($_ -match '[\{\[]') {
+        # This line contains [ or {, increment the indentation level
+        $indent++
+      }
+      $line
+  }) -Join "`n" -replace "`r?`n *`r?`n *",""
+}
+
 $repoName = "TestRepo"
 if ($repoUrl) {
     $repoName = ($repoUrl -split "/")[-1] -replace ".git",""
@@ -141,6 +159,14 @@ if ($repoConfig.docsets_to_publish)
         $docset = [IO.File]::ReadAllText($reportDestPath) | ConvertFrom-Json
         $docset.docset_name = $docsetName
         $repoReport.docsets += $docset
+
+        if($docfxJson.build.markdownEngineName -eq $null){
+            $docfxJson.build | add-member -Name "markdownEngineName" -value "markdig" -MemberType NoteProperty
+        }
+        else{
+            $docfxJson.build.markdownEngineName = "markdig"
+        }
+        $docfxJson | ConvertTo-Json -depth 100 | Format-Json | Out-File $docfxJsonPath
     }
     
     $repoReportPath = "$outputFolder\repoReport.json"
