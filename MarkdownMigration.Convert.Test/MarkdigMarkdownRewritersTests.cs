@@ -311,12 +311,12 @@ content...";
         [Trait("Related", "MarkdigMarkdownRewriters")]
         public void TestMigrateStrongAndEm1()
         {
-            var source = @"
-<tr><td>**Current supported framework**</td>";
-            var expected = @"
-<tr><td><strong>Current supported framework</strong></td>
-
-";
+            var source = @"<td style=""border:1px solid black;"">
+**/warnrestart\[:x\]**
+</td>";
+            var expected = @"<td style=""border:1px solid black;"">
+<strong>/warnrestart[:x]</strong>
+</td>";
 
             var result = _tool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
@@ -566,9 +566,9 @@ b|<ul><li>[te\|xt](#bookmark)</li></ul> `b`
 text";
             var expected = @"text
 
-| f<br>g |                                         a <br/>`b`                                         |
-|--------|--------------------------------------------------------------------------------------------|
-|   b    | <ul><li><a href=""#bookmark"" data-raw-source=""[te\|xt](#bookmark)"">te\|xt</a></li></ul> `b` |
+| f<br>g |                                        a <br/>`b`                                         |
+|--------|-------------------------------------------------------------------------------------------|
+|   b    | <ul><li><a href=""#bookmark"" data-raw-source=""[te\|xt](#bookmark)"">te|xt</a></li></ul> `b` |
 
 text";
             var result = _tool.Convert(source, "topic.md");
