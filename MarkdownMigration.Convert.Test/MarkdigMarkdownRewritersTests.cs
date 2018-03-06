@@ -163,6 +163,7 @@ This is <strong>markdown</strong> content.
             var expected = @"
 1. list
    <center><img src=""a.png"" alt=""""/></center>
+
 ";
 
             var result = _tool.Convert(source, "topic.md");
@@ -311,10 +312,13 @@ content...";
         [Trait("Related", "MarkdigMarkdownRewriters")]
         public void TestMigrateStrongAndEm1()
         {
-            var source = @"<td style=""border:1px solid black;"">
+            var source = @"<p> </p>
+<td style=""border:1px solid black;"">
 **/warnrestart\[:x\]**
 </td>";
-            var expected = @"<td style=""border:1px solid black;"">
+            var expected = @"<p> </p>
+
+<td style=""border:1px solid black;"">
 <strong>/warnrestart[:x]</strong>
 </td>";
 
