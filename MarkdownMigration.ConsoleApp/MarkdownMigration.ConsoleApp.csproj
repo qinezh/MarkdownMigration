@@ -18,6 +18,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="DiffBranch.ps1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Run.ps1">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
