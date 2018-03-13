@@ -3,19 +3,19 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
 using HtmlCompare;
-using MarkdigEngine;
-using MarkdigEngine.Extensions;
 using MarkdownMigration.Common;
 using Microsoft.DocAsCode.Dfm;
+using Microsoft.DocAsCode.MarkdigEngine;
+using Microsoft.DocAsCode.MarkdigEngine.Extensions;
 using Microsoft.DocAsCode.MarkdownLite;
 using Microsoft.DocAsCode.Plugins;
 using System.Globalization;
+using System.Net.Http;
 
 namespace MarkdownMigration.Convert
 {
@@ -34,7 +34,7 @@ namespace MarkdownMigration.Convert
         private static readonly Regex _tagName = new Regex(@"\<(\/?[a-zA-Z1-9]+)", RegexOptions.Compiled);
         private static readonly char[] punctuationExceptions = { '−', '-', '†', '‡' };
 
-        private MarkdownEngine _dfmEngine;
+        private Microsoft.DocAsCode.MarkdownLite.MarkdownEngine _dfmEngine;
         private MarkdigMarkdownService _service;
         private Stack<IMarkdownToken> _processedBlockTokens;
 
