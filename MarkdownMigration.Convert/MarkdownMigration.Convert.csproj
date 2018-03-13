@@ -6,9 +6,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MarkdigEngine" Version="1.0.123" />
     <PackageReference Include="Microsoft.DocAsCode.Dfm" Version="2.29.0-alpha-1111-g1b8c970" />
     <PackageReference Include="Microsoft.DocAsCode.Glob" Version="2.29.0-alpha-1111-g1b8c970" />
+    <PackageReference Include="Microsoft.DocAsCode.MarkdigEngine" Version="2.32.2" />
     <PackageReference Include="Mono.Options" Version="5.3.0.1" />
   </ItemGroup>
 
