@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MarkdigEngine" Version="1.0.123" />
+    <PackageReference Include="Microsoft.DocAsCode.MarkdigEngine" Version="2.32.2" />
   </ItemGroup>
 
   <ItemGroup>
