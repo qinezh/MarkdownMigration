@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HtmlAgilityPack;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -54,12 +55,12 @@ namespace HtmlCompare
                 IsIgnore = null,
                 CompareChildrenOnly = (node) =>
                 {
-                    var rawSource = node.Attributes["data-raw-source"].Value;
+                    var rawSource = GetXrefRawSource(node);
                     return rawSource[1] != '"';
                 },
                 Process = (node) =>
                 {
-                    var rawSource = node.Attributes["data-raw-source"].Value;
+                    var rawSource = GetXrefRawSource(node);
                     if (rawSource[1] != '"')
                     {
                         node.InnerHtml = rawSource;
@@ -69,6 +70,17 @@ namespace HtmlCompare
             });
 
             return rules;
+        }
+
+        private static string GetXrefRawSource(HtmlNode node)
+        {
+            var attribute = node.Attributes["data-raw-source"];
+            if (attribute == null)
+            {
+                attribute = node.Attributes["href"];
+            }
+
+            return attribute != null ? attribute.Value : string.Empty;
         }
 
         private static readonly Regex CodeInMutiLine = new Regex(@"<code([^<>]*?)>[\s\S]*?</code>", RegexOptions.Compiled);
