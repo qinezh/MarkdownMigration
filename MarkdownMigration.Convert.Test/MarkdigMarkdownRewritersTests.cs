@@ -328,6 +328,17 @@ content...";
 
         [Fact]
         [Trait("Related", "MarkdigMarkdownRewriters")]
+        public void TestMigrateStrongAndEm2()
+        {
+            var source = @"""*https://docs.microsoft.com/en-us/dotnet/api/microsoft.windowsazure.storage?view=azure-dotnet*""";
+            var expected = @"""<em><https://docs.microsoft.com/en-us/dotnet/api/microsoft.windowsazure.storage?view=azure-dotnet></em>""";
+            var result = _tool.Convert(source, "topic.md");
+
+            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+        }
+
+        [Fact]
+        [Trait("Related", "MarkdigMarkdownRewriters")]
         public void TestMigrateAutoLinkWithQuota()
         {
             var source = "This kind of url link such as \'https://github.com\' are not supported in markdig";
