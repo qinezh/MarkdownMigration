@@ -62,7 +62,7 @@ if (Test-Path $outputFolder)
 New-Item $outputFolder -type directory -Force
 Push-Location $repoRoot
 
-$docFxVersion = "2.32.0-alpha-0002-g57aea14"
+$docFxVersion = "2.32.0"
 
 $toolsPath = Join-Path $scriptPath "_tools"
 New-Item $toolsPath -type directory -Force
@@ -75,7 +75,7 @@ if (-not (Test-Path $nugetPath))
 }
 $migrationExePath = Join-Path $scriptPath "MarkdownMigration.ConsoleApp.exe"
 
-& $nugetPath install docfx.console -Version $docFxVersion -Source https://www.myget.org/F/docfx-dev/api/v3/index.json -OutputDirectory $toolsPath
+& $nugetPath install docfx.console -Version $docFxVersion -Source https://www.nuget.org/api/v2/ -OutputDirectory $toolsPath
 $docfxFolder = Join-Path $toolsPath "docfx.console.$docFxVersion\tools"
 $docfxExePath = Join-Path $docfxFolder "docfx.exe"
 $tempdfmfolder = Join-Path $outputFolder "tempdfm"
