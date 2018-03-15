@@ -682,6 +682,12 @@ namespace MarkdownMigration.Convert
                         continue;
                     }
 
+                    if (pre is MarkdownTagInlineToken)
+                    {
+                        result += "<" + render.Render(token) + ">";
+                        continue;
+                    }
+
                     result += render.Render(token);
                 }
                 else if (localTokens[index] is MarkdownTagInlineToken)
@@ -716,7 +722,7 @@ namespace MarkdownMigration.Convert
 
                     if (pre != null && !insideHtml
                         && pre is MarkdownTagInlineToken
-                        && textToken.Content.Contains('\n')
+                        && textToken.Content.TrimEnd(' ').EndsWith("\n")
                         && !textToken.Content.EndsWith("\n\n"))
                     {
                         result += '\n';
