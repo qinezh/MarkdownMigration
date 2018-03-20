@@ -166,7 +166,7 @@ if ($repoConfig.docsets_to_publish)
         else{
             $docfxJson.build.markdownEngineName = "markdig"
         }
-        $docfxJson | ConvertTo-Json -depth 100 | Format-Json | Out-File $docfxJsonPath
+        $docfxJson | ConvertTo-Json -depth 100 | Format-Json | Out-File -Encoding ascii $docfxJsonPath
     }
     
     $repoReportPath = "$outputFolder\repoReport.json"
