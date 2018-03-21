@@ -160,13 +160,12 @@ if ($repoConfig.docsets_to_publish)
         $docset.docset_name = $docsetName
         $repoReport.docsets += $docset
 
-        if($docfxJson.build.markdownEngineName -eq $null){
-            $docfxJson.build | add-member -Name "markdownEngineName" -value "markdig" -MemberType NoteProperty
-        }
-        else{
-            $docfxJson.build.markdownEngineName = "markdig"
-        }
-        $docfxJson | ConvertTo-Json -depth 100 | Format-Json | Out-File -Encoding ascii $docfxJsonPath
+        $newtonsoft = Join-Path $scriptPath "Newtonsoft.Json.dll"
+        [Reflection.Assembly]::LoadFile($newtonsoft)
+        $content = Get-Content -Raw -Path $docfxJsonPath
+        $obj = [Newtonsoft.Json.Linq.JObject]::Parse($content)
+        $obj.build.markdownEngineName = "markdig"
+        $obj.ToString() | Out-File -Encoding ascii $docfxJsonPath
     }
     
     $repoReportPath = "$outputFolder\repoReport.json"
