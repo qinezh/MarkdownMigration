@@ -38,6 +38,15 @@ namespace HtmlCompare
             return rules;
         }
 
+        public static Dictionary<string, DiffRule> AppendCommentRule(this Dictionary<string, DiffRule> rules)
+        {
+            rules.Add("#comment", new DiffRule
+            {
+                IsIgnore = (node) => true
+            });
+
+            return rules;
+        }
         public static Dictionary<string, DiffRule> AppendPreRule(this Dictionary<string, DiffRule> rules)
         {
             rules.Add("pre", new DiffRule
