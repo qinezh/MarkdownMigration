@@ -54,7 +54,8 @@ namespace HtmlCompare
                 .AppendStrongRule()
                 //.AppendEmRule()
                 .AppendDelRule()
-                .AppendBlockquoteRule();
+                .AppendBlockquoteRule()
+                .AppendCommentRule();
         }
 
         private void PureCompareBuild()
@@ -66,7 +67,8 @@ namespace HtmlCompare
                 .AppendPRule()
                 .AppendCodeRule()
                 .AppendDelRule()
-                .AppendBlockquoteRule();
+                .AppendBlockquoteRule()
+                .AppendCommentRule();
         }
 
         public bool Compare()
