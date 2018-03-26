@@ -139,11 +139,11 @@ This is <strong>markdown</strong> content.
 <br>
 ![](a.png)
 <br>
+
 #title";
             var expected = @"
 <br>
-
-![](a.png)
+<img src=""a.png"" alt=""""/>
 <br>
 
 # title";
@@ -163,7 +163,6 @@ This is <strong>markdown</strong> content.
             var expected = @"
 1. list
    <center><img src=""a.png"" alt=""""/></center>
-
 ";
 
             var result = _tool.Convert(source, "topic.md");
@@ -180,8 +179,7 @@ This is <strong>markdown</strong> content.
 ";
             var expected = @"
 <h2>abc</h2>
-
-![](a.png)
+<img src=""a.png"" alt=""""/>
 ";
 
             var result = _tool.Convert(source, "topic.md");
@@ -197,10 +195,7 @@ This is <strong>markdown</strong> content.
  <center>![](a.png)</center>";
             var expected = @"
  <br>
- 
-<center><img src=""a.png"" alt=""""/></center>
-
-";
+ <center><img src=""a.png"" alt=""""/></center>";
 
             var result = _tool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
@@ -220,14 +215,12 @@ This is <strong>markdown</strong> content.
 [link](text)";
             var expected = @"
 <br> 
-
-[link](text)
+<a href=""text"" data-raw-source=""[link](text)"">link</a>
 
 <br> [link](text)
 
 <br>
-
-[link](text)";
+<a href=""text"" data-raw-source=""[link](text)"">link</a>";
 
             var result = _tool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
@@ -317,7 +310,6 @@ content...";
 **/warnrestart\[:x\]**
 </td>";
             var expected = @"<p> </p>
-
 <td style=""border:1px solid black;"">
 <strong>/warnrestart[:x]</strong>
 </td>";
@@ -581,9 +573,9 @@ b|<ul><li>[te\|xt](#bookmark)</li></ul> `b`
 text";
             var expected = @"text
 
-| f<br>g |                                        a <br/>`b`                                         |
-|--------|-------------------------------------------------------------------------------------------|
-|   b    | <ul><li><a href=""#bookmark"" data-raw-source=""[te\|xt](#bookmark)"">te|xt</a></li></ul> `b` |
+| f<br>g |                a <br/>`b`                 |
+|--------|-------------------------------------------|
+|   b    | <ul><li>[te\|xt](#bookmark)</li></ul> `b` |
 
 text";
             var result = _tool.Convert(source, "topic.md");

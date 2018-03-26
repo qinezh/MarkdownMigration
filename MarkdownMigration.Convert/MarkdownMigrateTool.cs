@@ -11,6 +11,11 @@ namespace MarkdownMigration.Convert
 
     using Microsoft.DocAsCode.Dfm;
     using Microsoft.DocAsCode.Glob;
+    using Microsoft.DocAsCode.Plugins;
+    using Microsoft.DocAsCode.MarkdigEngine.Extensions;
+    using Microsoft.DocAsCode.MarkdigEngine;
+    using Markdig.Syntax;
+    using System.Text;
 
     public class MarkdownMigrateTool
     {
@@ -72,13 +77,92 @@ namespace MarkdownMigration.Convert
         {
             var engine = _builder.CreateDfmEngine(new MarkdigMarkdownRendererProxy(_workingFolder));
 
-            markdown = TrimNewlineBeforeYamlHeader(markdown);
+            var normalized = TrimNewlineBeforeYamlHeader(markdown);
+            normalized = RenderHTMLBlock(normalized, inputFile);
 
-            var result = engine.Markup(markdown, inputFile);
+            var result = engine.Markup(normalized, inputFile);
 
             result = RevertNormalizedPart(result, markdown);
 
             return result;
+        }
+
+        private string RenderHTMLBlock(string markdown, string filepath)
+        {
+            //DFM engine
+            var htmlRender = new DfmRenderer();
+            var dfmengine = _builder.CreateDfmEngine(htmlRender);
+
+            //Markdig engine
+            var parameter = new MarkdownServiceParameters
+            {
+                BasePath = _workingFolder,
+                Extensions = new Dictionary<string, object>
+                {
+                    { LineNumberExtension.EnableSourceInfo, false }
+                }
+            };
+
+            var markdigService = new MarkdigMarkdownService(parameter);
+            var markdigToken = markdigService.Parse(markdown, filepath);
+
+            if (markdigToken == null) return markdown;
+
+            var htmlBlockTokens = markdigToken.Where(token => token is HtmlBlock).ToList();
+
+            if (htmlBlockTokens.Count == 0) return markdown;
+
+            var lines = markdown.Split('\n');
+
+            var lineIndex = 0;
+            var result = new StringBuilder();
+
+            foreach(HtmlBlock block in htmlBlockTokens)
+            {
+                var blockStart = block.Line;
+                var blockEnd = block.Line + block.Lines.Count - 1;
+
+                while(lineIndex < blockStart)
+                {
+                    if (lineIndex != 0) result.Append('\n');
+                    result.Append(lines[lineIndex]);
+                    lineIndex++;
+                }
+
+                var tempMarkdown = new StringBuilder();
+                while(lineIndex <= blockEnd)
+                {
+                    if (lineIndex != 0)
+                    {
+                        if(lineIndex == blockStart)
+                        {
+                            result.Append('\n');
+                        }
+                        else
+                        {
+                            tempMarkdown.Append('\n');
+                        }
+                    }
+                    tempMarkdown.Append(lines[lineIndex]);
+                    lineIndex++;
+                }
+                var tempResult = dfmengine.Markup(tempMarkdown.ToString(), filepath).TrimEnd('\n');
+                
+                if(tempResult.StartsWith("<p>") && tempResult.EndsWith("</p>"))
+                {
+                    tempResult = tempResult.Substring("<p>".Length, tempResult.Length - "<p></p>".Length);
+                }
+                result.Append(tempResult);
+            }
+
+            while (lineIndex < lines.Count())
+            {
+                result.Append('\n');
+                result.Append(lines[lineIndex]);
+                lineIndex++;
+            }
+
+            return result.ToString();
         }
 
         private string TrimNewlineBeforeYamlHeader(string markdown)
