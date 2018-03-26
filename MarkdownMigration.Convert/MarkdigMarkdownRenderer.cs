@@ -235,11 +235,6 @@ namespace MarkdownMigration.Convert
             var source = token.SourceInfo.Markdown;
             var tokens = token.InlineTokens.Tokens;
 
-            if (tokens.LastOrDefault() is MarkdownTagInlineToken)
-            {
-                return RenderInlineTokens(token.InlineTokens.Tokens, render) + "\n\n";
-            }
-
             if (source.EndsWith("\n"))
             {
                 return RenderInlineTokens(tokens, render) + "\n";
@@ -659,7 +654,6 @@ namespace MarkdownMigration.Convert
         private StringBuffer RenderInlineTokens(ImmutableArray<IMarkdownToken> tokens, IMarkdownRenderer render, bool inSideTable = false)
         {
             var result = StringBuffer.Empty;
-            var insideHtml = false;
             var tags = new Stack<string>();
             var localTokens = tokens.ToList();
 
@@ -692,41 +686,11 @@ namespace MarkdownMigration.Convert
                 }
                 else if (localTokens[index] is MarkdownTagInlineToken)
                 {
-                    var tagMatch = _tagName.Match(localTokens[index].SourceInfo.Markdown);
-                    if (tagMatch.Success)
-                    {
-                        var tag = tagMatch.Groups[1].Value;
-                        if (tag.ToLower() != "br")
-                        {
-                            if (IsEndTag(tag))
-                            {
-                                if (tags.Count > 0)
-                                {
-                                    var expectedEndTag = tags.Peek();
-                                    if (tag == expectedEndTag) tags.Pop();
-                                }
-                            }
-                            else
-                            {
-                                tags.Push(GetEndTagFromStartTag(tag));
-                            }
-                        }
-                    }
-                    insideHtml = tags.Count > 0 && !inSideTable;
                     result += MarkupInlineToken(render, localTokens[index]);
                 }
                 else if (localTokens[index] is MarkdownTextToken textToken)
                 {
-                    var pre = index - 1 >= 0 ? localTokens[index - 1] : null;
                     result += render.Render(textToken);
-
-                    if (pre != null && !insideHtml
-                        && pre is MarkdownTagInlineToken
-                        && textToken.Content.TrimEnd(' ').EndsWith("\n")
-                        && !textToken.Content.EndsWith("\n\n"))
-                    {
-                        result += '\n';
-                    }
                 }
                 else if (localTokens[index] is MarkdownEscapeInlineToken)
                 {
@@ -779,21 +743,11 @@ namespace MarkdownMigration.Convert
                 }
                 else
                 {
-                    result += insideHtml ? MarkupInlineToken(render, localTokens[index]) : render.Render(localTokens[index]);
+                    result += render.Render(localTokens[index]);
                 }
             }
 
             return result;
-        }
-
-        private string GetEndTagFromStartTag(string tag)
-        {
-            return '/' + tag;
-        }
-
-        private bool IsEndTag(string tagName)
-        {
-            return !string.IsNullOrEmpty(tagName) && tagName[0] == '/';
         }
 
         private bool TryResolveUid(string uid)
