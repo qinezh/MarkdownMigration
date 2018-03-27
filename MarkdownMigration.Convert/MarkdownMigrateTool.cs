@@ -146,12 +146,11 @@ namespace MarkdownMigration.Convert
                     tempMarkdown.Append(lines[lineIndex]);
                     lineIndex++;
                 }
-                var tempResult = dfmengine.Markup(tempMarkdown.ToString(), filepath).TrimEnd('\n');
-                
-                if(tempResult.StartsWith("<p>") && tempResult.EndsWith("</p>"))
-                {
-                    tempResult = tempResult.Substring("<p>".Length, tempResult.Length - "<p></p>".Length);
-                }
+
+                //add <p></p> before content, make sure root P is always added
+                var tempResult = dfmengine.Markup("<p></p>" + tempMarkdown.ToString(), filepath).TrimEnd('\n');
+                tempResult = tempResult.Substring("<p><p></p>".Length, tempResult.Length - "<p><p></p></p>".Length);
+
                 result.Append(tempResult);
             }
 
