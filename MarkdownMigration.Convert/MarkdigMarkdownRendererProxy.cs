@@ -67,11 +67,6 @@ namespace MarkdownMigration.Convert
                 return true;
             }
 
-            if (token is MarkdownParagraphBlockToken paragraph && NeedMigrationParagrah(paragraph))
-            {
-                return true;
-            }
-
             if (token is DfmNoteBlockToken)
             {
                 return true;

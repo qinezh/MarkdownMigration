@@ -98,7 +98,7 @@
 
 **markdown**
 
-
+**More info**<br>
 
 <div>
 This is **markdown** content.
@@ -114,7 +114,7 @@ This is **markdown** content.
 
 **markdown**
 
-
+**More info**<br>
 
 <div>
 This is <strong>markdown</strong> content.
