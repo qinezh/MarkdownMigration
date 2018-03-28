@@ -63,14 +63,22 @@ namespace MarkdownMigration.Convert
                 throw new FileNotFoundException($"{inputFile} can't be found.");
             }
 
-            var result = Convert(File.ReadAllText(inputFile), inputFile);
-            var dir = Path.GetDirectoryName(outputFile);
-            if (!string.IsNullOrEmpty(dir))
+            try
             {
-                Directory.CreateDirectory(dir);
+                var result = Convert(File.ReadAllText(inputFile), inputFile);
+                var dir = Path.GetDirectoryName(outputFile);
+                if (!string.IsNullOrEmpty(dir))
+                {
+                    Directory.CreateDirectory(dir);
+                }
+                File.WriteAllText(outputFile, result);
+                Console.WriteLine($"{inputFile} has been migrated to {outputFile}.");
             }
-            File.WriteAllText(outputFile, result);
-            Console.WriteLine($"{inputFile} has been migrated to {outputFile}.");
+            catch (Exception e)
+            {
+                Console.WriteLine($"{inputFile} migration failed.");
+                throw e;
+            }
         }
 
         public string Convert(string markdown, string inputFile)
