@@ -157,7 +157,15 @@ namespace MarkdownMigration.Convert
 
                 //add <p></p> before content, make sure root P is always added
                 var tempResult = dfmengine.Markup("<p></p>" + tempMarkdown.ToString(), filepath).TrimEnd('\n');
-                tempResult = tempResult.Substring("<p><p></p>".Length, tempResult.Length - "<p><p></p></p>".Length);
+
+                if (tempResult.Length > "<p><p></p></p>".Length)
+                {
+                    tempResult = tempResult.Substring("<p><p></p>".Length, tempResult.Length - "<p><p></p></p>".Length);
+                }
+                else
+                {
+                    tempResult = tempResult.Substring("<p></p>".Length);
+                }
 
                 result.Append(tempResult);
             }

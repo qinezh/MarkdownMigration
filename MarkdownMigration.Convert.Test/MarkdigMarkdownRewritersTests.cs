@@ -140,11 +140,39 @@ This is <strong>markdown</strong> content.
 ![](a.png)
 <br>
 
+<p> *bold*
+
+<p>
+
+</p>
+
+<a>
+
+</a>
+
+<p></p>
+
+</p><p>
+
 #title";
             var expected = @"
 <br>
 <img src=""a.png"" alt=""""/>
 <br>
+
+<p> <em>bold</em>
+
+<p>
+
+</p>
+
+<a>
+
+</a>
+
+<p></p>
+
+</p><p>
 
 # title";
 
