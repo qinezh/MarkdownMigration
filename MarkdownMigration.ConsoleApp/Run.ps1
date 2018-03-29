@@ -45,7 +45,7 @@ if ($repoUrl) {
 $repoReport = @{repo_name=$repoName}
 $scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
 if (-Not $outputFolder) {
-    $outputFolder = Join-Path $scriptPath "_output"
+    $outputFolder = Join-Path $scriptPath "_o"
 }
 
 Add-Type -AssemblyName System.IO.Compression.FileSystem
