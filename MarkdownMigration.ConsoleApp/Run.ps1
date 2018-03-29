@@ -93,8 +93,8 @@ if ($repoConfig.docsets_to_publish)
         $htmlBaseFolder = Join-Path $outputFolder $docsetName
         $dfmOutput = Join-Path $htmlBaseFolder "dfm"
         $dfmHtmlOutput = Join-Path $htmlBaseFolder "dfm-html"
-        $markdigOutput = Join-Path $htmlBaseFolder "markdig"
-        $markdigHtmlOutput = Join-Path $htmlBaseFolder "markdig-html"
+        $markdigOutput = Join-Path $htmlBaseFolder "md"
+        $markdigHtmlOutput = Join-Path $htmlBaseFolder "md-html"
 
         
         $docfxJsonPath = Join-Path $docsetFolder "docfx.json"
@@ -141,6 +141,7 @@ if ($repoConfig.docsets_to_publish)
         & $docfxExePath $docfxJsonPath --exportRawModel --dryRun --force --markdownEngineName markdig
         CheckExitCode $lastexitcode "markdig build"
 
+        Write-Host "copy from $dest to $markdigOutput"
         Copy-Item -Path $dest -Destination $markdigOutput -recurse -Force
         Remove-Item -path $dest -recurse
         Remove-Item -path "$docsetFolder\obj" -recurse
