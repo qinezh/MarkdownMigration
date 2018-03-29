@@ -112,7 +112,7 @@ namespace MarkdownMigration.Convert
             };
 
             var markdigService = new MarkdigMarkdownService(parameter);
-            var markdigToken = markdigService.Parse(markdown, filepath);
+            var markdigToken = markdigService.Parse(markdown, Path.GetFileName(filepath));
 
             if (markdigToken == null) return markdown;
 
