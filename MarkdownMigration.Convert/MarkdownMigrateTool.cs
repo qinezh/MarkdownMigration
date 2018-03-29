@@ -156,7 +156,7 @@ namespace MarkdownMigration.Convert
                 }
 
                 //add <p></p> before content, make sure root P is always added
-                var tempResult = dfmengine.Markup("<p></p>" + tempMarkdown.ToString(), filepath).TrimEnd('\n');
+                var tempResult = dfmengine.Markup("<p></p>" + tempMarkdown.ToString(), Path.GetFileName(filepath)).TrimEnd('\n');
 
                 if (tempResult.Length > "<p><p></p></p>".Length)
                 {
