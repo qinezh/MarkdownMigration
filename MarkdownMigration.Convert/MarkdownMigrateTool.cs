@@ -162,6 +162,11 @@ namespace MarkdownMigration.Convert
                 {
                     tempResult = tempResult.Substring("<migratetemproot>".Length, tempResult.Length - "<migratetemproot></migratetemproot>".Length);
                 }
+                else
+                {
+                    string msg = $"htmlblock migration failed for content:{tempMarkdown.ToString()}";
+                    throw new Exception(msg);
+                }
 
                 result.Append(tempResult);
             }
