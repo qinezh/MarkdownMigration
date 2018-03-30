@@ -256,6 +256,19 @@ This is <strong>markdown</strong> content.
 
         [Fact]
         [Trait("Related", "MarkdigMarkdownRewriters")]
+        public void TestMigrateHtml6()
+        {
+            var source = @"<!--### [Sprint 133](release-notes/sprint133.md) 
+### [Sprint 134](release-notes/sprint134.md) -->";
+            var expected = @"<!--### [Sprint 133](release-notes/sprint133.md) 
+### [Sprint 134](release-notes/sprint134.md) -->";
+
+            var result = _tool.Convert(source, "topic.md");
+            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+        }
+
+        [Fact]
+        [Trait("Related", "MarkdigMarkdownRewriters")]
         public void TestMigrateHeadingWithHref()
         {
             var source = @"##<a id=""WhatIs""></a>What is Twilio?
