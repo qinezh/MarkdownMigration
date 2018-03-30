@@ -155,16 +155,12 @@ namespace MarkdownMigration.Convert
                     lineIndex++;
                 }
 
-                //add <p></p> before content, make sure root P is always added
-                var tempResult = dfmengine.Markup("<p></p>" + tempMarkdown.ToString(), Path.GetFileName(filepath)).TrimEnd('\n');
+                // Wrap in <migratetemproot> to make sure DFM recognize it as a single Html Block
+                var tempResult = dfmengine.Markup($"<migratetemproot>{tempMarkdown.ToString()}</migratetemproot>", Path.GetFileName(filepath)).TrimEnd('\n');
 
-                if (tempResult.Length > "<p><p></p></p>".Length)
+                if (tempResult.StartsWith("<migratetemproot>") && tempResult.EndsWith("</migratetemproot>"))
                 {
-                    tempResult = tempResult.Substring("<p><p></p>".Length, tempResult.Length - "<p><p></p></p>".Length);
-                }
-                else
-                {
-                    tempResult = tempResult.Substring("<p></p>".Length);
+                    tempResult = tempResult.Substring("<migratetemproot>".Length, tempResult.Length - "<migratetemproot></migratetemproot>".Length);
                 }
 
                 result.Append(tempResult);
