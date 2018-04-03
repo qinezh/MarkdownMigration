@@ -75,7 +75,7 @@ if (-not (Test-Path $nugetPath))
 }
 $migrationExePath = Join-Path $scriptPath "MarkdownMigration.ConsoleApp.exe"
 
-& $nugetPath install docfx.console -Version $docFxVersion -Source https://www.nuget.org/api/v2/ -OutputDirectory $toolsPath
+& $nugetPath install docfx.console -Version $docFxVersion -Source https://www.myget.org/F/docfx/api/v3/index.json -OutputDirectory $toolsPath
 $docfxFolder = Join-Path $toolsPath "docfx.console.$docFxVersion\tools"
 $docfxExePath = Join-Path $docfxFolder "docfx.exe"
 $tempdfmfolder = Join-Path $outputFolder "tempdfm"
