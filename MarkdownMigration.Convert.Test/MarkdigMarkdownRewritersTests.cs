@@ -400,6 +400,58 @@ content...";
 
         [Fact]
         [Trait("Related", "MarkdigMarkdownRewriters")]
+        public void TestCodeSnippetInTable()
+        {
+            var source = @"a
+|**Method**|**Description**|**Example**|
+|----------|---------------|----------|
+|`AsInt(), IsInt()`|Converts a string that represents a whole number (like **593**) to an integer.|[!code-csharp[Main](introducing-razor-syntax-c/samples/sample28.cs)]|
+|`AsBool(), IsBool()`|Converts a string like &quot;true&quot; or &quot;false&quot; to a Boolean type.|   [!code-csharp[Main](introducing-razor-syntax-c/samples/sample29.cs)]   |
+a";
+            var expected = @"a
+:::row:::
+    :::column:::
+        <strong>Method</strong>
+    :::column-end:::
+    :::column:::
+        <strong>Description</strong>
+    :::column-end:::
+    :::column:::
+        <strong>Example</strong>
+    :::column-end:::
+:::row-end:::
+* * *
+:::row:::
+    :::column:::
+        `AsInt(), IsInt()`
+    :::column-end:::
+    :::column:::
+        Converts a string that represents a whole number (like <strong>593</strong>) to an integer.
+    :::column-end:::
+    :::column:::
+        [!code-csharp[Main](introducing-razor-syntax-c/samples/sample28.cs)]
+    :::column-end:::
+:::row-end:::
+* * *
+:::row:::
+    :::column:::
+        `AsBool(), IsBool()`
+    :::column-end:::
+    :::column:::
+        Converts a string like &quot;true&quot; or &quot;false&quot; to a Boolean type.
+    :::column-end:::
+    :::column:::
+        [!code-csharp[Main](introducing-razor-syntax-c/samples/sample29.cs)]
+    :::column-end:::
+:::row-end:::
+a";
+
+            var result = _tool.Convert(source, "topic.md");
+            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+        }
+
+        [Fact]
+        [Trait("Related", "MarkdigMarkdownRewriters")]
         public void TestMigrateAutoLinkInUriLink()
         {
             var source = @"[link](text (https://msdn.microsoft.com/library/ms732023(v=vs.110).aspx').";

@@ -33,6 +33,7 @@ namespace MarkdownMigration.Convert
         private static readonly Regex _fenceCodeRegex = new Regex(@"(?<pre> *`{3,}\w*\n)(?<code>[\s\S]+?)(?<post>\n *`{3,}\n?)", RegexOptions.Compiled);
         private static readonly Regex _tagName = new Regex(@"\<(\/?[a-zA-Z1-9]+)", RegexOptions.Compiled);
         private static readonly char[] punctuationExceptions = { '−', '-', '†', '‡' };
+        private static readonly char NewLine = '\n';
 
         private Microsoft.DocAsCode.MarkdownLite.MarkdownEngine _dfmEngine;
         private MarkdigMarkdownService _service;
@@ -243,8 +244,69 @@ namespace MarkdownMigration.Convert
             return RenderInlineTokens(tokens, render);
         }
 
+        private StringBuffer BuildRowExtension(IMarkdownRenderer render, MarkdownTableBlockToken token)
+        {
+            var result = StringBuffer.Empty;
+
+            const int SpaceCount = 4;
+            var columnCount = token.Header.Length;
+
+            //Heading
+            result += ":::row:::" + NewLine;
+            for (var column = 0; column < columnCount; column++)
+            {
+                var header = token.Header[column];
+                result += new string(' ', SpaceCount) + ":::column:::" + NewLine;
+                result += new string(' ', SpaceCount * 2) + RenderInlineTokens(header.Content.Tokens, render) + NewLine;
+                result += new string(' ', SpaceCount) + ":::column-end:::" + NewLine;
+            }
+            result += ":::row-end:::" + NewLine;
+            result += "* * *" + NewLine;
+
+            //Body
+            for (var row = 0; row < token.Cells.Length; row++)
+            {
+                var cells = token.Cells[row];
+
+                result += ":::row:::" + NewLine;
+                for (var column = 0; column < cells.Count(); column++)
+                {
+                    var cell = cells[column];
+                    result += new string(' ', SpaceCount) + ":::column:::" + NewLine;
+                    result += new string(' ', SpaceCount * 2) + RenderInlineTokens(cell.Content.Tokens, render) + NewLine;
+                    result += new string(' ', SpaceCount) + ":::column-end:::" + NewLine;
+                }
+                result += ":::row-end:::" + NewLine;
+
+                if(row != token.Cells.Length - 1)
+                {
+                    result += "* * *" + NewLine;
+                }
+            }
+
+            var markdown = token.SourceInfo.Markdown;
+            var newLineCount = Helper.CountEndNewLine(markdown);
+
+            if (newLineCount >= 2)
+            {
+                return result += NewLine;
+            }
+
+            return result;
+        }
+
+        private bool IsTableContainCodesnippet(MarkdownTableBlockToken token)
+        {
+            return token.Cells.Any(c => c.Any(item => item.Content.Tokens.Any(t => t is DfmFencesBlockToken)));
+        }
+
         public override StringBuffer Render(IMarkdownRenderer render, MarkdownTableBlockToken token, MarkdownBlockContext context)
         {
+            if(IsTableContainCodesnippet(token))
+            {
+                return BuildRowExtension(render, token);
+            }
+
             var markdown = token.SourceInfo.Markdown;
             var newLineCount = Helper.CountEndNewLine(markdown);
 
