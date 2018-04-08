@@ -16,7 +16,7 @@
         public void TestResloved_ShortcutXref()
         {
             var source = "@System.String";
-            var expected = "@\"System.String\"";
+            var expected = "@System.String";
 
             var result = _tool.Convert(source, "topic.md");
             Assert.Equal(expected, result);
