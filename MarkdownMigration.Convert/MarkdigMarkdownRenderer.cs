@@ -244,6 +244,19 @@ namespace MarkdownMigration.Convert
             return RenderInlineTokens(tokens, render);
         }
 
+        private StringBuffer AddIndentForEachLine(string indent, StringBuffer content)
+        {
+            if (string.IsNullOrEmpty(content) || string.IsNullOrEmpty(indent)) return content;
+
+            var lines = content.ToString().Split(NewLine);
+            for(int index = 0; index < lines.Length; index++)
+            {
+                lines[index] = indent + lines[index];
+            }
+
+            return string.Join(NewLine.ToString(), lines);
+        }
+
         private StringBuffer BuildRowExtension(IMarkdownRenderer render, MarkdownTableBlockToken token)
         {
             var result = StringBuffer.Empty;
@@ -257,7 +270,7 @@ namespace MarkdownMigration.Convert
             {
                 var header = token.Header[column];
                 result += new string(' ', SpaceCount) + ":::column:::" + NewLine;
-                result += new string(' ', SpaceCount * 2) + RenderInlineTokens(header.Content.Tokens, render) + NewLine;
+                result += AddIndentForEachLine(new string(' ', SpaceCount * 2), RenderInlineTokens(header.Content.Tokens, render)) + NewLine;
                 result += new string(' ', SpaceCount) + ":::column-end:::" + NewLine;
             }
             result += ":::row-end:::" + NewLine;
@@ -273,7 +286,7 @@ namespace MarkdownMigration.Convert
                 {
                     var cell = cells[column];
                     result += new string(' ', SpaceCount) + ":::column:::" + NewLine;
-                    result += new string(' ', SpaceCount * 2) + RenderInlineTokens(cell.Content.Tokens, render) + NewLine;
+                    result += AddIndentForEachLine(new string(' ', SpaceCount * 2), RenderInlineTokens(cell.Content.Tokens, render)) + NewLine;
                     result += new string(' ', SpaceCount) + ":::column-end:::" + NewLine;
                 }
                 result += ":::row-end:::" + NewLine;
@@ -511,6 +524,30 @@ namespace MarkdownMigration.Convert
             }
 
             return base.Render(render, token, context);
+        }
+
+        public StringBuffer Render(IMarkdownRenderer render, DfmFencesBlockToken token, MarkdownInlineContext context)
+        {
+            var markdown = token.SourceInfo.Markdown;
+            var originPath = token.Path;
+            var path = originPath.Replace(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            var result = StringBuffer.Empty;
+
+            if (!string.Equals(path, originPath))
+            {
+                result = markdown.Replace(originPath, path);
+            }
+            else
+            {
+                result = base.Render(render, token, context);
+            }
+
+            if (token.Rule.Name == "DfmFencesInline")
+            {
+                return NewLine + result + NewLine;
+            }
+
+            return result;
         }
 
         private string RenderIncludeToken(string markdown)
