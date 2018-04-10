@@ -333,10 +333,14 @@ content...";
         {
             var source = @"__a__ and _b_ and **a** and **b** and *__ab__* ***a*** 
 
-**a:**a";
+**a:**a
+
+**\***";
             var expected = @"__a__ and _b_ and **a** and **b** and *__ab__* ***a*** 
 
-<strong>a:</strong>a";
+<strong>a:</strong>a
+
+<strong>\\</strong>*";
 
             var result = _tool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
