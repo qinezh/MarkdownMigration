@@ -24,6 +24,16 @@
 
         [Fact]
         [Trait("Related", "MarkdigMarkdownRewriters")]
+        public void TestMigrate_KeepLineEndingIfNothingMigrated()
+        {
+            var source = "line1\r\nline2\nline3\rline4";
+
+            var result = _tool.Convert(source, "topic.md");
+            Assert.Equal(source, result);
+        }
+
+        [Fact]
+        [Trait("Related", "MarkdigMarkdownRewriters")]
         public void TestMigrateUnresloved_ShortcutXref()
         {
             var source = "@outlook.com";
@@ -73,7 +83,7 @@
 ";
 
             var result = _tool.Convert(source, "topic.md");
-            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+            Assert.Equal(expected.Replace("\r\n", "\n"), result.Replace("\r\n", "\n"));
         }
 
         [Fact]
@@ -128,7 +138,7 @@ This is <strong>markdown</strong> content.
 </div>";
 
             var result = _tool.Convert(source, "topic.md");
-            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+            Assert.Equal(expected.Replace("\r\n", "\n"), result.Replace("\r\n", "\n"));
         }
 
         [Fact]
@@ -177,7 +187,7 @@ This is <strong>markdown</strong> content.
 # title";
 
             var result = _tool.Convert(source, "topic.md");
-            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+            Assert.Equal(expected.Replace("\r\n", "\n"), result.Replace("\r\n", "\n"));
         }
 
         [Fact]
@@ -194,7 +204,7 @@ This is <strong>markdown</strong> content.
 ";
 
             var result = _tool.Convert(source, "topic.md");
-            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+            Assert.Equal(expected.Replace("\r\n", "\n"), result.Replace("\r\n", "\n"));
         }
 
         [Fact]
@@ -211,7 +221,7 @@ This is <strong>markdown</strong> content.
 ";
 
             var result = _tool.Convert(source, "topic.md");
-            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+            Assert.Equal(expected.Replace("\r\n", "\n"), result.Replace("\r\n", "\n"));
         }
 
         [Fact]
@@ -226,7 +236,7 @@ This is <strong>markdown</strong> content.
  <center><img src=""a.png"" alt=""""/></center>";
 
             var result = _tool.Convert(source, "topic.md");
-            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+            Assert.Equal(expected.Replace("\r\n", "\n"), result.Replace("\r\n", "\n"));
         }
 
         [Fact]
@@ -251,7 +261,7 @@ This is <strong>markdown</strong> content.
 <a href=""text"" data-raw-source=""[link](text)"">link</a>";
 
             var result = _tool.Convert(source, "topic.md");
-            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+            Assert.Equal(expected.Replace("\r\n", "\n"), result.Replace("\r\n", "\n"));
         }
 
         [Fact]
@@ -264,7 +274,7 @@ This is <strong>markdown</strong> content.
 ### [Sprint 134](release-notes/sprint134.md) -->";
 
             var result = _tool.Convert(source, "topic.md");
-            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+            Assert.Equal(expected.Replace("\r\n", "\n"), result.Replace("\r\n", "\n"));
         }
 
         [Fact]
@@ -292,7 +302,7 @@ content...";
 content...";
 
             var result = _tool.Convert(source, "topic.md");
-            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+            Assert.Equal(expected.Replace("\r\n", "\n"), result.Replace("\r\n", "\n"));
         }
 
         [Fact]
@@ -307,7 +317,7 @@ content...";
 content...";
 
             var result = _tool.Convert(source, "topic.md");
-            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+            Assert.Equal(expected.Replace("\r\n", "\n"), result.Replace("\r\n", "\n"));
         }
 
         [Fact]
@@ -324,7 +334,7 @@ content...";
 content...";
 
             var result = _tool.Convert(source, "topic.md");
-            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+            Assert.Equal(expected.Replace("\r\n", "\n"), result.Replace("\r\n", "\n"));
         }
 
         [Fact]
@@ -343,7 +353,7 @@ content...";
 <strong>\\</strong>*";
 
             var result = _tool.Convert(source, "topic.md");
-            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+            Assert.Equal(expected.Replace("\r\n", "\n"), result.Replace("\r\n", "\n"));
         }
 
         [Fact]
@@ -360,7 +370,7 @@ content...";
 </td>";
 
             var result = _tool.Convert(source, "topic.md");
-            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+            Assert.Equal(expected.Replace("\r\n", "\n"), result.Replace("\r\n", "\n"));
         }
 
         [Fact]
@@ -535,7 +545,7 @@ a";
 
 # title";
             var result = _tool.Convert(source, "topic.md");
-            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+            Assert.Equal(expected.Replace("\r\n", "\n"), result.Replace("\r\n", "\n"));
         }
 
         [Fact]
@@ -547,7 +557,7 @@ a";
             var expected = @"2. a
    2. b";
             var result = _tool.Convert(source, "topic.md");
-            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+            Assert.Equal(expected.Replace("\r\n", "\n"), result.Replace("\r\n", "\n"));
         }
 
         [Fact]
@@ -561,7 +571,7 @@ a";
   * b
 ";
             var result = _tool.Convert(source, "topic.md");
-            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+            Assert.Equal(expected.Replace("\r\n", "\n"), result.Replace("\r\n", "\n"));
         }
 
         [Fact]
@@ -577,7 +587,7 @@ a";
 - b
 ";
             var result = _tool.Convert(source, "topic.md");
-            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+            Assert.Equal(expected.Replace("\r\n", "\n"), result.Replace("\r\n", "\n"));
         }
 
         [Fact]
@@ -601,7 +611,7 @@ a";
    ![Search for ](b.png)
 ";
             var result = _tool.Convert(source, "topic.md");
-            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+            Assert.Equal(expected.Replace("\r\n", "\n"), result.Replace("\r\n", "\n"));
         }
 
         [Fact]
@@ -660,7 +670,7 @@ b|b
 
 text";
             var result = _tool.Convert(source, "topic.md");
-            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+            Assert.Equal(expected.Replace("\r\n", "\n"), result.Replace("\r\n", "\n"));
         }
 
         [Fact]
@@ -730,7 +740,7 @@ a: b
 > [!NOTE]
 > here's note";
             var result = _tool.Convert(source, "topic.md");
-            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+            Assert.Equal(expected.Replace("\r\n", "\n"), result.Replace("\r\n", "\n"));
         }
 
         [Fact]

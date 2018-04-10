@@ -16,6 +16,7 @@ namespace MarkdownMigration.Convert
     using Microsoft.DocAsCode.MarkdigEngine;
     using Markdig.Syntax;
     using System.Text;
+    using System.Text.RegularExpressions;
 
     public class MarkdownMigrateTool
     {
@@ -205,10 +206,32 @@ namespace MarkdownMigration.Convert
             }
         }
 
+        private string[] SplitLines(string source)
+        {
+            List<string> result = new List<string>();
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < source.Length; i++)
+            {
+                sb.Append(source[i]);
+                if (source[i] == '\r' && i + 1 < source.Length && source[i + 1] == '\n')
+                {
+                    i++;
+                    sb.Append(source[i]);
+                }
+                if (source[i] == '\r' || source[i] == '\n')
+                {
+                    result.Add(sb.ToString());
+                    sb.Clear();
+                }
+            }
+            result.Add(sb.ToString());
+            return result.ToArray();
+        }
+
         private string RevertNormalizedPart(string result, string source)
         {
-            var resultLines = NormalizeUtility.NewLine.Split(result);
-            var sourceLines = NormalizeUtility.NewLine.Split(source);
+            var resultLines = new Regex("(?<=\n)").Split(result);
+            var sourceLines = SplitLines(source);
 
             if (resultLines.Length == sourceLines.Length)
             {
@@ -222,7 +245,7 @@ namespace MarkdownMigration.Convert
                     }
                 }
 
-                return string.Join("\n", resultLines);
+                return string.Concat(resultLines);
             }
 
             return result;

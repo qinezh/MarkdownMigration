@@ -8,7 +8,6 @@ namespace MarkdownMigration.Convert
 
         public static readonly Regex NormalizeNewLine = new Regex(@"\r\n|\r", RegexOptions.Compiled);
         public static readonly Regex WhiteSpaceLine = new Regex(@"^ +$", RegexOptions.Compiled);
-        public static readonly Regex NewLine = new Regex(@"\r\n|\r|\n", RegexOptions.Compiled);
 
         private static readonly string[] Spaces = { "    ", "   ", "  ", " " };
         private static readonly char[] NewLineOrTab = { '\n', '\t' };
