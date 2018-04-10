@@ -185,7 +185,6 @@ namespace HtmlCompare
         {
             var doc = new HtmlDocument();
             doc.OptionCheckSyntax = true;
-            doc.OptionFixNestedTags = true;
             doc.OptionWriteEmptyNodes = true;
             doc.OptionOutputAsXml = true;
             doc.LoadHtml(source);
