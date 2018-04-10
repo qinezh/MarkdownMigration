@@ -405,8 +405,8 @@ content...";
             var source = @"a
 |**Method**|**Description**|**Example**|
 |----------|---------------|----------|
-|`AsInt(), IsInt()`|Converts a string that represents a whole number (like **593**) to an integer.|[!code-csharp[Main](introducing-razor-syntax-c/samples/sample28.cs)]|
-|`AsBool(), IsBool()`|Converts a string like &quot;true&quot; or &quot;false&quot; to a Boolean type.|   [!code-csharp[Main](introducing-razor-syntax-c/samples/sample29.cs)]   |
+|`11`|12|13[!code-csharp[Main](introducing-razor-syntax-c/samples/sample28.cs)]13|
+|`21`|22|23[!code-csharp[Main](introducing-razor-syntax-c/samples/sample29.cs)]23|
 a";
             var expected = @"a
 :::row:::
@@ -423,25 +423,29 @@ a";
 * * *
 :::row:::
     :::column:::
-        `AsInt(), IsInt()`
+        `11`
     :::column-end:::
     :::column:::
-        Converts a string that represents a whole number (like <strong>593</strong>) to an integer.
+        12
     :::column-end:::
     :::column:::
+        13
         [!code-csharp[Main](introducing-razor-syntax-c/samples/sample28.cs)]
+        13
     :::column-end:::
 :::row-end:::
 * * *
 :::row:::
     :::column:::
-        `AsBool(), IsBool()`
+        `21`
     :::column-end:::
     :::column:::
-        Converts a string like &quot;true&quot; or &quot;false&quot; to a Boolean type.
+        22
     :::column-end:::
     :::column:::
+        23
         [!code-csharp[Main](introducing-razor-syntax-c/samples/sample29.cs)]
+        23
     :::column-end:::
 :::row-end:::
 a";
