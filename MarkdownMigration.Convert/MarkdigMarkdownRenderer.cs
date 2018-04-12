@@ -32,6 +32,9 @@ namespace MarkdownMigration.Convert
         private static readonly Regex _whitespaceInNormalLinkregex = new Regex(@"(?<=\]) (?=\(.+?\))", RegexOptions.Compiled);
         private static readonly Regex _fenceCodeRegex = new Regex(@"(?<pre> *`{3,}\w*\n)(?<code>[\s\S]+?)(?<post>\n *`{3,}\n?)", RegexOptions.Compiled);
         private static readonly Regex _tagName = new Regex(@"\<(\/?[a-zA-Z1-9]+)", RegexOptions.Compiled);
+        private static readonly Regex _strongRegex = new Regex(@"<strong>(.*?)</strong>", RegexOptions.Compiled);
+        private static readonly Regex _emRegex = new Regex(@"<em>(.*?)</em>", RegexOptions.Compiled);
+
         private static readonly char[] punctuationExceptions = { '−', '-', '†', '‡' };
         private static readonly char NewLine = '\n';
 
@@ -852,6 +855,55 @@ namespace MarkdownMigration.Convert
                 else
                 {
                     result += render.Render(localTokens[index]);
+                }
+            }
+
+            return RollBackStrongEmTag(result);
+        }
+
+        private string RollBackStrongEmTag(string content)
+        {
+            if (string.IsNullOrEmpty(content)) return content;
+
+            //Replace <strong>
+            var result = RevertSingleStrongEmTag(content, true);
+
+            //Replace <em>
+            result = RevertSingleStrongEmTag(result, false);
+
+            return result;
+        }
+
+        private string RevertSingleStrongEmTag(string content, bool isStrong)
+        {
+            var index = 0;
+            var result = content;
+            var oldContent = content;
+            var tag = isStrong ? "<strong>" : "<em>";
+            var tagRegex = isStrong ? _strongRegex : _emRegex;
+            var tagStar = isStrong ? "**" : "*";
+
+            while (true)
+            {
+                index = result.IndexOf(tag, index);
+                if (index == -1) break;
+                result = tagRegex.Replace(result, m => tagStar + m.Groups[1].Value + tagStar, 1, index);
+                index++;
+
+                if (oldContent != result)
+                {
+                    var oldHtml = _service.Markup(oldContent, "topic.md").Html;
+                    var newHtml = _service.Markup(result, "topic.md").Html;
+
+                    var compareTool = new HtmlDiffTool(oldHtml, newHtml, true);
+                    if (compareTool.Compare())
+                    {
+                        oldContent = result;
+                    }
+                    else
+                    {
+                        result = oldContent;
+                    }
                 }
             }
 

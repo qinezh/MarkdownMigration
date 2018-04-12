@@ -341,16 +341,16 @@ content...";
         [Trait("Related", "MarkdigMarkdownRewriters")]
         public void TestMigrateStrongAndEm()
         {
-            var source = @"__a__ and _b_ and **a** and **b** and *__ab__* ***a*** 
+            var source = @"__a__ and _b_ and **a:**b and **b** and *__ab__* ***a*** 
 
-**a:**a
+*a:*a
 
 **\***";
-            var expected = @"__a__ and _b_ and **a** and **b** and *__ab__* ***a*** 
+            var expected = @"**a** and *b* and <strong>a:</strong>b and **b** and ***ab*** ***a*** 
 
-<strong>a:</strong>a
+<em>a:</em>a
 
-<strong>\\</strong>*";
+**\\***";
 
             var result = _tool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result.Replace("\r\n", "\n"));
@@ -378,7 +378,7 @@ content...";
         public void TestMigrateStrongAndEm2()
         {
             var source = @"""*https://docs.microsoft.com/en-us/dotnet/api/microsoft.windowsazure.storage?view=azure-dotnet*""";
-            var expected = @"""<em><https://docs.microsoft.com/en-us/dotnet/api/microsoft.windowsazure.storage?view=azure-dotnet></em>""";
+            var expected = @"""*<https://docs.microsoft.com/en-us/dotnet/api/microsoft.windowsazure.storage?view=azure-dotnet>*""";
             var result = _tool.Convert(source, "topic.md");
 
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
@@ -425,13 +425,13 @@ a";
             var expected = @"a
 :::row:::
     :::column:::
-        <strong>Method</strong>
+        **Method**
     :::column-end:::
     :::column:::
-        <strong>Description</strong>
+        **Description**
     :::column-end:::
     :::column:::
-        <strong>Example</strong>
+        **Example**
     :::column-end:::
 :::row-end:::
 * * *
