@@ -896,7 +896,7 @@ namespace MarkdownMigration.Convert
                     var newHtml = _service.Markup(result, "topic.md").Html;
 
                     var compareTool = new HtmlDiffTool(oldHtml, newHtml, true);
-                    if (compareTool.Compare())
+                    if (oldHtml == newHtml || compareTool.Compare())
                     {
                         oldContent = result;
                     }
