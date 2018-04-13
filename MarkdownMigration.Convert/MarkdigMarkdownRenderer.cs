@@ -97,16 +97,22 @@ namespace MarkdownMigration.Convert
                 case MarkdownLinkType.AutoLink:
                     return RenderAutoLink(token);
                 case MarkdownLinkType.NormalLink:
-                    return RenderNormalLink(token);
+                    return RenderNormalLink(token, render);
                 default:
                     return token.SourceInfo.Markdown;
             }
         }
 
-        private StringBuffer RenderNormalLink(MarkdownLinkInlineToken token)
+        private StringBuffer RenderNormalLink(MarkdownLinkInlineToken token, IMarkdownRenderer render)
         {
-            var markdown = token.SourceInfo.Markdown;
-            return _whitespaceInNormalLinkregex.Replace(markdown, "");
+            if(string.IsNullOrEmpty(token.Title))
+            {
+                return "[" + RenderInlineTokens(token.Content, render) + "](" + token.Href.Replace(" ", "%20") + ")";
+            }
+            else
+            {
+                return "[" + RenderInlineTokens(token.Content, render) + "](" + token.Href.Replace(" ", "%20") + " \"" + token.Title + "\")";
+            }
         }
 
         private StringBuffer RenderAutoLink(MarkdownLinkInlineToken token)

@@ -58,11 +58,15 @@
         [Trait("Related", "MarkdigMarkdownRewriters")]
         public void TestMigrateNormalLink()
         {
-            var source = "[github] (https://github.com)";
-            var expected = "[github](https://github.com)";
+            var source = @"[github] (https://github.com)
+[Dynamics **36:**5 Certifications](https://www.microsoft.com/en-us/learning/browse-all-certifications.aspx?technology=Microsoft Dynamics 365)
+[Dynamics 365 Certifications](https://www.microsoft.com/en-us/learning/browse-all-certifications.aspx?technology=Microsoft Dynamics 365 ""title"")";
+            var expected = @"[github](https://github.com)
+[Dynamics <strong>36:</strong>5 Certifications](https://www.microsoft.com/en-us/learning/browse-all-certifications.aspx?technology=Microsoft%20Dynamics%20365)
+[Dynamics 365 Certifications](https://www.microsoft.com/en-us/learning/browse-all-certifications.aspx?technology=Microsoft%20Dynamics%20365 ""title"")";
 
             var result = _tool.Convert(source, "topic.md");
-            Assert.Equal(expected, result);
+            Assert.Equal(expected.Replace("\r\n", "\n"), result.Replace("\r\n", "\n"));
         }
 
         [Fact]
