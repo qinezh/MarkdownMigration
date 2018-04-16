@@ -27,7 +27,7 @@ namespace MarkdownMigration.Convert
         {
             var option = DocfxFlavoredMarked.CreateDefaultOptions();
             option.LegacyMode = true;
-            _builder = new DfmEngineBuilder(option);
+            _builder = new DfmEngineBuilder(option, workingFolder);
             _workingFolder = workingFolder;
         }
 

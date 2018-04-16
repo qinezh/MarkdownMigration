@@ -1,14 +1,34 @@
 ﻿namespace MarkdownMigration.Convert.Test
 {
+    using Microsoft.DocAsCode.Common;
+    using Microsoft.DocAsCode.Plugins;
+    using System.IO;
     using Xunit;
 
     public class MarkdigMarkdownRewritersTests
     {
         private MarkdownMigrateTool _tool;
+        private string baseFolder = "./workingFolder";
 
         public MarkdigMarkdownRewritersTests()
         {
-            _tool = new MarkdownMigrateTool(null);
+            EnvironmentContext.FileAbstractLayerImpl = FileAbstractLayerBuilder.Default
+                        .ReadFromRealFileSystem(baseFolder)
+                        .WriteToRealFileSystem(baseFolder).Create();
+            _tool = new MarkdownMigrateTool(baseFolder);
+        }
+
+        private void WriteFileInWorkingFolder(string filePath, string content)
+        {
+            string fullFilePath = Path.IsPathRooted(filePath) ? filePath : Path.Combine(baseFolder, filePath);
+            string folder = Path.GetDirectoryName(fullFilePath);
+
+            if (!Directory.Exists(folder))
+            {
+                Directory.CreateDirectory(folder);
+            }
+
+            File.WriteAllText(fullFilePath, content);
         }
 
         [Fact]
@@ -790,6 +810,27 @@ code
             var result = _tool.Convert(source, "topic.md");
 
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
+        }
+
+        [Fact]
+        [Trait("Related", "MarkdigMarkdownRewriters")]
+        public void TestMarkdigMarkdownRewriters_WorkingFolder()
+        {
+            // need expand
+            var source = @"<p>[!INCLUDE [title](./token1573.md)]</p>";
+            WriteFileInWorkingFolder("token1573.md", "**token content**");
+
+            var expected = @"<p><strong>token content</strong></p>";
+            var result = _tool.Convert(source, "topic.md");
+
+            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+
+            // token can be found but still need migration
+            var sourceNormal = @"inline token: [!INCLUDE [title](.\token1573.md)]";
+            var expectedNormal = @"inline token: [!INCLUDE [title](./token1573.md)]";
+            var resultNormal = _tool.Convert(sourceNormal, "./workingFolder/topic.md");
+
+            Assert.Equal(expectedNormal.Replace("\r\n", "\n"), resultNormal);
         }
     }
 }
