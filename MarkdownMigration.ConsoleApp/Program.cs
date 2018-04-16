@@ -9,6 +9,8 @@ using HtmlCompare;
 using MarkdownMigration.Common;
 using MarkdownMigration.Convert;
 using MarkdownMigration.GenerateExcel;
+using Microsoft.DocAsCode.Common;
+using Microsoft.DocAsCode.Plugins;
 using Newtonsoft.Json;
 
 namespace MarkdownMigration.ConsoleApp
@@ -29,6 +31,9 @@ namespace MarkdownMigration.ConsoleApp
                     switch (opt.RunMode)
                     {
                         case CommandLineOptions.Mode.Migration:
+                            EnvironmentContext.FileAbstractLayerImpl = FileAbstractLayerBuilder.Default
+                                        .ReadFromRealFileSystem(opt.WorkingFolder)
+                                        .WriteToRealFileSystem(opt.WorkingFolder).Create();
                             var tool = new MarkdownMigrateTool(opt.WorkingFolder);
                             if (!string.IsNullOrEmpty(opt.FilePath))
                             {

@@ -67,6 +67,11 @@ namespace MarkdownMigration.Convert
                 return true;
             }
 
+            if (token is DfmIncludeBlockToken || token is DfmIncludeInlineToken || token is DfmFencesBlockToken)
+            {
+                return true;
+            }
+
             return !_renderer.CompareMarkupResult(markdown, file);
         }
 
