@@ -103,15 +103,24 @@ namespace MarkdownMigration.Convert
             }
         }
 
+        private string RenderHref(string href)
+        {
+            // dfm href is already unescaped by: Regex(@"\\([\\`*{}\[\]()#+\-.!_>@])")
+            // may need to escape any of CommonMark full characters: !"#$%&'()*+,-./:;<=>?@[]^_`{|}~
+            var result = href.Replace("\\", "/").Replace(" ", "%20");
+
+            return result;
+        }
+
         private StringBuffer RenderNormalLink(MarkdownLinkInlineToken token, IMarkdownRenderer render)
         {
             if(string.IsNullOrEmpty(token.Title))
             {
-                return "[" + RenderInlineTokens(token.Content, render) + "](" + token.Href.Replace(" ", "%20") + ")";
+                return "[" + RenderInlineTokens(token.Content, render) + "](" + RenderHref(token.Href) + ")";
             }
             else
             {
-                return "[" + RenderInlineTokens(token.Content, render) + "](" + token.Href.Replace(" ", "%20") + " \"" + token.Title + "\")";
+                return "[" + RenderInlineTokens(token.Content, render) + "](" + RenderHref(token.Href) + " \"" + token.Title + "\")";
             }
         }
 

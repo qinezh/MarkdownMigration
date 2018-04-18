@@ -832,5 +832,18 @@ code
 
             Assert.Equal(expectedNormal.Replace("\r\n", "\n"), resultNormal);
         }
+
+
+        [Fact]
+        [Trait("Related", "MarkdigMarkdownRewriters")]
+        public void TestMarkdigMarkdownRewriters_BackslashInLink()
+        {
+            var source = @"[Link](.\DFM\\Link\(Path\) ""title"")";
+
+            var expected = @"[Link](./DFM/Link(Path) ""title"")";
+            var result = _tool.Convert(source, "topic.md");
+
+            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+        }
     }
 }
