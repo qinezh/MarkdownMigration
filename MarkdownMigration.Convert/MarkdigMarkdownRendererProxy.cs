@@ -72,7 +72,24 @@ namespace MarkdownMigration.Convert
                 return true;
             }
 
+            if (HasLinkTokenToMigrate(token))
+            {
+                return true;
+            }
+
             return !_renderer.CompareMarkupResult(markdown, file);
+        }
+
+        private bool HasLinkTokenToMigrate(IMarkdownToken token)
+        {
+            if(token is MarkdownLinkInlineToken link)
+            {
+                return link.Href.Contains('\\') || link.Href.Contains(' ');
+            }
+            else
+            {
+                return token.Children().Any(t => HasLinkTokenToMigrate(t));
+            }
         }
 
         private bool NeedMigrationParagrah(MarkdownParagraphBlockToken token)
