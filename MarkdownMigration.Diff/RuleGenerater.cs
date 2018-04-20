@@ -62,34 +62,10 @@ namespace HtmlCompare
             rules.Add("xref", new DiffRule
             {
                 IsIgnore = null,
-                CompareChildrenOnly = (node) =>
-                {
-                    var rawSource = GetXrefRawSource(node);
-                    return rawSource[1] != '"';
-                },
-                Process = (node) =>
-                {
-                    var rawSource = GetXrefRawSource(node);
-                    if (rawSource[1] != '"')
-                    {
-                        node.InnerHtml = rawSource;
-                    }
-                },
                 CompareAttributes = new string[] { "href" }
             });
 
             return rules;
-        }
-
-        private static string GetXrefRawSource(HtmlNode node)
-        {
-            var attribute = node.Attributes["data-raw-source"];
-            if (attribute == null)
-            {
-                attribute = node.Attributes["href"];
-            }
-
-            return attribute != null ? attribute.Value : string.Empty;
         }
 
         private static readonly Regex CodeInMutiLine = new Regex(@"<code([^<>]*?)>[\s\S]*?</code>", RegexOptions.Compiled);
