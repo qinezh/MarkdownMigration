@@ -6,10 +6,10 @@ namespace MarkdownMigration.Convert
 {
     public class DfmHtmlRender : DfmRenderer, IMarkdownRenderer
     {
-        public DfmHtmlRender()
+        public DfmHtmlRender(bool useLegacyMode = true)
         {
             var option = DocfxFlavoredMarked.CreateDefaultOptions();
-            option.LegacyMode = true;
+            option.LegacyMode = useLegacyMode;
             var builder = new DfmEngineBuilder(option);
 
             Engine = builder.CreateDfmEngine(this);

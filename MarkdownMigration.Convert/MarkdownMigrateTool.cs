@@ -22,11 +22,14 @@ namespace MarkdownMigration.Convert
     {
         private readonly DfmEngineBuilder _builder;
         private readonly string _workingFolder;
+        private readonly bool _useLegacyMode;
 
-        public MarkdownMigrateTool(string workingFolder = ".")
+        public MarkdownMigrateTool(string workingFolder = ".", bool useLegacyMode = true)
         {
+            _useLegacyMode = useLegacyMode;
+
             var option = DocfxFlavoredMarked.CreateDefaultOptions();
-            option.LegacyMode = true;
+            option.LegacyMode = _useLegacyMode;
             _builder = new DfmEngineBuilder(option, workingFolder);
             _workingFolder = workingFolder;
         }
@@ -84,7 +87,7 @@ namespace MarkdownMigration.Convert
 
         public string Convert(string markdown, string inputFile)
         {
-            var engine = _builder.CreateDfmEngine(new MarkdigMarkdownRendererProxy(_workingFolder));
+            var engine = _builder.CreateDfmEngine(new MarkdigMarkdownRendererProxy(_workingFolder, _useLegacyMode));
 
             var normalized = TrimNewlineBeforeYamlHeader(markdown);
             normalized = RenderHTMLBlock(normalized, inputFile);

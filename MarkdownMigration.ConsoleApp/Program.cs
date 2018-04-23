@@ -34,7 +34,7 @@ namespace MarkdownMigration.ConsoleApp
                             EnvironmentContext.FileAbstractLayerImpl = FileAbstractLayerBuilder.Default
                                         .ReadFromRealFileSystem(opt.WorkingFolder)
                                         .WriteToRealFileSystem(opt.WorkingFolder).Create();
-                            var tool = new MarkdownMigrateTool(opt.WorkingFolder);
+                            var tool = new MarkdownMigrateTool(opt.WorkingFolder, opt.UseLegacyMode);
                             if (!string.IsNullOrEmpty(opt.FilePath))
                             {
                                 var input = opt.FilePath;

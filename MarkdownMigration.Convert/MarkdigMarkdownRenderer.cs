@@ -23,7 +23,7 @@ namespace MarkdownMigration.Convert
     {
         private static ThreadLocal<HttpClient> _client = new ThreadLocal<HttpClient>(() => new HttpClient());
         private static readonly string _requestTemplate = "https://xref.docs.microsoft.com/query?uid={0}";
-        private static DfmHtmlRender _dfmHtmlRender = new DfmHtmlRender();
+        private readonly DfmHtmlRender _dfmHtmlRender;
         private static readonly Regex _headingRegex = new Regex(@"^(?<pre> *#{1,6}(?<whitespace> *))(?<text>[^\n]+?)(?<post>(?: +#*)? *(?:\n+|$))", RegexOptions.Compiled);
         private static readonly Regex _lheading = new Regex(@"^(?<text>[^\n]+)(?<post>\n *(?:=|-){2,} *(?:\n+|$))", RegexOptions.Compiled);
         private static readonly Regex _orderListStart = new Regex(@"^(?<start>\d+)\.", RegexOptions.Compiled);
@@ -42,13 +42,14 @@ namespace MarkdownMigration.Convert
         private MarkdigMarkdownService _service;
         private Stack<IMarkdownToken> _processedBlockTokens;
 
-        public MarkdigMarkdownRenderer(Stack<IMarkdownToken> processedBlockTokens, string basePath)
+        public MarkdigMarkdownRenderer(Stack<IMarkdownToken> processedBlockTokens, string basePath, bool useLegacyMode = true)
         {
             var option = DocfxFlavoredMarked.CreateDefaultOptions();
-            option.LegacyMode = true;
+            option.LegacyMode = useLegacyMode;
             var builder = new DfmEngineBuilder(option);
             var render = new DfmRenderer();
             _dfmEngine = builder.CreateDfmEngine(render);
+            _dfmHtmlRender = new DfmHtmlRender(useLegacyMode);
 
             var parameter = new MarkdownServiceParameters
             {
