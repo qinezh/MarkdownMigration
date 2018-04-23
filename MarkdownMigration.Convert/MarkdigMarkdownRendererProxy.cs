@@ -12,10 +12,10 @@ namespace MarkdownMigration.Convert
         private MarkdigMarkdownRenderer _renderer;
         private Stack<IMarkdownToken> _processedBlockTokens;
 
-        public MarkdigMarkdownRendererProxy(string basePath = ".")
+        public MarkdigMarkdownRendererProxy(string basePath = ".", bool useLegacyMode = true)
         {
             _processedBlockTokens = new Stack<IMarkdownToken>();
-            _renderer = new MarkdigMarkdownRenderer(_processedBlockTokens, basePath);
+            _renderer = new MarkdigMarkdownRenderer(_processedBlockTokens, basePath, useLegacyMode);
         }
 
         public new StringBuffer Render(IMarkdownRenderer render, IMarkdownToken token, IMarkdownContext context)

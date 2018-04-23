@@ -127,9 +127,15 @@ if ($repoConfig.docsets_to_publish)
         Remove-Item -path $dest -recurse
         Remove-Item -path "$docsetFolder\obj" -recurse
 
-        if (($docfxJson.build.markdownEngineName -ne "dfm-latest") -and ($docfxJson.build.markdownEngineName -ne "markdig"))
+        if ($docfxJson.build.markdownEngineName -ne "markdig")
         {
-            & $migrationExePath -m -c $docsetFolder -p "**.md"
+			if ($docfxJson.build.markdownEngineName -ne "dfm-latest")
+			{
+				& $migrationExePath -m -c $docsetFolder -p "**.md" -l
+			}else
+			{
+				& $migrationExePath -m -c $docsetFolder -p "**.md"
+			}
             CheckExitCode $lastexitcode "migration"
 
             $reportPath = Join-Path $docsetFolder "report.json"

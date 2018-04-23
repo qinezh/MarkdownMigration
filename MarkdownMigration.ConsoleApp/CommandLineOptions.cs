@@ -29,6 +29,7 @@ namespace MarkdownMigration.Convert
         public string JsonReportFile { get; set; }
         public string BasePath { get; set; }
         public string GitRepoUrl { get; set; }
+        public bool UseLegacyMode { get; set; }
 
         OptionSet _options = null;
 
@@ -48,6 +49,7 @@ namespace MarkdownMigration.Convert
                 { "ge|generateExcelReport", "generate excel report from json report", (ge) => RunMode = Mode.GenerateExcel },
                 { "bp|docsetBasePath=", "git local docset basepath", (bp) => BasePath = bp },
                 { "repourl|reporemoteurl=", "git remote url", (grp) => GitRepoUrl = grp },
+                { "l|LegacyMode", "run migration in LegacyMode", (l) => UseLegacyMode = true },
             };
         }
 
