@@ -131,6 +131,12 @@ namespace MarkdownMigration.Convert
 
             foreach(HtmlBlock block in htmlBlockTokens)
             {
+                if (!_useLegacyMode && !string.IsNullOrEmpty(lines[block.Line])
+                    && lines[block.Line].StartsWith("<!--"))
+                {
+                    continue;
+                }
+
                 var blockStart = block.Line;
                 var blockEnd = block.Line + block.Lines.Count - 1;
 
