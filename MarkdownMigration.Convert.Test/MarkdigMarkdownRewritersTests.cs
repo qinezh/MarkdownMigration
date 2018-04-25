@@ -7,7 +7,8 @@
 
     public class MarkdigMarkdownRewritersTests
     {
-        private MarkdownMigrateTool _tool;
+        private MarkdownMigrateTool _DFMtool;
+        private MarkdownMigrateTool _DFMLATESTtool;
         private string baseFolder = "./workingFolder";
 
         public MarkdigMarkdownRewritersTests()
@@ -15,7 +16,8 @@
             EnvironmentContext.FileAbstractLayerImpl = FileAbstractLayerBuilder.Default
                         .ReadFromRealFileSystem(baseFolder)
                         .WriteToRealFileSystem(baseFolder).Create();
-            _tool = new MarkdownMigrateTool(baseFolder);
+            _DFMtool = new MarkdownMigrateTool(baseFolder);
+            _DFMLATESTtool = new MarkdownMigrateTool(baseFolder, false);
         }
 
         private void WriteFileInWorkingFolder(string filePath, string content)
@@ -31,6 +33,7 @@
             File.WriteAllText(fullFilePath, content);
         }
 
+        #region DFM
         [Fact]
         [Trait("Related", "MarkdigMarkdownRewriters")]
         public void TestResloved_ShortcutXref()
@@ -38,7 +41,7 @@
             var source = "@System.String";
             var expected = "@System.String";
 
-            var result = _tool.Convert(source, "topic.md");
+            var result = _DFMtool.Convert(source, "topic.md");
             Assert.Equal(expected, result);
         }
 
@@ -48,7 +51,7 @@
         {
             var source = "line1\r\nline2\nline3\rline4";
 
-            var result = _tool.Convert(source, "topic.md");
+            var result = _DFMtool.Convert(source, "topic.md");
             Assert.Equal(source, result);
         }
 
@@ -59,7 +62,7 @@
             var source = "@outlook.com";
             var expected = "@outlook.com";
 
-            var result = _tool.Convert(source, "topic.md");
+            var result = _DFMtool.Convert(source, "topic.md");
             Assert.Equal(expected, result);
         }
 
@@ -70,7 +73,7 @@
             var source = "<xref:system.string>";
             var expected = "<xref:system.string>";
 
-            var result = _tool.Convert(source, "topic.md");
+            var result = _DFMtool.Convert(source, "topic.md");
             Assert.Equal(expected, result);
         }
 
@@ -85,7 +88,7 @@
 [Dynamics <strong>36:</strong>5 Certifications](https://www.microsoft.com/en-us/learning/browse-all-certifications.aspx?technology=Microsoft%20Dynamics%20365)
 [Dynamics 365 Certifications](https://www.microsoft.com/en-us/learning/browse-all-certifications.aspx?technology=Microsoft%20Dynamics%20365 ""title"")";
 
-            var result = _tool.Convert(source, "topic.md");
+            var result = _DFMtool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result.Replace("\r\n", "\n"));
         }
 
@@ -106,7 +109,7 @@
 >
 ";
 
-            var result = _tool.Convert(source, "topic.md");
+            var result = _DFMtool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result.Replace("\r\n", "\n"));
         }
 
@@ -117,10 +120,10 @@
             var source = "<Mailto:docs@microsoft.com>";
             var expected = "<docs@microsoft.com>";
 
-            var result = _tool.Convert(source, "topic.md");
+            var result = _DFMtool.Convert(source, "topic.md");
             Assert.Equal(expected, result);
 
-            result = _tool.Convert(result, "topic.md");
+            result = _DFMtool.Convert(result, "topic.md");
             Assert.Equal(expected, result);
         }
 
@@ -161,7 +164,7 @@ This is <strong>markdown</strong> content.
 This is <strong>markdown</strong> content.
 </div>";
 
-            var result = _tool.Convert(source, "topic.md");
+            var result = _DFMtool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result.Replace("\r\n", "\n"));
         }
 
@@ -210,7 +213,7 @@ This is <strong>markdown</strong> content.
 
 # title";
 
-            var result = _tool.Convert(source, "topic.md");
+            var result = _DFMtool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result.Replace("\r\n", "\n"));
         }
 
@@ -227,7 +230,7 @@ This is <strong>markdown</strong> content.
    <center><img src=""a.png"" alt=""""/></center>
 ";
 
-            var result = _tool.Convert(source, "topic.md");
+            var result = _DFMtool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result.Replace("\r\n", "\n"));
         }
 
@@ -244,7 +247,7 @@ This is <strong>markdown</strong> content.
 <img src=""a.png"" alt=""""/>
 ";
 
-            var result = _tool.Convert(source, "topic.md");
+            var result = _DFMtool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result.Replace("\r\n", "\n"));
         }
 
@@ -259,7 +262,7 @@ This is <strong>markdown</strong> content.
  <br>
  <center><img src=""a.png"" alt=""""/></center>";
 
-            var result = _tool.Convert(source, "topic.md");
+            var result = _DFMtool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result.Replace("\r\n", "\n"));
         }
 
@@ -284,7 +287,7 @@ This is <strong>markdown</strong> content.
 <br>
 <a href=""text"" data-raw-source=""[link](text)"">link</a>";
 
-            var result = _tool.Convert(source, "topic.md");
+            var result = _DFMtool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result.Replace("\r\n", "\n"));
         }
 
@@ -297,7 +300,7 @@ This is <strong>markdown</strong> content.
             var expected = @"<!--### [Sprint 133](release-notes/sprint133.md) 
 ### [Sprint 134](release-notes/sprint134.md) -->";
 
-            var result = _tool.Convert(source, "topic.md");
+            var result = _DFMtool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result.Replace("\r\n", "\n"));
         }
 
@@ -310,7 +313,7 @@ This is <strong>markdown</strong> content.
             var expected = @"## <a id=""WhatIs""></a>What is Twilio?
 ";
 
-            var result = _tool.Convert(source, "topic.md");
+            var result = _DFMtool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }
 
@@ -325,7 +328,7 @@ content...";
 
 content...";
 
-            var result = _tool.Convert(source, "topic.md");
+            var result = _DFMtool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result.Replace("\r\n", "\n"));
         }
 
@@ -340,7 +343,7 @@ content...";
 
 content...";
 
-            var result = _tool.Convert(source, "topic.md");
+            var result = _DFMtool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result.Replace("\r\n", "\n"));
         }
 
@@ -357,7 +360,7 @@ content...";
 
 content...";
 
-            var result = _tool.Convert(source, "topic.md");
+            var result = _DFMtool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result.Replace("\r\n", "\n"));
         }
 
@@ -376,7 +379,7 @@ content...";
 
 **\\***";
 
-            var result = _tool.Convert(source, "topic.md");
+            var result = _DFMtool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result.Replace("\r\n", "\n"));
         }
 
@@ -393,7 +396,7 @@ content...";
 <strong>/warnrestart[:x]</strong>
 </td>";
 
-            var result = _tool.Convert(source, "topic.md");
+            var result = _DFMtool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result.Replace("\r\n", "\n"));
         }
 
@@ -403,7 +406,7 @@ content...";
         {
             var source = @"""*https://docs.microsoft.com/en-us/dotnet/api/microsoft.windowsazure.storage?view=azure-dotnet*""";
             var expected = @"""*<https://docs.microsoft.com/en-us/dotnet/api/microsoft.windowsazure.storage?view=azure-dotnet>*""";
-            var result = _tool.Convert(source, "topic.md");
+            var result = _DFMtool.Convert(source, "topic.md");
 
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }
@@ -415,7 +418,7 @@ content...";
             var source = "This kind of url link such as \'https://github.com\' are not supported in markdig";
             var expected = "This kind of url link such as \'<https://github.com>\' are not supported in markdig";
 
-            var result = _tool.Convert(source, "topic.md");
+            var result = _DFMtool.Convert(source, "topic.md");
             Assert.Equal(expected, result);
         }
 
@@ -432,7 +435,7 @@ content...";
 
 ";
 
-            var result = _tool.Convert(source, "topic.md");
+            var result = _DFMtool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }
 
@@ -488,7 +491,7 @@ a";
 :::row-end:::
 a";
 
-            var result = _tool.Convert(source, "topic.md");
+            var result = _DFMtool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }
 
@@ -499,7 +502,7 @@ a";
             var source = @"[link](text (https://msdn.microsoft.com/library/ms732023(v=vs.110).aspx').";
             var expected = @"[link](text (<https://msdn.microsoft.com/library/ms732023(v=vs.110).aspx>').";
 
-            var result = _tool.Convert(source, "topic.md");
+            var result = _DFMtool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }
 
@@ -514,7 +517,7 @@ a";
 > - Two
 >     - Three";
 
-            var result = _tool.Convert(source, "topic.md");
+            var result = _DFMtool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }
 
@@ -531,7 +534,7 @@ a";
 > 
 > two";
 
-            var result = _tool.Convert(source, "topic.md");
+            var result = _DFMtool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }
 
@@ -552,7 +555,7 @@ a";
 > - Email-:
 >     - Microsoft Outlook 2010/";
 
-            var result = _tool.Convert(source, "topic.md");
+            var result = _DFMtool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }
 
@@ -568,7 +571,7 @@ a";
 
 
 # title";
-            var result = _tool.Convert(source, "topic.md");
+            var result = _DFMtool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result.Replace("\r\n", "\n"));
         }
 
@@ -580,7 +583,7 @@ a";
   2. b";
             var expected = @"2. a
    2. b";
-            var result = _tool.Convert(source, "topic.md");
+            var result = _DFMtool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result.Replace("\r\n", "\n"));
         }
 
@@ -594,7 +597,7 @@ a";
             var expected = @"- a
   * b
 ";
-            var result = _tool.Convert(source, "topic.md");
+            var result = _DFMtool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result.Replace("\r\n", "\n"));
         }
 
@@ -610,7 +613,7 @@ a";
 
 - b
 ";
-            var result = _tool.Convert(source, "topic.md");
+            var result = _DFMtool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result.Replace("\r\n", "\n"));
         }
 
@@ -634,7 +637,7 @@ a";
 
    ![Search for ](b.png)
 ";
-            var result = _tool.Convert(source, "topic.md");
+            var result = _DFMtool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result.Replace("\r\n", "\n"));
         }
 
@@ -651,7 +654,7 @@ b|b| |
 | b | b |
 
 ---";
-            var result = _tool.Convert(source, "topic.md");
+            var result = _DFMtool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }
 
@@ -671,7 +674,7 @@ text";
 | b | b |
 
 text";
-            var result = _tool.Convert(source, "topic.md");
+            var result = _DFMtool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }
 
@@ -693,7 +696,7 @@ a|a
 b|b
 
 text";
-            var result = _tool.Convert(source, "topic.md");
+            var result = _DFMtool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result.Replace("\r\n", "\n"));
         }
 
@@ -713,7 +716,7 @@ text";
 |   b    | <ul><li>[te\|xt](#bookmark)</li></ul> `b` |
 
 text";
-            var result = _tool.Convert(source, "topic.md");
+            var result = _DFMtool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }
 
@@ -729,7 +732,7 @@ code
             var expected = @"  ```
 code
 ```";
-            var result = _tool.Convert(source, "topic.md");
+            var result = _DFMtool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }
 
@@ -749,7 +752,7 @@ a: b
 
 ---
 # title";
-            var result = _tool.Convert(source, "topic.md");
+            var result = _DFMtool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }
 
@@ -763,7 +766,7 @@ a: b
             var expected = @"
 > [!NOTE]
 > here's note";
-            var result = _tool.Convert(source, "topic.md");
+            var result = _DFMtool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result.Replace("\r\n", "\n"));
         }
 
@@ -785,7 +788,7 @@ a: b
 code
 ~~~
 ";
-            var result = _tool.Convert(source, "topic.md");
+            var result = _DFMtool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }
 
@@ -795,7 +798,7 @@ code
         {
             var source = @"[!code-csharp[main](../a\b.cs?name=add ""Startup.cs"")]";
             var expected = @"[!code-csharp[main](../a/b.cs?name=add ""Startup.cs"")]";
-            var result = _tool.Convert(source, "topic.md");
+            var result = _DFMtool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }
 
@@ -807,7 +810,7 @@ code
             var expected = @"[!INCLUDE [title](./../../../includes/a.md)]
 
 ";
-            var result = _tool.Convert(source, "topic.md");
+            var result = _DFMtool.Convert(source, "topic.md");
 
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }
@@ -821,14 +824,14 @@ code
             WriteFileInWorkingFolder("token1573.md", "**token content**");
 
             var expected = @"<p><strong>token content</strong></p>";
-            var result = _tool.Convert(source, "topic.md");
+            var result = _DFMtool.Convert(source, "topic.md");
 
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
 
             // token can be found but still need migration
             var sourceNormal = @"inline token: [!INCLUDE [title](.\token1573.md)]";
             var expectedNormal = @"inline token: [!INCLUDE [title](./token1573.md)]";
-            var resultNormal = _tool.Convert(sourceNormal, "./workingFolder/topic.md");
+            var resultNormal = _DFMtool.Convert(sourceNormal, "./workingFolder/topic.md");
 
             Assert.Equal(expectedNormal.Replace("\r\n", "\n"), resultNormal);
         }
@@ -841,9 +844,57 @@ code
             var source = @"[Link](.\DFM\\Link\(Path\) ""title"")";
 
             var expected = @"[Link](./DFM/Link(Path) ""title"")";
-            var result = _tool.Convert(source, "topic.md");
+            var result = _DFMtool.Convert(source, "topic.md");
 
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }
+        #endregion
+
+        #region DFMLATEST
+        [Fact]
+        [Trait("Related", "MarkdigMarkdownRewriters")]
+        public void TestDFMLatestMigrateHtml()
+        {
+            var source = @"
+
+**markdown**
+
+**More info**<br>
+
+<!-- test -->
+
+<div>
+This is **markdown** content.
+</div>
+
+# header
+**markdown**
+
+<div>
+This is **markdown** content.
+</div>";
+            var expected = @"
+
+**markdown**
+
+**More info**<br>
+
+<!-- test -->
+
+<div>
+This is **markdown** content.
+</div>
+
+# header
+**markdown**
+
+<div>
+This is **markdown** content.
+</div>";
+
+            var result = _DFMLATESTtool.Convert(source, "topic.md");
+            Assert.Equal(expected.Replace("\r\n", "\n"), result.Replace("\r\n", "\n"));
+        }
+        #endregion
     }
 }
