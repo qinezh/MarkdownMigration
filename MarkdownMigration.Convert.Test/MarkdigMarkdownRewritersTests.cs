@@ -647,11 +647,15 @@ a";
         {
             var source = @"a|a
 -|-
-b|b| |
+`b|`b| |
+`b`|\`b| |
+*b|b*| |
 ---";
-            var expected = @"| a | a |
-|---|---|
-| b | b |
+            var expected = @"|  a  |  a  |
+|-----|-----|
+| \`b | \`b |
+| `b` | \`b |
+| \*b | b\* |
 
 ---";
             var result = _DFMtool.Convert(source, "topic.md");
