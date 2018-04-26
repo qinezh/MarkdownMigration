@@ -356,7 +356,7 @@ namespace MarkdownMigration.Convert
             for (var column = 0; column < columnCount; column++)
             {
                 var header = token.Header[column];
-                var content = RenderInlineTokens(header.Content.Tokens, render);
+                var content = RenderInlineTokens(header.Content.Tokens, render, true);
                 matrix[0, column] = content;
                 maxLengths[column] = Math.Max(1, content.GetLength()) + SpaceCount;
             }
@@ -367,7 +367,7 @@ namespace MarkdownMigration.Convert
                 for (var column = 0; column < columnCount; column++)
                 {
                     var item = cell[column];
-                    var content = RenderInlineTokens(item.Content.Tokens, render);
+                    var content = RenderInlineTokens(item.Content.Tokens, render, true);
                     matrix[row + 2, column] = content;
                     maxLengths[column] = Math.Max(maxLengths[column], content.GetLength() + SpaceCount);
                 }
@@ -808,7 +808,8 @@ namespace MarkdownMigration.Convert
                 }
                 else if (localTokens[index] is MarkdownTextToken textToken)
                 {
-                    result += render.Render(textToken);
+                    var text = textToken.SourceInfo.Markdown;
+                    result += inSideTable? text.Replace("`", "\\`").Replace("*", "\\*") : text;
                 }
                 else if (localTokens[index] is MarkdownEscapeInlineToken)
                 {
