@@ -76,7 +76,9 @@ namespace HtmlCompare
                 Process = (node) =>
                 {
                     var text = node.InnerText.Trim();
-                    text = text.Replace("\r\n", "\n")
+                    text = text.Replace("&#13;", "\r")
+                    .Replace("&#10;", "\n")
+                    .Replace("\r\n", "\n")
                     .Replace("\r", "\n");
 
                     var result = Regex.Replace(text, @"\s*\n\s*", " ");
