@@ -87,10 +87,12 @@ namespace MarkdownMigration.Convert
 
         public string Convert(string markdown, string inputFile)
         {
-            var engine = _builder.CreateDfmEngine(new MarkdigMarkdownRendererProxy(_workingFolder, _useLegacyMode));
+            if (string.IsNullOrEmpty(markdown)) return markdown;
 
             var normalized = TrimNewlineBeforeYamlHeader(markdown);
             normalized = RenderHTMLBlock(normalized, inputFile);
+            
+            var engine = _builder.CreateDfmEngine(new MarkdigMarkdownRendererProxy(_workingFolder, _useLegacyMode, normalized.Split('\n').Count()));
 
             var result = engine.Markup(normalized, inputFile);
 
