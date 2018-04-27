@@ -11,11 +11,13 @@ namespace MarkdownMigration.Convert
     {
         private MarkdigMarkdownRenderer _renderer;
         private Stack<IMarkdownToken> _processedBlockTokens;
+        private int _totalLines;
 
-        public MarkdigMarkdownRendererProxy(string basePath = ".", bool useLegacyMode = true)
+        public MarkdigMarkdownRendererProxy(string basePath = ".", bool useLegacyMode = true, int totalLines = 0)
         {
             _processedBlockTokens = new Stack<IMarkdownToken>();
             _renderer = new MarkdigMarkdownRenderer(_processedBlockTokens, basePath, useLegacyMode);
+            _totalLines = totalLines;
         }
 
         public new StringBuffer Render(IMarkdownRenderer render, IMarkdownToken token, IMarkdownContext context)
@@ -123,7 +125,7 @@ namespace MarkdownMigration.Convert
             }
 
             var newLineCount = Helper.CountEndNewLine(markdown);
-            if (newLineCount < 2)
+            if (markdown.Split('\n').Count() + token.SourceInfo.LineNumber - 1 < _totalLines && newLineCount < 2)
             {
                 return true;
             }

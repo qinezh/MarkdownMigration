@@ -670,14 +670,22 @@ a";
 a|a
 -|-
 b|b
-text";
+text
+
+a|a
+-|-
+b|b";
             var expected = @"text
 
 | a | a |
 |---|---|
 | b | b |
 
-text";
+text
+
+a|a
+-|-
+b|b";
             var result = _DFMtool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
         }
