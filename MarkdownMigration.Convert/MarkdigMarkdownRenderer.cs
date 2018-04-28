@@ -515,7 +515,7 @@ namespace MarkdownMigration.Convert
                         : $"[!INCLUDE [{token.Name}]({src} \"{token.Title}\")]\n\n";
             }
 
-            return base.Render(render, token, context);
+            return token.SourceInfo.Markdown;
         }
 
         public override StringBuffer Render(IMarkdownRenderer render, DfmIncludeInlineToken token, MarkdownInlineContext context)
@@ -529,7 +529,7 @@ namespace MarkdownMigration.Convert
                     : $"[!INCLUDE [{token.Name}]({src} \"{token.Title}\")]";
             }
 
-            return base.Render(render, token, context);
+            return token.SourceInfo.Markdown;
         }
 
         public StringBuffer Render(IMarkdownRenderer render, DfmFencesBlockToken token, MarkdownBlockContext context)
