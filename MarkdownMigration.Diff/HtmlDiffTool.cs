@@ -99,9 +99,17 @@ namespace HtmlCompare
                 markdigNode = markdigStack.GetCompareNode(markdigNode);
 
                 if (dfmNode == null && markdigNode == null) return true;
+                try
+                {
+                    dfmHtml = dfmNode != null ? dfmNode.OuterHtml : string.Empty;
+                    markdigHtml = markdigNode != null ? markdigNode.OuterHtml : string.Empty;
+                }
+                catch (Exception)
+                {
+                    sourceDiffSpan = dfmStack.GetSpanFromStack();
+                    return false;
+                }
 
-                dfmHtml = dfmNode != null ? dfmNode.OuterHtml : string.Empty;
-                markdigHtml = markdigNode!= null ? markdigNode.OuterHtml : string.Empty;
                 if (dfmNode == null || markdigNode == null || dfmNode.Name != markdigNode.Name || !CompareAttributes(dfmNode, markdigNode))
                 {
                     dfmStack.Push(dfmNode);
