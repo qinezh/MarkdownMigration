@@ -94,6 +94,7 @@ namespace MarkdownMigration.ConsoleApp
 
         private static void UpdateMigrationReportWithDiffResult(List<DiffResult> differentResult, List<string> allFiles, DocsetReport migrationReport, string output, string basePath)
         {
+            differentResult = differentResult.GroupBy(g => g.FileName).Select(d => d.First()).ToList();
             var sameFiles = allFiles.Except(differentResult.Select(d => d.FileName));
             Dictionary<string, DiffResult> fileResultMapping = differentResult.ToDictionary(key => key.FileName, value => value);
 

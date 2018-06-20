@@ -158,6 +158,7 @@ if ($repoConfig.docsets_to_publish)
     }
     
     $repoReportPath = "$outputFolder\repoReport.json"
+    New-Item $reportDestPath -ItemType file
     $repoReport | ConvertTo-Json -Depth 100 | Out-File $repoReportPath
     & $migrationExePath -ge -rpf $repoReportPath -repourl $repoUrl
 }
