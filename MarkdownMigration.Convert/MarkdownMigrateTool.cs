@@ -176,8 +176,7 @@ namespace MarkdownMigration.Convert
                 }
                 else
                 {
-                    string msg = $"htmlblock migration failed for content:{tempMarkdown.ToString()}";
-                    throw new Exception(msg);
+                    tempResult = tempMarkdown.ToString();
                 }
 
                 result.Append(tempResult);
