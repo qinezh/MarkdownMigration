@@ -59,10 +59,28 @@ namespace HtmlCompare
 
         public static Dictionary<string, DiffRule> AppendXrefRule(this Dictionary<string, DiffRule> rules)
         {
+            var lists = @"XXXX.com@azurestack.local@azurestack.local@xxxonline.com@contoso.com.’@domainname.com@flex.cd-adapco.com@mycompany.com@mycompany.com@MSFTAzureMedia@Microsoft.com@SERVERNAME@outlook.com)@AD.COM@microsoft.com)@hotmail.com)@contoso.com_@contosomigration.onmicrosoft.com@leader4vb.eastus.cloudapp.azure.com)@example.com@fabrikamonline.com@contoso.com.’@contoso.com.’@mail.windowsazure.com@item()@triggerOutputs()@azure.com@department.contoso.com)@mail.windowsazure.com@fabraikam.com@contoso.com_@hditutorialdata.blob.core.windows.net/twitter.hql@contosos.com@mystorage.blob.core.windows.net/@azurestack.local@example.com@azurestack.local@myazuredirectory.onmicrosoft.com@location.com@mydomain.onmicrosoft.com@azurestack.local@azurestack.local@AD.COM@contoso158.onmicrosoft.com@hditutorialdata.blob.core.windows.net/contacts.txt@hditutorialdata.blob.core.windows.net/@blob_storage_account_name.blob.core.windows.net/blob_name@MS@mysamplegroup.visualstudio.com:22/MyTeam/_git/MyTeamProjectTemplate@hk-cas-template.cloudapp.net:/home/localadmin/downloads/server-jre-8u5-linux-x64.tar.gz@yourdomain.com@NESTLEVEL@Ask@outlook.com)@azuremlsampleexperiments.blob.core.windows.net/raw/@local_variable@notcontoso.com@OutputCache@fabrikam.com)@Ask@cloudcruiser.com@verified.contoso.com@contoso.usa)@azure.com@contoso.onmicrosoft.com)@IDENTITY@emulated@contoso.onmicrosoft.com@drumkit.onmicrosoft.com@contoso.com@gmail.com@adventureworks.com@contoso.com'@adventureworks.com\@woodgroveonline.com@Contoso.com@f128.info@AzureSupport@contoso.com""@ contoso.com@smtp: jd @contoso.com@org.com@example.com)@myb2ctenant.onmicrosoft.com@fourthcoffeexyz.onmicrosoft.com@domain.onmicrosoft.com)@comcast.net@microsoft.com@domain.com@fabrikam.com@contoso.com.'@contoso.com)@flatterfiles.com@contosob2c.onmicrosoft.com@outlook.com@domainservicespreview.onmicrosoft.com@statuspage.io@CONTOSO100.COM@blueskyabove.onmicrosoft.com@contoso100.com@us.contoso.com@contoso.com}@sub.contoso.com@litware.com)@service.microsoft.com@contoso.com’@contoso.com’@eu.contoso.com)@contoso.com”@contoso.com.test@fourthcoffee.xyz@tenant-name.onmicrosoft.com@fabrikam.onmicrosoft.com@contoso.com”@live.com)@contoso.com`@azurecontoso.onmicrosoft.com@live.com"
+.Split('@').ToList();
+            lists.Add("contoso.com,smtp:jd@contoso.com");
+            lists.Add("contoso.com;email2@contoso.com");
+            lists.Add(@")                                                                                     | Event &amp;#124; where Computer matches regex");
             rules.Add("xref", new DiffRule
             {
                 IsIgnore = null,
-                CompareAttributes = new string[] { "href" }
+                CompareAttributes = new string[] { "href" },
+                Process = (node) =>
+                {
+                    var attribute = node.Attributes["href"];
+                    if (attribute != null && lists.Contains(attribute.Value))
+                    {
+                        node.InnerHtml = "@" + attribute.Value;
+                    }
+                },
+                CompareChildrenOnly = (node) =>
+                {
+                    var attribute = node.Attributes["href"];
+                    return attribute != null && lists.Contains(attribute.Value);
+                }
             });
 
             return rules;
