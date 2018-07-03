@@ -21,6 +21,7 @@ namespace HtmlCompare
     {
         private Dictionary<string, DiffRule> Rules = new Dictionary<string, DiffRule>();
         private readonly List<string> NoteTypes = new List<string> { "NOTE", "TIP", "WARNING", "IMPORTANT", "CAUTION" };
+        private static readonly Regex CodesnippetError = new Regex(@"<!-- BEGIN ERROR CODESNIPPET: Unable to find(.*?)<!--END ERROR CODESNIPPET -->", RegexOptions.Compiled);
 
         public string DfmHtml { get; set; }
         public string MarkdigHtml { get; set; }
@@ -195,6 +196,7 @@ namespace HtmlCompare
             doc.OptionCheckSyntax = true;
             doc.OptionWriteEmptyNodes = true;
             doc.OptionOutputAsXml = true;
+            source = CodesnippetError.Replace(source, m => string.Empty);
             doc.LoadHtml(source);
 
             return doc;

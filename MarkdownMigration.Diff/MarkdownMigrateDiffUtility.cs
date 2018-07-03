@@ -18,7 +18,8 @@ namespace HtmlCompare
             result = result.Replace("\u00a0", " ")
                 .Replace("\u2424", "\n")
                 .Replace("\u200b", " ")
-                .Replace('\t', ' ');
+                .Replace('\t', ' ')
+                .Replace("INCLUDE ", "include");
             result = Regex.Replace(result, "[ \n]+", m =>
             {
                 if (m.Value.Contains('\n'))
