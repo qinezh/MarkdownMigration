@@ -20,12 +20,22 @@ namespace MarkdownMigration.GenerateExcel
         public string OutputFilename { get; set; }
 
         public string GitRepoUrl { get; set; }
+        public string MigrationSourceBranch { get; set; }
 
-        public ExcelGenerater(RepoReport report, string outputFile, string url)
+        public ExcelGenerater(RepoReport report, string outputFile, string url, string branch)
         {
-            this.Report = report;
-            this.OutputFilename = outputFile;
-            this.GitRepoUrl = url;
+            Report = report;
+            OutputFilename = outputFile;
+            GitRepoUrl = url;
+
+            if (branch.Contains('/'))
+            {
+                MigrationSourceBranch = branch.Split(new[] { '/'}, StringSplitOptions.RemoveEmptyEntries).Last();
+            }
+            else
+            {
+                MigrationSourceBranch = branch;
+            }
         }
 
         public void GenerateExcel()
@@ -165,7 +175,7 @@ namespace MarkdownMigration.GenerateExcel
 
         private string GetRemotePath(string relativePath)
         {
-            return Path.Combine(this.GitRepoUrl, "blob/master", relativePath);
+            return Path.Combine(this.GitRepoUrl, "blob", MigrationSourceBranch, relativePath);
         }
 
         private static void WriteToSheet(ExcelWorksheet sheet, IReadOnlyList<IReadOnlyList<object>> contentTable, bool isWithHeader)

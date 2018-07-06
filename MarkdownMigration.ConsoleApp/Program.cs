@@ -50,12 +50,12 @@ namespace MarkdownMigration.ConsoleApp
                                 tool.MigrateFromPattern(opt.WorkingFolder, opt.Patterns, opt.ExcludePatterns, opt.Output);
                             }
 
-                            ReportUtility.Save(opt.WorkingFolder, "report.json");
+                            ReportUtility.Save(opt.WorkingFolder, "report.json", opt.DocsetFolder);
                             break;
                         case CommandLineOptions.Mode.Diff:
                             //ExtractHtml
                             var jsonfolders = opt.JsonFolders.Split(',');
-                            ExtractHtml.ExtractHtml.ExtractHtmlFromJson(jsonfolders);
+                            ExtractHtml.ExtractHtml.ExtractHtmlFromJson(jsonfolders, opt.DocsetFolder);
 
                             //Diff html
                             List<string> allFiles;
@@ -80,7 +80,7 @@ namespace MarkdownMigration.ConsoleApp
                                 throw new Exception("json file is not valid.");
                             }
                             var reportName = string.IsNullOrEmpty(repoReport.RepoName) ? "repo_report.xlsx" : repoReport.RepoName + ".xlsx";
-                            var excelGenerater = new ExcelGenerater(repoReport, Path.Combine(Path.GetDirectoryName(opt.JsonReportFile), reportName), opt.GitRepoUrl);
+                            var excelGenerater = new ExcelGenerater(repoReport, Path.Combine(Path.GetDirectoryName(opt.JsonReportFile), reportName), opt.GitRepoUrl, opt.Branch);
                             excelGenerater.GenerateExcel();
                             break;
                     }

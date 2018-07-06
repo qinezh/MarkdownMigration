@@ -30,6 +30,8 @@ namespace MarkdownMigration.Convert
         public string BasePath { get; set; }
         public string GitRepoUrl { get; set; }
         public bool UseLegacyMode { get; set; }
+        public string Branch { get; set; }
+        public string DocsetFolder { get; set; }
 
         OptionSet _options = null;
 
@@ -50,6 +52,8 @@ namespace MarkdownMigration.Convert
                 { "bp|docsetBasePath=", "git local docset basepath", (bp) => BasePath = bp },
                 { "repourl|reporemoteurl=", "git remote url", (grp) => GitRepoUrl = grp },
                 { "l|LegacyMode", "run migration in LegacyMode", (l) => UseLegacyMode = true },
+                { "b|branch=", "migration source branch", (branch) => Branch = branch },
+                { "df|docsetfolder=", "migration docset folder", (docsetfolder) => DocsetFolder = docsetfolder },
             };
         }
 

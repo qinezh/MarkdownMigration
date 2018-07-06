@@ -8,7 +8,7 @@ namespace MarkdownMigration.ExtractHtml
 {
     public class ExtractHtml
     {
-        public static void ExtractHtmlFromJson(IEnumerable<string> jsonfolders)
+        public static void ExtractHtmlFromJson(IEnumerable<string> jsonfolders, string docsetFolder)
         {
             if (jsonfolders == null) return;
             var htmlToSourceFileMapping = new ConcurrentDictionary<string, string>();
@@ -34,7 +34,7 @@ namespace MarkdownMigration.ExtractHtml
 
                         if (sourcePath != null)
                         {
-                            htmlToSourceFileMapping[htmlPage] = sourcePath;
+                            htmlToSourceFileMapping[htmlPage] = Path.Combine(docsetFolder, sourcePath);
                         }
 
                         if (!Directory.Exists(Path.GetDirectoryName(htmlPage)))

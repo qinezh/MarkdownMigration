@@ -35,7 +35,7 @@ namespace MarkdownMigration.Common
             }
         }
 
-        public static void Save(string workingFolder, string file)
+        public static void Save(string workingFolder, string file, string docsetFolder = "")
         {
             var newReport = new DocsetReport
             {
@@ -45,6 +45,8 @@ namespace MarkdownMigration.Common
             foreach (var entry in _report.Files)
             {
                 var relativePath = PathUtility.MakeRelativePath(workingFolder, entry.Key);
+                relativePath = Path.Combine(docsetFolder, relativePath);
+
                 newReport.Files.Add(relativePath, entry.Value);
             }
             var filePath = Path.Combine(workingFolder, file);
