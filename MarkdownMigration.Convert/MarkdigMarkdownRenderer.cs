@@ -56,7 +56,7 @@ namespace MarkdownMigration.Convert
                 BasePath = basePath,
                 Extensions = new Dictionary<string, object>
                 {
-                    { LineNumberExtension.EnableSourceInfo, false }
+                    { "EnableSourceInfo", false }
                 }
             };
             _service = new MarkdigMarkdownService(parameter);
