@@ -88,7 +88,14 @@ namespace MarkdownMigration.Convert
 
         public override StringBuffer Render(IMarkdownRenderer render, MarkdownImageInlineToken token, MarkdownInlineContext context)
         {
-            return token.SourceInfo.Markdown;
+            if (string.IsNullOrEmpty(token.Title))
+            {
+                return "![" + token.Text + "](" + RenderHref(token.Href) + ")";
+            }
+            else
+            {
+                return "![" + token.Text + "](" + RenderHref(token.Href) + " \"" + token.Title + "\")";
+            }
         }
 
         public override StringBuffer Render(IMarkdownRenderer render, MarkdownLinkInlineToken token, MarkdownInlineContext context)
