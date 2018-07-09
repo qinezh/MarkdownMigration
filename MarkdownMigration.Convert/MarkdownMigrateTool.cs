@@ -113,7 +113,7 @@ namespace MarkdownMigration.Convert
                 BasePath = _workingFolder,
                 Extensions = new Dictionary<string, object>
                 {
-                    { LineNumberExtension.EnableSourceInfo, false }
+                    { "EnableSourceInfo", false }
                 }
             };
 
