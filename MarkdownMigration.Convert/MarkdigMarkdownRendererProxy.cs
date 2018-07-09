@@ -84,9 +84,16 @@ namespace MarkdownMigration.Convert
 
         private bool HasLinkTokenToMigrate(IMarkdownToken token)
         {
-            if(token is MarkdownLinkInlineToken link)
+            if(token is MarkdownLinkInlineToken || token is MarkdownImageInlineToken)
             {
-                return link.Href.Contains('\\') || link.Href.Contains(' ');
+                var link = token as MarkdownLinkInlineToken;
+                if (link != null)
+                {
+                    return link.Href.Contains('\\') || link.Href.Contains(' ');
+                }
+                
+                var image = token as MarkdownImageInlineToken;
+                return image.Href.Contains('\\') || image.Href.Contains(' ');
             }
             else
             {

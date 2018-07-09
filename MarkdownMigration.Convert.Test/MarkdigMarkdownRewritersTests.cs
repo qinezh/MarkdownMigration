@@ -853,12 +853,16 @@ code
         [Trait("Related", "MarkdigMarkdownRewriters")]
         public void TestMarkdigMarkdownRewriters_BackslashInLink()
         {
-            var source = @"[Link](.\DFM\\Link\(Path\) ""title"")";
+            var source = @"[Link](.\DFM\\Link\(Path\) ""title"")
 
-            var expected = @"[Link](./DFM/Link(Path) ""title"")";
+![finished folder view](.\images\finished-folder.png ""title"")";
+
+            var expected = @"[Link](./DFM/Link(Path) ""title"")
+
+![finished folder view](./images/finished-folder.png ""title"")";
             var result = _DFMtool.Convert(source, "topic.md");
 
-            Assert.Equal(expected.Replace("\r\n", "\n"), result);
+            Assert.Equal(expected.Replace("\r\n", "\n"), result.Replace("\r\n", "\n"));
         }
         #endregion
 
