@@ -88,7 +88,7 @@ if ($repoConfig.docsets_to_publish)
     foreach ($docset in $repoConfig.docsets_to_publish)
     {
         $docsetName = $docset.docset_name
-		$source_folder = $($docset.build_source_folder)
+        $source_folder = $($docset.build_source_folder)
         $docsetFolder = Join-Path $repoRoot "$source_folder"  
 
         $htmlBaseFolder = Join-Path $outputFolder $docsetName
@@ -96,11 +96,11 @@ if ($repoConfig.docsets_to_publish)
         $dfmHtmlOutput = Join-Path $htmlBaseFolder "dfm-html"
         $markdigOutput = Join-Path $htmlBaseFolder "md"
         $markdigHtmlOutput = Join-Path $htmlBaseFolder "md-html"
-		        
+                
         $docfxJsonPath = Join-Path $docsetFolder "docfx.json"
         if (-not (Test-Path $docfxJsonPath))
         {
-			$source_folder = $($docset.build_output_subfolder)
+            $source_folder = $($docset.build_output_subfolder)
             $docsetFolder = Join-Path $repoRoot "$source_folder"
             $docfxJsonPath = Join-Path $docsetFolder "docfx.json"
         }
@@ -119,7 +119,7 @@ if ($repoConfig.docsets_to_publish)
             $dest = Join-Path $docsetFolder $docfxJson.build.dest
         }
 
-		$tempdfmfolder = Join-Path $tempdfmfolderBase $source_folder
+        $tempdfmfolder = Join-Path $tempdfmfolderBase $source_folder
         robocopy $docsetFolder $tempdfmfolder *.md /s
 
         & $docfxExePath $docfxJsonPath --exportRawModel --dryRun --force
@@ -131,13 +131,13 @@ if ($repoConfig.docsets_to_publish)
 
         if ($docfxJson.build.markdownEngineName -ne "markdig")
         {
-			if ($docfxJson.build.markdownEngineName -ne "dfm-latest")
-			{
-				& $migrationExePath -m -c $docsetFolder -p "**.md" -l -docsetfolder $source_folder
-			}else
-			{
-				& $migrationExePath -m -c $docsetFolder -p "**.md" -docsetfolder $source_folder
-			}
+            if ($docfxJson.build.markdownEngineName -ne "dfm-latest")
+            {
+                & $migrationExePath -m -c $docsetFolder -p "**.md" -l -docsetfolder $source_folder
+            }else
+            {
+                & $migrationExePath -m -c $docsetFolder -p "**.md" -docsetfolder $source_folder
+            }
             CheckExitCode $lastexitcode "migration"
 
             $reportPath = Join-Path $docsetFolder "report.json"
@@ -176,11 +176,15 @@ if ($repoConfig.docsets_to_publish)
         $obj.build.markdownEngineName = "markdig"
         $obj.ToString() | Out-File -Encoding ascii $docfxJsonPath
     }
-    
-	Remove-Item -path $tempdfmfolderBase -recurse
+
+    if (Test-Path $tempdfmfolderBase)
+    {
+        Remove-Item -path $tempdfmfolderBase -recurse
+    }
+
     $repoReportPath = "$outputFolder\repoReport.json"
     $repoReport | ConvertTo-Json -Depth 100 | Out-File $repoReportPath
-	$branch = & git symbolic-ref refs/remotes/origin/HEAD
+    $branch = & git symbolic-ref refs/remotes/origin/HEAD
     & $migrationExePath -ge -rpf $repoReportPath -repourl $repoUrl -branch $branch
 }
 Pop-Location
