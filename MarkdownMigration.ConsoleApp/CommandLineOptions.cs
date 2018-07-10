@@ -53,7 +53,7 @@ namespace MarkdownMigration.Convert
                 { "repourl|reporemoteurl=", "git remote url", (grp) => GitRepoUrl = grp },
                 { "l|LegacyMode", "run migration in LegacyMode", (l) => UseLegacyMode = true },
                 { "b|branch=", "migration source branch", (branch) => Branch = branch },
-                { "df|docsetfolder=", "migration docset folder", (docsetfolder) => DocsetFolder = docsetfolder },
+                { "df|docsetfolder=", "migration docset folder", (docsetfolder) => DocsetFolder = docsetfolder == "." ? string.Empty : docsetfolder },
             };
         }
 

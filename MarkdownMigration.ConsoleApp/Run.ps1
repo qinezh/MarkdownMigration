@@ -104,11 +104,6 @@ if ($repoConfig.docsets_to_publish)
             $docsetFolder = Join-Path $repoRoot "$source_folder"
             $docfxJsonPath = Join-Path $docsetFolder "docfx.json"
         }
-		
-		if($source_folder -eq ".")
-		{
-		    $source_folder = ""
-		}
 
         $docfxJson = Get-Content -Raw -Path $docfxJsonPath | ConvertFrom-Json
 
