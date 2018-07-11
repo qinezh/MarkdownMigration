@@ -79,6 +79,7 @@ $migrationExePath = Join-Path $scriptPath "MarkdownMigration.ConsoleApp.exe"
 $docfxFolder = Join-Path $toolsPath "docfx.console.$docFxVersion\tools"
 $docfxExePath = Join-Path $docfxFolder "docfx.exe"
 $tempdfmfolderBase = Join-Path $outputFolder "tempdfm"
+$tempdfmymlfolder = Join-Path $outputFolder "tempyml"
 
 $repoConfig = Get-Content -Raw -Path .openpublishing.publish.config.json | ConvertFrom-Json
 
@@ -122,6 +123,9 @@ if ($repoConfig.docsets_to_publish)
         $tempdfmfolder = Join-Path $tempdfmfolderBase $source_folder
         robocopy $docsetFolder $tempdfmfolder *.md /s
 
+        robocopy $docsetFolder $tempdfmymlfolder *.yml /s
+        Get-ChildItem $docsetFolder -recurse -include *.yml | del
+
         & $docfxExePath $docfxJsonPath --exportRawModel --dryRun --force
         CheckExitCode $lastexitcode "baseline build"
 
@@ -148,6 +152,12 @@ if ($repoConfig.docsets_to_publish)
 
         & $docfxExePath $docfxJsonPath --exportRawModel --dryRun --force --markdownEngineName markdig
         CheckExitCode $lastexitcode "markdig build"
+
+        robocopy $tempdfmymlfolder $docsetFolder *.yml /s
+        if (Test-Path $tempdfmymlfolder)
+        {
+            Remove-Item -path $tempdfmymlfolder -recurse
+        }
 
         Write-Host "copy from $dest to $markdigOutput"
         Copy-Item -Path $dest -Destination $markdigOutput -recurse -Force
