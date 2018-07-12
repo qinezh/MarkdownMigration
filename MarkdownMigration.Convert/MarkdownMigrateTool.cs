@@ -184,7 +184,7 @@ namespace MarkdownMigration.Convert
 
             while (lineIndex < lines.Count())
             {
-                result.Append('\n');
+                if(lineIndex != 0) result.Append('\n');
                 result.Append(lines[lineIndex]);
                 lineIndex++;
             }
