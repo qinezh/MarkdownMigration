@@ -157,10 +157,13 @@ namespace MarkdownMigration.Convert
             if (token.Rule is MarkdownCodeBlockRule)
             {
                 var newlineCount = Helper.CountEndNewLine(markdown);
-                var preToken = _processedBlockTokens.Peek();
-                if (preToken is MarkdownListBlockToken)
+                if (_processedBlockTokens != null && _processedBlockTokens.Count > 0)
                 {
-                    return $"~~~\n{token.Code}\n~~~" + new string('\n', newlineCount);
+                    var preToken = _processedBlockTokens.Peek();
+                    if (preToken is MarkdownListBlockToken)
+                    {
+                        return $"~~~\n{token.Code}\n~~~" + new string('\n', newlineCount);
+                    }
                 }
             }
 
