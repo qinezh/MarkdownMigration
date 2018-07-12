@@ -114,12 +114,6 @@ if ($repoConfig.docsets_to_publish)
             continue;
         }
 
-        $dest = "_site"
-        if ($docfxJson.build.dest)
-        {
-            $dest = Join-Path $docsetFolder $docfxJson.build.dest
-        }
-
         $tempdfmfolder = Join-Path $tempdfmfolderBase $source_folder
         robocopy $docsetFolder $tempdfmfolder *.md /s
 
@@ -127,10 +121,11 @@ if ($repoConfig.docsets_to_publish)
         Get-ChildItem $docsetFolder -recurse -include *.yml | del
 
         & $docfxExePath $docfxJsonPath --exportRawModel --dryRun --force
-        CheckExitCode $lastexitcode "baseline build"
+        CheckExitCode $lastexitcode "baseline build"        
 
-        Copy-Item -Path $dest -Destination $dfmOutput -recurse -Force
-        Remove-Item -path $dest -recurse
+        robocopy $docsetFolder $dfmOutput *.raw.json /s
+        Get-ChildItem $docsetFolder -recurse -include *.raw.json | del
+
         Remove-Item -path "$docsetFolder\obj" -recurse
 
         if ($docfxJson.build.markdownEngineName -ne "markdig")
@@ -159,9 +154,8 @@ if ($repoConfig.docsets_to_publish)
             Remove-Item -path $tempdfmymlfolder -recurse
         }
 
-        Write-Host "copy from $dest to $markdigOutput"
-        Copy-Item -Path $dest -Destination $markdigOutput -recurse -Force
-        Remove-Item -path $dest -recurse
+        robocopy $docsetFolder $markdigOutput *.raw.json /s
+        Get-ChildItem $docsetFolder -recurse -include *.raw.json | del
         Remove-Item -path "$docsetFolder\obj" -recurse
 
         & $migrationExePath -d -j "$dfmOutput,$markdigOutput" -rpf $reportDestPath -bp $tempdfmfolderBase -docsetfolder $source_folder
