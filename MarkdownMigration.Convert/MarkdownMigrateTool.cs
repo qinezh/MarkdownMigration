@@ -238,6 +238,27 @@ namespace MarkdownMigration.Convert
             return result.ToArray();
         }
 
+        private string NormalizeStartSpaces(string source)
+        {
+            StringBuilder sb = new StringBuilder();
+            bool startFlag = true;
+            foreach (char c in source)
+            {
+                if(c == ' ' || c == '\u00a0' || c == '\u200b')
+                {
+                    if (startFlag) sb.Append(' ');
+                    else sb.Append(c);
+                }
+                else
+                {
+                    startFlag = false;
+                    sb.Append(c);
+                }
+            }
+
+            return sb.ToString();
+        }
+
         private string RevertNormalizedPart(string result, string source)
         {
             var resultLines = new Regex("(?<=\n)").Split(result);
@@ -251,7 +272,7 @@ namespace MarkdownMigration.Convert
                     var sourceLine = sourceLines[index];
                     if (string.Equals(NormalizeUtility.Normalize(sourceLine), resultLine))
                     {
-                        resultLines[index] = sourceLine;
+                        resultLines[index] = NormalizeStartSpaces(sourceLine);
                     }
                 }
 

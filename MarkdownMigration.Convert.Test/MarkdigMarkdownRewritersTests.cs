@@ -13,6 +13,10 @@
 
         public MarkdigMarkdownRewritersTests()
         {
+            if (!Directory.Exists(baseFolder))
+            {
+                Directory.CreateDirectory(baseFolder);
+            }
             EnvironmentContext.FileAbstractLayerImpl = FileAbstractLayerBuilder.Default
                         .ReadFromRealFileSystem(baseFolder)
                         .WriteToRealFileSystem(baseFolder).Create();
@@ -34,6 +38,26 @@
         }
 
         #region DFM
+        [Fact]
+        [Trait("Related", "MarkdigMarkdownRewriters")]
+        public void TestStartSpaces()
+        {
+            var s = '\u00a0';
+            var source = $@"1. list
+
+   ```
+ {s} Hello{s}World
+   ```";
+            var expected = $@"1. list
+
+   ```
+   Hello{s}World
+   ```";
+
+            var result = _DFMtool.Convert(source, "topic.md");
+            Assert.Equal(expected, result);
+        }
+
         [Fact]
         [Trait("Related", "MarkdigMarkdownRewriters")]
         public void TestResloved_ShortcutXref()
