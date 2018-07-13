@@ -31,7 +31,7 @@ namespace MarkdownMigration.Convert
             var option = DocfxFlavoredMarked.CreateDefaultOptions();
             option.LegacyMode = _useLegacyMode;
             _builder = new DfmEngineBuilder(option, workingFolder);
-            _workingFolder = workingFolder;
+            _workingFolder = workingFolder.EndsWith("\\") || workingFolder.EndsWith("/") ? workingFolder : workingFolder + "\\";
         }
 
         public void MigrateFromPattern(string cwd, List<string> patterns, List<string> excludePatterns, string outputFolder)
@@ -94,11 +94,28 @@ namespace MarkdownMigration.Convert
             
             var engine = _builder.CreateDfmEngine(new MarkdigMarkdownRendererProxy(_workingFolder, _useLegacyMode, normalized.Split('\n').Count()));
 
-            var result = engine.Markup(normalized, inputFile);
+            var result = engine.Markup(normalized, GetRelativePath(inputFile));
 
             result = RevertNormalizedPart(result, markdown);
 
             return result;
+        }
+
+        private string GetRelativePath(string path)
+        {
+            try
+            {
+                Uri basePath = new Uri(_workingFolder);
+                Uri absolutePath = new Uri(path);
+
+                Uri relativeUri = basePath.MakeRelativeUri(absolutePath);
+
+                return relativeUri.ToString();
+            }
+            catch (Exception)
+            {
+                return _workingFolder;
+            }
         }
 
         private string RenderHTMLBlock(string markdown, string filepath)
