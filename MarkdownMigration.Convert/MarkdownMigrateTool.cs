@@ -103,12 +103,19 @@ namespace MarkdownMigration.Convert
 
         private string GetRelativePath(string path)
         {
-            Uri basePath = new Uri(_workingFolder);
-            Uri absolutePath = new Uri(path);
+            try
+            {
+                Uri basePath = new Uri(_workingFolder);
+                Uri absolutePath = new Uri(path);
 
-            Uri relativeUri = basePath.MakeRelativeUri(absolutePath);
+                Uri relativeUri = basePath.MakeRelativeUri(absolutePath);
 
-            return relativeUri.ToString();
+                return relativeUri.ToString();
+            }
+            catch (Exception)
+            {
+                return _workingFolder;
+            }
         }
 
         private string RenderHTMLBlock(string markdown, string filepath)
