@@ -40,19 +40,19 @@
         #region DFM
         [Fact]
         [Trait("Related", "MarkdigMarkdownRewriters")]
-        public void TestStartSpaces()
+        public void TestInvisibleCharactor()
         {
             var s = '\u00a0';
             var source = $@"1. list
 
-   ```
- {s} Hello{s}World
-   ```";
+ {s} ```
+ {s} Hello{s}World{s}
+   ```{s}";
             var expected = $@"1. list
 
    ```
-   Hello{s}World
-   ```";
+   Hello{s}World{s}
+   ``` ";
 
             var result = _DFMtool.Convert(source, "topic.md");
             Assert.Equal(expected, result);

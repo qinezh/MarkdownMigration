@@ -287,7 +287,11 @@ namespace MarkdownMigration.Convert
                 {
                     var resultLine = resultLines[index];
                     var sourceLine = sourceLines[index];
-                    if (string.Equals(NormalizeUtility.Normalize(sourceLine), resultLine))
+                    if (string.Equals(NormalizeUtility.Normalize(sourceLine).Trim(), "```"))
+                    {
+                        // keep the Normalized string for the "```" line only
+                    }
+                    else if (string.Equals(NormalizeUtility.Normalize(sourceLine), resultLine))
                     {
                         resultLines[index] = NormalizeStartSpaces(sourceLine);
                     }
