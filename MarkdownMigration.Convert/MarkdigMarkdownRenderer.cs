@@ -909,6 +909,7 @@ namespace MarkdownMigration.Convert
             var tag = isStrong ? "<strong>" : "<em>";
             var tagRegex = isStrong ? _strongRegex : _emRegex;
             var tagStar = isStrong ? "**" : "*";
+            var baseHtml = _service.Markup(content, "topic.md").Html;
 
             while (true)
             {
@@ -921,9 +922,8 @@ namespace MarkdownMigration.Convert
                 {
                     var oldHtml = _service.Markup(oldContent, "topic.md").Html;
                     var newHtml = _service.Markup(result, "topic.md").Html;
-
-                    var compareTool = new HtmlDiffTool(oldHtml, newHtml, true);
-                    if (oldHtml == newHtml || compareTool.Compare())
+                    
+                    if (IsSameHtml(baseHtml, newHtml) && IsSameHtml(baseHtml, oldHtml))
                     {
                         oldContent = result;
                     }
@@ -935,6 +935,19 @@ namespace MarkdownMigration.Convert
             }
 
             return result;
+        }
+
+        bool IsSameHtml(string html1, string html2)
+        {
+            try
+            {
+                var compareTool = new HtmlDiffTool(html1, html2, true);
+                return html1 == html2 || compareTool.Compare();
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
 
         private bool TryResolveUid(string uid)
