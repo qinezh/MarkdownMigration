@@ -114,7 +114,7 @@ namespace MarkdownMigration.Convert
             }
             catch (Exception)
             {
-                return _workingFolder;
+                return path;
             }
         }
 

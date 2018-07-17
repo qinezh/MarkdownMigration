@@ -16,6 +16,7 @@ using Microsoft.DocAsCode.MarkdownLite;
 using Microsoft.DocAsCode.Plugins;
 using System.Globalization;
 using System.Net.Http;
+using Microsoft.DocAsCode.Common;
 
 namespace MarkdownMigration.Convert
 {
@@ -787,11 +788,24 @@ namespace MarkdownMigration.Convert
 
             for (var index = 0; index < localTokens.Count(); index++)
             {
-                if (localTokens[index] is MarkdownLinkInlineToken token && token.LinkType is MarkdownLinkType.UrlLink)
+                var pre = index - 1 >= 0 ? localTokens[index - 1] : null;
+                var post = index + 1 < localTokens.Count() ? localTokens[index + 1] : null;
+                if (localTokens[index] is DfmIncludeInlineToken include)
                 {
-                    var pre = index - 1 >= 0 ? localTokens[index - 1] : null;
-                    var post = index + 1 < localTokens.Count() ? localTokens[index + 1] : null;
-
+                    var temp = render.Render(include);
+                    var filePath = ((RelativePath)include.Src).BasedOn((RelativePath)include.SourceInfo.File).RemoveWorkingFolder();
+                    if (EnvironmentContext.FileAbstractLayer.Exists(filePath))
+                    {
+                        var content = EnvironmentContext.FileAbstractLayer.ReadAllText(filePath);
+                        if(content.StartsWith(" ") && pre is MarkdownTextToken pret && !pret.Content.EndsWith(" "))
+                        {
+                            temp = " " + temp;
+                        }
+                    }
+                    result += temp;
+                }
+                else if (localTokens[index] is MarkdownLinkInlineToken token && token.LinkType is MarkdownLinkType.UrlLink)
+                {
                     if (pre is MarkdownTextToken t && (!IsValidPreviousCharacter(t.Content.Last())))
                     {
                         result += "<" + render.Render(token) + ">";
@@ -827,8 +841,6 @@ namespace MarkdownMigration.Convert
                 }
                 else if (localTokens[index] is MarkdownStrongInlineToken || localTokens[index] is MarkdownEmInlineToken)
                 {
-                    var pre = index - 1 >= 0 ? localTokens[index - 1] : null;
-                    var post = index + 1 < localTokens.Count() ? localTokens[index + 1] : null;
                     var delimiterCount = localTokens[index] is MarkdownStrongInlineToken ? 2 : 1;
                     var seToken = localTokens[index];
                     var enableWithinWord = seToken.SourceInfo.Markdown[0] == '*';

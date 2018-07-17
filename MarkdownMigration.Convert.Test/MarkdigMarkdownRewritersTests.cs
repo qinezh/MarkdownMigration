@@ -37,6 +37,19 @@
             File.WriteAllText(fullFilePath, content);
         }
 
+        [Fact]
+        [Trait("Related", "MarkdigMarkdownRewriters")]
+        public void TestInclusionWithSpaces()
+        {
+            var token = " hello world ";
+            EnvironmentContext.FileAbstractLayerImpl.WriteAllText("token.md", token);
+            var source = @"This is[!INCLUDE [title](token.md)].";
+            var expected = @"This is [!INCLUDE [title](token.md)].";
+
+            var result = _DFMtool.Convert(source, "topic.md");
+            Assert.Equal(expected, result);
+        }
+
         #region DFM
         [Fact]
         [Trait("Related", "MarkdigMarkdownRewriters")]
