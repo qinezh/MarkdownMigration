@@ -77,6 +77,10 @@ $migrationExePath = Join-Path $scriptPath "MarkdownMigration.ConsoleApp.exe"
 
 & $nugetPath install docfx.console -Version $docFxVersion -Source https://www.myget.org/F/docfx/api/v3/index.json -OutputDirectory $toolsPath
 $docfxFolder = Join-Path $toolsPath "docfx.console.$docFxVersion\tools"
+
+$pluginpath = Join-Path $scriptPath "plugins"
+robocopy $pluginpath "$docfxFolder\plugins" *.* /s
+
 $docfxExePath = Join-Path $docfxFolder "docfx.exe"
 $tempdfmfolderBase = Join-Path $outputFolder "tempdfm"
 $tempdfmymlfolder = Join-Path $outputFolder "tempyml"
