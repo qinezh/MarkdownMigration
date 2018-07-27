@@ -211,7 +211,9 @@ namespace MarkdownMigration.GenerateExcel
                     else
                     {
                         // normal text
-                        sheet.Cells[row, col].Value = item == null ? string.Empty : item.ToString();
+                        sheet.Cells[row, col].Value = item == null ? string.Empty 
+                            : item.ToString().Length > 32000? item.ToString().Substring(0, 32000)
+                            : item.ToString();
                     }
                     col++;
                 }
