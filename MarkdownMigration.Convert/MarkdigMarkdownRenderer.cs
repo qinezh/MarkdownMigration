@@ -867,7 +867,7 @@ namespace MarkdownMigration.Convert
                         if (seToken is MarkdownStrongInlineToken strong)
                         {
                             localTokens.Insert(index, new MarkdownTagInlineToken(null, null, SourceInfo.Create("</strong>", seToken.SourceInfo.File)));
-                            if(strong.Content.Last() is MarkdownTextToken && strong.Content.Last().SourceInfo.Markdown.EndsWith("\\"))
+                            if(strong.Content.Any() && strong.Content.Last() is MarkdownTextToken && strong.Content.Last().SourceInfo.Markdown.EndsWith("\\"))
                             {
                                 localTokens.Insert(index, new MarkdownTextToken(null, null, "\\", SourceInfo.Create("\\", seToken.SourceInfo.File)));
                             }
@@ -878,7 +878,7 @@ namespace MarkdownMigration.Convert
                         {
                             var em = seToken as MarkdownEmInlineToken;
                             localTokens.Insert(index, new MarkdownTagInlineToken(null, null, SourceInfo.Create("</em>", seToken.SourceInfo.File)));
-                            if (em.Content.Last() is MarkdownTextToken && em.Content.Last().SourceInfo.Markdown.EndsWith("\\"))
+                            if (em.Content.Any() && em.Content.Last() is MarkdownTextToken && em.Content.Last().SourceInfo.Markdown.EndsWith("\\"))
                             {
                                 localTokens.Insert(index, new MarkdownTextToken(null, null, "\\", SourceInfo.Create("\\", seToken.SourceInfo.File)));
                             }

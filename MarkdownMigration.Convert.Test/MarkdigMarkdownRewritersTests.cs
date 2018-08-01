@@ -910,7 +910,7 @@ code
         {
             var source = @"
 
-**markdown**
+**markdown** _ _
 
 **More info**<br>
 
@@ -928,7 +928,7 @@ This is **markdown** content.
 </div>";
             var expected = @"
 
-**markdown**
+**markdown** <em></em>
 
 **More info**<br>
 
