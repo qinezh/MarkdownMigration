@@ -44,8 +44,7 @@ namespace MarkdownMigration.Common
 
             foreach (var entry in _report.Files)
             {
-                var relativePath = PathUtility.MakeRelativePath(workingFolder, entry.Key);
-                relativePath = Path.Combine(docsetFolder, relativePath);
+                var relativePath = Path.Combine(docsetFolder, entry.Key);
 
                 newReport.Files.Add(relativePath, entry.Value);
             }
