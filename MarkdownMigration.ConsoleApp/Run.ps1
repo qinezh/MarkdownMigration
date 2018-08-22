@@ -132,10 +132,10 @@ if ($repoConfig.docsets_to_publish)
         {
             if ($docfxJson.build.markdownEngineName -ne "dfm-latest")
             {
-                & $migrationExePath -m -c $docsetFolder -p "**.md" -l -docsetfolder $source_folder
+                & $migrationExePath -m -c $docsetFolder -p "**.md" -e "**/toc.md" -l -docsetfolder $source_folder
             }else
             {
-                & $migrationExePath -m -c $docsetFolder -p "**.md" -docsetfolder $source_folder
+                & $migrationExePath -m -c $docsetFolder -p "**.md" -e "**/toc.md" -docsetfolder $source_folder
             }
             CheckExitCode $lastexitcode "migration"
 
