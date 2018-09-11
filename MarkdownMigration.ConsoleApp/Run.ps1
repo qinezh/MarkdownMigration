@@ -194,5 +194,6 @@ if ($repoConfig.docsets_to_publish)
     $repoReport | ConvertTo-Json -Depth 100 | Out-File $repoReportPath
     $branch = & git symbolic-ref refs/remotes/origin/HEAD
     & $migrationExePath -ge -rpf $repoReportPath -repourl $repoUrl -branch $branch
+    & git clean -fd
 }
 Pop-Location
