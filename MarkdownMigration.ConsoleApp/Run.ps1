@@ -46,6 +46,7 @@ $repoReport = @{repo_name=$repoName}
 $scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
 $alphaFSPath = Join-Path $scriptPath "AlphaFS.dll"
 Import-Module -Name $alphaFSPath
+$PSVersionTable.CLRVersion
 
 if (-Not $outputFolder) {
     $outputFolder = Join-Path $scriptPath "_o"
