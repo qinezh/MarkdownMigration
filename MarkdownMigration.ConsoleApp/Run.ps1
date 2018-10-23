@@ -63,8 +63,8 @@ function Zip
 function RemoveFiles
 {
     param([string]$basePath, [string]$pattern)
-    
-    [Alphaleonis.Win32.Filesystem.Directory]::EnumerateFileSystemEntries($basePath, $pattern, [System.IO.SearchOption]::AllDirectories) | ForEach-Object {[Alphaleonis.Win32.Filesystem.File]::Delete($_)}
+	
+	[Alphaleonis.Win32.Filesystem.Directory]::EnumerateFileSystemEntries($basePath, $pattern, [System.IO.SearchOption]::AllDirectories) | ForEach-Object {[Alphaleonis.Win32.Filesystem.File]::Delete($_)} -ErrorAction SilentlyContinue
 }
 
 if (Test-Path $outputFolder)
@@ -134,13 +134,13 @@ if ($repoConfig.docsets_to_publish)
         robocopy $docsetFolder $tempdfmfolder *.md /s
 
         robocopy $docsetFolder $tempdfmymlfolder *.yml /s
-        RemoveFiles "\\?\$docsetFolder" '*.yml'
-        
+		RemoveFiles "\\?\$docsetFolder" '*.yml'
+		
         & $docfxExePath $docfxJsonPath --exportRawModel --dryRun --force
         CheckExitCode $lastexitcode "baseline build"        
 
         robocopy $docsetFolder $dfmOutput *.raw.json /s
-        RemoveFiles "\\?\$docsetFolder" '*.raw.json'
+		RemoveFiles "\\?\$docsetFolder" '*.raw.json'
         Remove-Item -path "$docsetFolder\obj" -recurse
 
         if ($docfxJson.build.markdownEngineName -ne "markdig")
@@ -170,8 +170,8 @@ if ($repoConfig.docsets_to_publish)
         }
 
         robocopy $docsetFolder $markdigOutput *.raw.json /s
-        RemoveFiles "\\?\$docsetFolder" '*.raw.json'
-        Remove-Item -path "$docsetFolder\obj" -recurse
+		RemoveFiles "\\?\$docsetFolder" '*.raw.json'
+		Remove-Item -path "$docsetFolder\obj" -recurse
 
         & $migrationExePath -d -j "$dfmOutput,$markdigOutput" -rpf $reportDestPath -bp $tempdfmfolderBase -docsetfolder $source_folder
         CheckExitCode $lastexitcode "diff"
