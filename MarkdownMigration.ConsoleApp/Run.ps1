@@ -44,6 +44,9 @@ if ($repoUrl) {
 }
 $repoReport = @{repo_name=$repoName}
 $scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
+$alphaFSPath = Join-Path $scriptPath "AlphaFS.dll"
+Import-Module -Name $alphaFSPath
+
 if (-Not $outputFolder) {
     $outputFolder = Join-Path $scriptPath "_o"
 }
@@ -122,13 +125,13 @@ if ($repoConfig.docsets_to_publish)
         robocopy $docsetFolder $tempdfmfolder *.md /s
 
         robocopy $docsetFolder $tempdfmymlfolder *.yml /s
-        Get-ChildItem $docsetFolder -recurse -include *.yml | del
+		[Alphaleonis.Win32.Filesystem.Directory]::EnumerateFileSystemEntries("\\?\$docsetFolder", '*.yml', [System.IO.SearchOption]::AllDirectories) | ForEach-Object {[Alphaleonis.Win32.Filesystem.File]::Delete($_)}
 
         & $docfxExePath $docfxJsonPath --exportRawModel --dryRun --force
         CheckExitCode $lastexitcode "baseline build"        
 
         robocopy $docsetFolder $dfmOutput *.raw.json /s
-        Get-ChildItem $docsetFolder -recurse -include *.raw.json | del
+		[Alphaleonis.Win32.Filesystem.Directory]::EnumerateFileSystemEntries("\\?\$docsetFolder", '*.raw.json', [System.IO.SearchOption]::AllDirectories) | ForEach-Object {[Alphaleonis.Win32.Filesystem.File]::Delete($_)}
 
         Remove-Item -path "$docsetFolder\obj" -recurse
 
@@ -159,7 +162,7 @@ if ($repoConfig.docsets_to_publish)
         }
 
         robocopy $docsetFolder $markdigOutput *.raw.json /s
-        Get-ChildItem $docsetFolder -recurse -include *.raw.json | del
+		[Alphaleonis.Win32.Filesystem.Directory]::EnumerateFileSystemEntries("\\?\$docsetFolder", '*.raw.json', [System.IO.SearchOption]::AllDirectories) | ForEach-Object {[Alphaleonis.Win32.Filesystem.File]::Delete($_)}
         Remove-Item -path "$docsetFolder\obj" -recurse
 
         & $migrationExePath -d -j "$dfmOutput,$markdigOutput" -rpf $reportDestPath -bp $tempdfmfolderBase -docsetfolder $source_folder

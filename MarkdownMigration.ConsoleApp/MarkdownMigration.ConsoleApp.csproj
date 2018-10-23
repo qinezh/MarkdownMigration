@@ -18,6 +18,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="AlphaFS">
+      <HintPath>AlphaFS.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="DiffBranch.ps1">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
