@@ -59,6 +59,14 @@ function Zip
 
     [System.IO.Compression.ZipFile]::CreateFromDirectory($source, $outzippath)
 }
+
+function RemoveFiles
+{
+    param([string]$basePath, [string]$pattern)
+    
+    [Alphaleonis.Win32.Filesystem.Directory]::EnumerateFileSystemEntries($basePath, $pattern, [System.IO.SearchOption]::AllDirectories) | ForEach-Object {[Alphaleonis.Win32.Filesystem.File]::Delete($_)}
+}
+
 if (Test-Path $outputFolder)
 {
     Remove-Item -Path $outputFolder -Recurse -Force
@@ -126,14 +134,13 @@ if ($repoConfig.docsets_to_publish)
         robocopy $docsetFolder $tempdfmfolder *.md /s
 
         robocopy $docsetFolder $tempdfmymlfolder *.yml /s
-		[Alphaleonis.Win32.Filesystem.Directory]::EnumerateFileSystemEntries("\\?\$docsetFolder", '*.yml', [System.IO.SearchOption]::AllDirectories) | ForEach-Object {[Alphaleonis.Win32.Filesystem.File]::Delete($_)}
-
+        RemoveFiles "\\?\$docsetFolder" '*.yml'
+        
         & $docfxExePath $docfxJsonPath --exportRawModel --dryRun --force
         CheckExitCode $lastexitcode "baseline build"        
 
         robocopy $docsetFolder $dfmOutput *.raw.json /s
-		[Alphaleonis.Win32.Filesystem.Directory]::EnumerateFileSystemEntries("\\?\$docsetFolder", '*.raw.json', [System.IO.SearchOption]::AllDirectories) | ForEach-Object {[Alphaleonis.Win32.Filesystem.File]::Delete($_)}
-
+        RemoveFiles "\\?\$docsetFolder" '*.raw.json'
         Remove-Item -path "$docsetFolder\obj" -recurse
 
         if ($docfxJson.build.markdownEngineName -ne "markdig")
@@ -159,11 +166,11 @@ if ($repoConfig.docsets_to_publish)
         robocopy $tempdfmymlfolder $docsetFolder *.yml /s
         if (Test-Path $tempdfmymlfolder)
         {
-            Remove-Item -path $tempdfmymlfolder -recurse
+            RemoveFiles "\\?\$tempdfmymlfolder" '*'
         }
 
         robocopy $docsetFolder $markdigOutput *.raw.json /s
-		[Alphaleonis.Win32.Filesystem.Directory]::EnumerateFileSystemEntries("\\?\$docsetFolder", '*.raw.json', [System.IO.SearchOption]::AllDirectories) | ForEach-Object {[Alphaleonis.Win32.Filesystem.File]::Delete($_)}
+        RemoveFiles "\\?\$docsetFolder" '*.raw.json'
         Remove-Item -path "$docsetFolder\obj" -recurse
 
         & $migrationExePath -d -j "$dfmOutput,$markdigOutput" -rpf $reportDestPath -bp $tempdfmfolderBase -docsetfolder $source_folder
