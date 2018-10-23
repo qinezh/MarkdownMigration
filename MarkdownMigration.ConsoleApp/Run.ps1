@@ -64,7 +64,7 @@ function RemoveFiles
 {
     param([string]$basePath, [string]$pattern)
 	
-	[Alphaleonis.Win32.Filesystem.Directory]::EnumerateFileSystemEntries($basePath, $pattern, [System.IO.SearchOption]::AllDirectories) | ForEach-Object {[Alphaleonis.Win32.Filesystem.File]::Delete($_)} -ErrorAction SilentlyContinue
+	[Alphaleonis.Win32.Filesystem.Directory]::EnumerateFiles($basePath, $pattern, [System.IO.SearchOption]::AllDirectories) | ForEach-Object {[Alphaleonis.Win32.Filesystem.File]::Delete($_)}
 }
 
 if (Test-Path $outputFolder)
