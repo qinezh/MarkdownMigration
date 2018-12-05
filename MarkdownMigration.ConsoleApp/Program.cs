@@ -12,6 +12,8 @@ using MarkdownMigration.GenerateExcel;
 using Microsoft.DocAsCode.Common;
 using Microsoft.DocAsCode.Plugins;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using static MarkdownMigration.Convert.CommandLineOptions;
 
 namespace MarkdownMigration.ConsoleApp
 {
@@ -31,10 +33,14 @@ namespace MarkdownMigration.ConsoleApp
                     switch (opt.RunMode)
                     {
                         case CommandLineOptions.Mode.Migration:
+                            //sample local cmd: -m -c "path\repo" -p "**.md" -e "**/toc.md" -l -rule "Xref"
+                            var migrationRule = opt.Rule ?? MigrationRule.All;
+                            Console.WriteLine($"Using Migration Rules: {JsonConvert.SerializeObject(migrationRule, new StringEnumConverter())}");
+
                             EnvironmentContext.FileAbstractLayerImpl = FileAbstractLayerBuilder.Default
                                         .ReadFromRealFileSystem(opt.WorkingFolder)
                                         .WriteToRealFileSystem(opt.WorkingFolder).Create();
-                            var tool = new MarkdownMigrateTool(opt.WorkingFolder, opt.UseLegacyMode);
+                            var tool = new MarkdownMigrateTool(opt.WorkingFolder, opt.UseLegacyMode, migrationRule);
                             if (!string.IsNullOrEmpty(opt.FilePath))
                             {
                                 var input = opt.FilePath;
@@ -53,14 +59,22 @@ namespace MarkdownMigration.ConsoleApp
                             ReportUtility.Save(opt.WorkingFolder, "report.json", opt.DocsetFolder);
                             break;
                         case CommandLineOptions.Mode.Diff:
+                            //sample local cmd: -d -j "path\dfm,path\markdig" -dbp
+
+                            if (opt.DiffBuildPackage)
+                            {
+                                opt.JsonReportFile = "_output/report.json";
+                                if (File.Exists(opt.JsonReportFile)) File.Delete(opt.JsonReportFile);
+                            }
+
                             //ExtractHtml
                             var jsonfolders = opt.JsonFolders.Split(',');
-                            ExtractHtml.ExtractHtml.ExtractHtmlFromJson(jsonfolders, opt.DocsetFolder);
+                            ExtractHtml.ExtractHtml.ExtractHtmlFromJson(jsonfolders, opt.DocsetFolder, opt.DiffBuildPackage);
 
                             //Diff html
                             List<string> allFiles;
                             List<DiffResult> differentResult;
-                            HtmlCompare.HtmlCompare.CompareHtmlFromFolder(jsonfolders[0] + "-html", jsonfolders[1] + "-html", out differentResult, out allFiles);
+                            HtmlCompare.HtmlCompare.CompareHtmlFromFolder(jsonfolders[0] + "-html", jsonfolders[1] + "-html", out differentResult, out allFiles, opt.DiffBuildPackage);
                             
                             //Update report.json
                             var docsetReport = new DocsetReport();
@@ -68,7 +82,21 @@ namespace MarkdownMigration.ConsoleApp
                             {
                                 docsetReport = JsonConvert.DeserializeObject<DocsetReport>(File.ReadAllText(opt.JsonReportFile));
                             }
-                            UpdateMigrationReportWithDiffResult(differentResult, allFiles, docsetReport, opt.JsonReportFile, opt.BasePath);
+                            UpdateMigrationReportWithDiffResult(differentResult, allFiles, docsetReport, opt.JsonReportFile, opt.BasePath, opt.DiffBuildPackage);
+
+                            if (opt.DiffBuildPackage)
+                            {
+                                var _repoReport = new RepoReport()
+                                {
+                                    Docsets = new List<DocsetReport>()
+                                    {
+                                        docsetReport
+                                    }
+                                };
+                                var _excelGenerater = new ExcelGenerater(_repoReport, "_output/report.xlsx", "", "");
+                                _excelGenerater.GenerateExcel();
+                            }
+
                             break;
                         case CommandLineOptions.Mode.GenerateExcel:
                             try
@@ -92,7 +120,7 @@ namespace MarkdownMigration.ConsoleApp
             }
         }
 
-        private static void UpdateMigrationReportWithDiffResult(List<DiffResult> differentResult, List<string> allFiles, DocsetReport migrationReport, string output, string basePath)
+        private static void UpdateMigrationReportWithDiffResult(List<DiffResult> differentResult, List<string> allFiles, DocsetReport migrationReport, string output, string basePath, bool diffBuildPackage)
         {
             differentResult = differentResult.GroupBy(g => g.FileName).Select(d => d.First()).ToList();
             var sameFiles = allFiles.Except(differentResult.Select(d => d.FileName));
@@ -134,8 +162,13 @@ namespace MarkdownMigration.ConsoleApp
                     DFMHtml = result.DFMHtml,
                     SourceEnd = result.SourceDiffSpan.End,
                     SourceStart = result.SourceDiffSpan.Start,
-                    SourceMarkDown = ReadSourceMarkdown(Path.Combine(basePath, result.FileName), result.SourceDiffSpan)
+                    SourceMarkDown = diffBuildPackage ? result.SourceFileUrl : ReadSourceMarkdown(Path.Combine(basePath, result.FileName), result.SourceDiffSpan)
                 };
+            }
+
+            if (!Directory.Exists(Path.GetDirectoryName(output)))
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(output));
             }
 
             File.WriteAllText(output, JsonConvert.SerializeObject(migrationReport, Formatting.Indented));

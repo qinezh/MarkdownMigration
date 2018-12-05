@@ -84,6 +84,8 @@ namespace HtmlCompare
 
         public Span GetSpanFromStack()
         {
+            var defaultSpan = Stack.Count == 0 ? default(Span) : GetSpan(Stack.Peek());
+
             while (Stack.Count > 0)
             {
                 var current = Stack.Pop();
@@ -92,7 +94,7 @@ namespace HtmlCompare
                     return span;
             }
 
-            return default(Span);
+            return defaultSpan;
         }
 
         private Span GetSpan(HtmlNode current)
@@ -106,7 +108,7 @@ namespace HtmlCompare
                     TagName = current.Name
                 };
             }
-            return default(Span);
+            return new Span(){ TagName = current.Name };
         }
     }
 }

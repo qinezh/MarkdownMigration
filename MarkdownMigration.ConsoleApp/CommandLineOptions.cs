@@ -7,6 +7,8 @@ namespace MarkdownMigration.Convert
     using System.Collections.Generic;
 
     using Mono.Options;
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Converters;
 
     public class CommandLineOptions
     {
@@ -16,7 +18,6 @@ namespace MarkdownMigration.Convert
             Diff,
             GenerateExcel
         }
-
 
         public string RendererName { get; private set; } = "Markdig";
         public string Output { get; private set; }
@@ -30,8 +31,10 @@ namespace MarkdownMigration.Convert
         public string BasePath { get; set; }
         public string GitRepoUrl { get; set; }
         public bool UseLegacyMode { get; set; }
+        public bool DiffBuildPackage { get; set; }
         public string Branch { get; set; }
         public string DocsetFolder { get; set; }
+        public MigrationRule? Rule { get; set; }
 
         OptionSet _options = null;
 
@@ -47,6 +50,8 @@ namespace MarkdownMigration.Convert
                 { "m|migration", "run migration mode", (m) => RunMode = Mode.Migration },
                 { "d|diff", "run diff mode", (d) => RunMode = Mode.Diff },
                 { "j|jsonfolders=", "difffolders, split compare json folders with comma", (j) => JsonFolders = j },
+                { "dbp|diffBuildPackage", "diff the build result, normally for reference repo", (dbp) => DiffBuildPackage = true },
+                { "rule|migrationRule=", "customize the migration rule", ParseRule },
                 { "rpf|reportFile=", "json report file path", (rpf) => JsonReportFile = rpf },
                 { "ge|generateExcelReport", "generate excel report from json report", (ge) => RunMode = Mode.GenerateExcel },
                 { "bp|docsetBasePath=", "git local docset basepath", (bp) => BasePath = bp },
@@ -73,6 +78,18 @@ namespace MarkdownMigration.Convert
             }
 
             return true;
+        }
+
+        private void ParseRule(string rule)
+        {
+            try
+            {
+                this.Rule = JsonConvert.DeserializeObject<MigrationRule>($"\"{rule}\"");
+            }
+            catch (Exception)
+            {
+                this.Rule = MigrationRule.All;
+            }
         }
 
         private void PrintUsage()

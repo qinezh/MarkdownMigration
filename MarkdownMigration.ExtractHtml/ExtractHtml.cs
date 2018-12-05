@@ -8,7 +8,7 @@ namespace MarkdownMigration.ExtractHtml
 {
     public class ExtractHtml
     {
-        public static void ExtractHtmlFromJson(IEnumerable<string> jsonfolders, string docsetFolder)
+        public static void ExtractHtmlFromJson(IEnumerable<string> jsonfolders, string docsetFolder, bool diffBuildPackage)
         {
             if (jsonfolders == null) return;
             var htmlToSourceFileMapping = new ConcurrentDictionary<string, string>();
@@ -16,8 +16,9 @@ namespace MarkdownMigration.ExtractHtml
             foreach (var jsongFolder in jsonfolders)
             {
                 string targetFolder = jsongFolder + "-html";
+                string ext = diffBuildPackage ? ".raw.page.json" : ".raw.json";
 
-                var rawPages = Directory.GetFiles(jsongFolder, "*.raw.json", SearchOption.AllDirectories);
+                var rawPages = Directory.GetFiles(jsongFolder, "*" + ext, SearchOption.AllDirectories);
                 DeleteFolder(targetFolder);
                 Directory.CreateDirectory(targetFolder);
 
@@ -25,16 +26,18 @@ namespace MarkdownMigration.ExtractHtml
                 {
                     var json = File.ReadAllText(rawPage);
                     dynamic data = JsonConvert.DeserializeObject(json);
-                    string html = data?.conceptual;
-                    string sourcePath = data?._key;
+                    string html = diffBuildPackage ? data?.content : data?.conceptual;
+                    string sourcePath = diffBuildPackage ? 
+                        data?.rawMetadata.original_ref_skeleton_git_url ?? data?.rawMetadata.content_git_url :
+                        data?._key;
 
                     if (html != null)
                     {
-                        var htmlPage = rawPage.Replace(jsongFolder, targetFolder).Replace(".raw.json", ".html");
+                        var htmlPage = rawPage.Replace(jsongFolder, targetFolder).Replace(ext, ".html");
 
                         if (sourcePath != null)
                         {
-                            htmlToSourceFileMapping[htmlPage] = Path.Combine(docsetFolder, sourcePath);
+                            htmlToSourceFileMapping[htmlPage] = diffBuildPackage ? sourcePath : Path.Combine(docsetFolder, sourcePath);
                         }
 
                         if (!Directory.Exists(Path.GetDirectoryName(htmlPage)))

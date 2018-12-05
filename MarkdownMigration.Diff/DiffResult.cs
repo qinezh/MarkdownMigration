@@ -10,6 +10,7 @@ namespace HtmlCompare
     public class DiffResult
     {
         public string FileName { get; set; }
+        public string SourceFileUrl { get; set; }
         public string DFMHtml { get; set; }
         public string MarkdigHtml { get; set; }
         public Span SourceDiffSpan { get; set; }

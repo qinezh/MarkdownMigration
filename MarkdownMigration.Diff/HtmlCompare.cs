@@ -97,7 +97,7 @@ namespace HtmlCompare
         static string targetFileName = "docs-recommendation-function-spec.html";
         static ConcurrentDictionary<string, string> htmlToSourceFileMapping = new ConcurrentDictionary<string, string>();
 
-        public static void CompareHtmlFromFolder(string folderA, string folderB, out List<DiffResult> differentFiles, out List<string> allFiles)
+        public static void CompareHtmlFromFolder(string folderA, string folderB, out List<DiffResult> differentFiles, out List<string> allFiles, bool diffBuildPackage)
         {
             // Prepare
             string timeStampStr = DateTime.Now.ToString("yy-MM-dd-hh-mm-ss");
@@ -110,11 +110,13 @@ namespace HtmlCompare
             string filePattern = debug ? targetFileName : "*.html";
 
             var filesA = Directory.GetFiles(folderA, filePattern, SearchOption.AllDirectories);
+            var setA = new HashSet<string>(filesA);
             var filesB = Directory.GetFiles(folderB, filePattern, SearchOption.AllDirectories);
+            var setB = new HashSet<string>(filesB);
 
-            var AnotB = filesA.Where(a => !filesB.Contains(a.Replace(folderA, folderB))).ToList();
-            var BnotA = filesB.Where(b => !filesA.Contains(b.Replace(folderB, folderA))).ToList();
-            var AinB = filesA.Except(AnotB);
+            var AnotB = filesA.Where(a => !setB.Contains(a.Replace(folderA, folderB))).ToList();
+            var BnotA = filesB.Where(b => !setA.Contains(b.Replace(folderB, folderA))).ToList();
+            var AinB = setA.Except(AnotB);
 
             ConcurrentBag<string> result_Same = new ConcurrentBag<string>();
             ConcurrentBag<string> result_Equal = new ConcurrentBag<string>();
@@ -124,7 +126,7 @@ namespace HtmlCompare
             result_Unique.AddRange(BnotA);
 
             // Compare
-            //ProgressHelper ph0 = ProgressHelper.CreateStartedInstance(AinB.Count(), "Proccessing Files");
+            ProgressHelper ph0 = ProgressHelper.CreateStartedInstance(AinB.Count(), "Proccessing Files");
 
             int parallel = debug ? 1 : 16;
             //PauseWhenDebug();
@@ -156,7 +158,8 @@ namespace HtmlCompare
                     {
                         var diffResult = new DiffResult
                         {
-                            FileName = htmlToSourceFileMapping[fileA],
+                            FileName = diffBuildPackage ? fileA.Replace(folderA, "") : htmlToSourceFileMapping[fileA],
+                            SourceFileUrl = htmlToSourceFileMapping[fileA],
                             DFMHtml = dfmHtml,
                             MarkdigHtml = markdigHtml,
                             SourceDiffSpan = sourceDiffSpan,
@@ -166,7 +169,7 @@ namespace HtmlCompare
                         Result.Add(diffResult);
                     }
                 }
-                //ph0.Increase();
+                if(diffBuildPackage) ph0.Increase();
             });
 
             // Result
@@ -180,7 +183,7 @@ namespace HtmlCompare
             Console.WriteLine($"Unique Files: {uniqueFiles}");
             
             differentFiles = Result.ToList();
-            allFiles = filesA.Select(html => htmlToSourceFileMapping[html]).ToList();
+            allFiles = filesA.Select(fileA => diffBuildPackage ? fileA.Replace(folderA, "") : htmlToSourceFileMapping[fileA]).ToList();
         }
 
         #region Heplers

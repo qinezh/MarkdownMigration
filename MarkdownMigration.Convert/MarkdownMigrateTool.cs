@@ -17,16 +17,20 @@ namespace MarkdownMigration.Convert
     using Markdig.Syntax;
     using System.Text;
     using System.Text.RegularExpressions;
+    using HtmlCompare;
+    using Microsoft.DocAsCode.MarkdownLite;
 
     public class MarkdownMigrateTool
     {
         private readonly DfmEngineBuilder _builder;
         private readonly string _workingFolder;
         private readonly bool _useLegacyMode;
+        private readonly MigrationRule _rule;
 
-        public MarkdownMigrateTool(string workingFolder = ".", bool useLegacyMode = true)
+        public MarkdownMigrateTool(string workingFolder = ".", bool useLegacyMode = true, MigrationRule rule = MigrationRule.All)
         {
             _useLegacyMode = useLegacyMode;
+            _rule = rule;
 
             var option = DocfxFlavoredMarked.CreateDefaultOptions();
             option.LegacyMode = _useLegacyMode;
@@ -42,9 +46,15 @@ namespace MarkdownMigration.Convert
                 Console.WriteLine("No file found from the glob pattern provided.");
             }
 
+            var ph = ProgressHelper.CreateStartedInstance(files.Count(), "Migrating Files");
+
             if (string.IsNullOrEmpty(outputFolder))
             {
-                Parallel.ForEach(files, file => MigrateFile(file, file));
+                Parallel.ForEach(files, file => 
+                {
+                    MigrateFile(file, file);
+                    ph.Increase();
+                });
                 return;
             }
 
@@ -69,14 +79,30 @@ namespace MarkdownMigration.Convert
 
             try
             {
+                var bom = new byte[3];
+                using (var file = new FileStream(inputFile, FileMode.Open, FileAccess.Read))
+                {
+                    file.Read(bom, 0, 3);
+                }
+
                 var result = Convert(File.ReadAllText(inputFile), inputFile);
                 var dir = Path.GetDirectoryName(outputFile);
                 if (!string.IsNullOrEmpty(dir))
                 {
                     Directory.CreateDirectory(dir);
                 }
-                File.WriteAllText(outputFile, result);
-                Console.WriteLine($"{inputFile} has been migrated to {outputFile}.");
+
+                if (bom[0] == 0xef && bom[1] == 0xbb && bom[2] == 0xbf)
+                {
+                    File.WriteAllBytes(outputFile, bom);
+                    File.AppendAllText(outputFile, result);
+                }
+                else
+                {
+                    File.WriteAllText(outputFile, result);
+                }
+
+                //Console.WriteLine($"{inputFile} has been migrated to {outputFile}.");
             }
             catch (Exception e)
             {
@@ -90,13 +116,20 @@ namespace MarkdownMigration.Convert
             if (string.IsNullOrEmpty(markdown)) return markdown;
 
             var normalized = TrimNewlineBeforeYamlHeader(markdown);
-            normalized = RenderHTMLBlock(normalized, inputFile);
-            
-            var engine = _builder.CreateDfmEngine(new MarkdigMarkdownRendererProxy(_workingFolder, _useLegacyMode, normalized.Split('\n').Count()));
+
+            if (_rule.HasFlag(MigrationRule.Html))
+            {
+                normalized = RenderHTMLBlock(normalized, inputFile);
+            }
+
+            var engine = _builder.CreateDfmEngine(new MarkdigMarkdownRendererProxy(_workingFolder, _useLegacyMode, normalized.Split('\n').Count(), _rule));
 
             var result = engine.Markup(normalized, GetRelativePath(inputFile));
 
-            result = RevertNormalizedPart(result, markdown);
+            if (_rule.HasFlag(MigrationRule.Normalize))
+            {
+                result = RevertNormalizedPart(result, markdown);
+            }
 
             return result;
         }
@@ -211,7 +244,13 @@ namespace MarkdownMigration.Convert
 
         private string TrimNewlineBeforeYamlHeader(string markdown)
         {
-            markdown = NormalizeUtility.Normalize(markdown);
+            if (_rule.HasFlag(MigrationRule.Normalize))
+            {
+                markdown = NormalizeUtility.Normalize(markdown);
+            }
+
+            if (!_rule.HasFlag(MigrationRule.YamlHeader)) return markdown;
+
             var lines = markdown.Split('\n');
             var index = 0;
             for(; index < lines.Count(); index++)

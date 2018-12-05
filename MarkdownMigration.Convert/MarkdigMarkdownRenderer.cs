@@ -42,8 +42,9 @@ namespace MarkdownMigration.Convert
         private Microsoft.DocAsCode.MarkdownLite.MarkdownEngine _dfmEngine;
         private MarkdigMarkdownService _service;
         private Stack<IMarkdownToken> _processedBlockTokens;
+        private MigrationRule _rule;
 
-        public MarkdigMarkdownRenderer(Stack<IMarkdownToken> processedBlockTokens, string basePath, bool useLegacyMode = true)
+        public MarkdigMarkdownRenderer(Stack<IMarkdownToken> processedBlockTokens, string basePath, bool useLegacyMode = true, MigrationRule rule = MigrationRule.All)
         {
             var option = DocfxFlavoredMarked.CreateDefaultOptions();
             option.LegacyMode = useLegacyMode;
@@ -51,6 +52,7 @@ namespace MarkdownMigration.Convert
             var render = new DfmRenderer();
             _dfmEngine = builder.CreateDfmEngine(render);
             _dfmHtmlRender = new DfmHtmlRender(useLegacyMode);
+            _rule = rule;
 
             var parameter = new MarkdownServiceParameters
             {
@@ -780,6 +782,19 @@ namespace MarkdownMigration.Convert
             return _dfmHtmlRender.Render((dynamic)_dfmHtmlRender, (dynamic)token, (dynamic)token.Context);
         }
 
+        private bool CheckInlineRuleEnabled(IMarkdownToken token)
+        {
+            if (token is DfmXrefInlineToken && _rule.HasFlag(MigrationRule.Xref)) return true;
+            if (token is DfmIncludeInlineToken && _rule.HasFlag(MigrationRule.InclusionInline)) return true;
+            if (token is MarkdownImageInlineToken && _rule.HasFlag(MigrationRule.Image)) return true;
+            if (token is MarkdownLinkInlineToken && _rule.HasFlag(MigrationRule.Link)) return true;
+            if (token is MarkdownStrongInlineToken && _rule.HasFlag(MigrationRule.Strong)) return true;
+            if (token is MarkdownEmInlineToken && _rule.HasFlag(MigrationRule.Em)) return true;
+            if (token is MarkdownTableBlockToken && _rule.HasFlag(MigrationRule.Table)) return true;
+
+            return false;
+        }
+
         private StringBuffer RenderInlineTokens(ImmutableArray<IMarkdownToken> tokens, IMarkdownRenderer render, bool inSideTable = false)
         {
             var result = StringBuffer.Empty;
@@ -790,7 +805,11 @@ namespace MarkdownMigration.Convert
             {
                 var pre = index - 1 >= 0 ? localTokens[index - 1] : null;
                 var post = index + 1 < localTokens.Count() ? localTokens[index + 1] : null;
-                if (localTokens[index] is DfmIncludeInlineToken include)
+                if (!CheckInlineRuleEnabled(localTokens[index]))
+                {
+                    result += localTokens[index].SourceInfo.Markdown;
+                }
+                else if (localTokens[index] is DfmIncludeInlineToken include)
                 {
                     var temp = render.Render(include);
                     var filePath = ((RelativePath)include.Src).BasedOn((RelativePath)include.SourceInfo.File).RemoveWorkingFolder();
@@ -972,7 +991,7 @@ namespace MarkdownMigration.Convert
             catch (Exception ex)
             {
                 Console.WriteLine($"Error occured while resolving uid, {ex}");
-                return true;
+                return false;
             }
         }
 
