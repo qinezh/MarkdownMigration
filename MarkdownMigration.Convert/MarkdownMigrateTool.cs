@@ -46,14 +46,14 @@ namespace MarkdownMigration.Convert
                 Console.WriteLine("No file found from the glob pattern provided.");
             }
 
-            var ph = ProgressHelper.CreateStartedInstance(files.Count(), "Migrating Files");
+            //var ph = ProgressHelper.CreateStartedInstance(files.Count(), "Migrating Files");
 
             if (string.IsNullOrEmpty(outputFolder))
             {
                 Parallel.ForEach(files, file => 
                 {
                     MigrateFile(file, file);
-                    ph.Increase();
+                    //ph.Increase();
                 });
                 return;
             }
@@ -102,7 +102,7 @@ namespace MarkdownMigration.Convert
                     File.WriteAllText(outputFile, result);
                 }
 
-                //Console.WriteLine($"{inputFile} has been migrated to {outputFile}.");
+                Console.WriteLine($"{inputFile} has been migrated to {outputFile}.");
             }
             catch (Exception e)
             {

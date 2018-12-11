@@ -126,7 +126,7 @@ namespace HtmlCompare
             result_Unique.AddRange(BnotA);
 
             // Compare
-            ProgressHelper ph0 = ProgressHelper.CreateStartedInstance(AinB.Count(), "Proccessing Files");
+            //ProgressHelper ph0 = ProgressHelper.CreateStartedInstance(AinB.Count(), "Proccessing Files");
 
             int parallel = debug ? 1 : 16;
             //PauseWhenDebug();
@@ -169,7 +169,7 @@ namespace HtmlCompare
                         Result.Add(diffResult);
                     }
                 }
-                if(diffBuildPackage) ph0.Increase();
+                //if(diffBuildPackage) ph0.Increase();
             });
 
             // Result
