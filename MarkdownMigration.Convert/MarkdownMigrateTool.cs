@@ -111,9 +111,20 @@ namespace MarkdownMigration.Convert
             }
         }
 
+        public string GetReletivcePath(string filePath, string folderPath)
+        {
+            Uri file = new Uri(filePath);
+            Uri folder = new Uri(folderPath);
+
+            return Uri.UnescapeDataString(folder.MakeRelativeUri(file).ToString().Replace('/', Path.DirectorySeparatorChar));
+        }
+
         public string Convert(string markdown, string inputFile)
         {
             if (string.IsNullOrEmpty(markdown)) return markdown;
+
+            var _renderer = new MarkdigMarkdownRenderer(new Stack<IMarkdownToken>(), _workingFolder, _useLegacyMode);
+            if (_renderer.CompareMarkupResult(markdown, GetReletivcePath(inputFile, _workingFolder))) return markdown;
 
             var normalized = TrimNewlineBeforeYamlHeader(markdown);
 
@@ -328,7 +339,11 @@ namespace MarkdownMigration.Convert
                     var sourceLine = sourceLines[index];
                     if (string.Equals(NormalizeUtility.Normalize(sourceLine).Trim(), "```"))
                     {
-                        // keep the Normalized string for the "```" line only
+                        // keep the Normalized string for the "```" line only, but use the original line ending.
+                        if (sourceLine.EndsWith("\r\n") && resultLine.EndsWith("\n"))
+                        {
+                            resultLines[index] = resultLine.Replace("\n", "\r\n");
+                        }
                     }
                     else if (string.Equals(NormalizeUtility.Normalize(sourceLine), resultLine))
                     {

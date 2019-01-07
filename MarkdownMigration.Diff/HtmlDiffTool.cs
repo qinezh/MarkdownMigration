@@ -50,7 +50,7 @@ namespace HtmlCompare
                 .AppendXrefRule()
                 .AppendCodeRule()
                 .AppendVideoRule()
-                .AppendHeadingRule()
+                //.AppendHeadingRule()
                 //.AppendALinkRule()
                 .AppendStrongRule()
                 //.AppendEmRule()

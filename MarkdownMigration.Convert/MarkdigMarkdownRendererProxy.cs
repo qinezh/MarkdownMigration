@@ -57,6 +57,8 @@ namespace MarkdownMigration.Convert
 
         private bool CheckRuleEnabled(IMarkdownToken token)
         {
+            if (_rule == MigrationRule.All) return true;
+
             if (token is DfmXrefInlineToken && _rule.HasFlag(MigrationRule.Xref)) return true;
             if (token is DfmIncludeInlineToken && _rule.HasFlag(MigrationRule.InclusionInline)) return true;
             if (token is MarkdownImageInlineToken && _rule.HasFlag(MigrationRule.Image)) return true;

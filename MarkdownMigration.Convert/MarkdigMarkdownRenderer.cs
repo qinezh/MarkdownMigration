@@ -784,10 +784,13 @@ namespace MarkdownMigration.Convert
 
         private bool CheckInlineRuleEnabled(IMarkdownToken token)
         {
+            if (_rule == MigrationRule.All) return true;
+
             if (token is DfmXrefInlineToken && _rule.HasFlag(MigrationRule.Xref)) return true;
             if (token is DfmIncludeInlineToken && _rule.HasFlag(MigrationRule.InclusionInline)) return true;
             if (token is MarkdownImageInlineToken && _rule.HasFlag(MigrationRule.Image)) return true;
-            if (token is MarkdownLinkInlineToken && _rule.HasFlag(MigrationRule.Link)) return true;
+            if (token is MarkdownLinkInlineToken link && _rule.HasFlag(MigrationRule.Link)
+                && link.LinkType == MarkdownLinkType.NormalLink) return true;
             if (token is MarkdownStrongInlineToken && _rule.HasFlag(MigrationRule.Strong)) return true;
             if (token is MarkdownEmInlineToken && _rule.HasFlag(MigrationRule.Em)) return true;
             if (token is MarkdownTableBlockToken && _rule.HasFlag(MigrationRule.Table)) return true;
