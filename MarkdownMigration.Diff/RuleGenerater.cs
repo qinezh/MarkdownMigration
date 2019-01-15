@@ -47,6 +47,31 @@ namespace HtmlCompare
 
             return rules;
         }
+
+        /// <summary>
+        /// This rule ignores the CodeSnippet Warning in html(Markdig), in dfm it is a comment.
+        /// If CodeSnippet not found in both side, they would be both ignored.
+        /// </summary>
+        /// <param name="rules"></param>
+        /// <returns></returns>
+        public static Dictionary<string, DiffRule> AppendCodeSnippetWarningRule(this Dictionary<string, DiffRule> rules)
+        {
+            var codeSnippetWarning = @"<div class=""WARNING"">
+<h5>WARNING</h5>
+<p>It looks like the sample you are looking for does not exist.</p>
+</div>";
+
+            rules.Add("div", new DiffRule
+            {
+                IsIgnore = (node) =>
+                {
+                    return node.OuterHtml == codeSnippetWarning;
+                }
+            });
+
+            return rules;
+        }
+
         public static Dictionary<string, DiffRule> AppendPreRule(this Dictionary<string, DiffRule> rules)
         {
             rules.Add("pre", new DiffRule
