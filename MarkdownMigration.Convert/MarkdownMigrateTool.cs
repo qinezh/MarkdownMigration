@@ -113,6 +113,7 @@ namespace MarkdownMigration.Convert
 
         public string GetReletivcePath(string filePath, string folderPath)
         {
+            // Need absolute path, otherwise cause exception
             Uri file = new Uri(filePath);
             Uri folder = new Uri(folderPath);
 
@@ -123,8 +124,12 @@ namespace MarkdownMigration.Convert
         {
             if (string.IsNullOrEmpty(markdown)) return markdown;
 
-            var _renderer = new MarkdigMarkdownRenderer(new Stack<IMarkdownToken>(), _workingFolder, _useLegacyMode);
-            if (_renderer.CompareMarkupResult(markdown, GetReletivcePath(inputFile, _workingFolder))) return markdown;
+            try
+            {
+                var _renderer = new MarkdigMarkdownRenderer(new Stack<IMarkdownToken>(), _workingFolder, _useLegacyMode);
+                if (_renderer.CompareMarkupResult(markdown, GetReletivcePath(inputFile, _workingFolder))) return markdown;
+            }
+            catch{ }
 
             var normalized = TrimNewlineBeforeYamlHeader(markdown);
 
