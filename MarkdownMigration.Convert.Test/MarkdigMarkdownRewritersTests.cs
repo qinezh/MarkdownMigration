@@ -618,8 +618,8 @@ a";
         {
             var source = @"2. a
   2. b";
-            var expected = @"2. a
-   2. b";
+            var expected = @"1. a
+   1. b";
             var result = _DFMtool.Convert(source, "topic.md");
             Assert.Equal(expected.Replace("\r\n", "\n"), result.Replace("\r\n", "\n"));
         }
@@ -652,7 +652,6 @@ a";
             var expected = @"1. a
    1. b
    1. c
-
 4. d
 ";
             var result = _DFMtool.Convert(source, "topic.md");
