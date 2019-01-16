@@ -27,7 +27,8 @@ namespace MarkdownMigration.Convert
         private readonly DfmHtmlRender _dfmHtmlRender;
         private static readonly Regex _headingRegex = new Regex(@"^(?<pre> *#{1,6}(?<whitespace> *))(?<text>[^\n]+?)(?<post>(?: +#*)? *(?:\n+|$))", RegexOptions.Compiled);
         private static readonly Regex _lheading = new Regex(@"^(?<text>[^\n]+)(?<post>\n *(?:=|-){2,} *(?:\n+|$))", RegexOptions.Compiled);
-        private static readonly Regex _orderListStart = new Regex(@"^(?<start>\d+)\.", RegexOptions.Compiled);
+        private static readonly Regex _orderListItem = new Regex(@"^( *)((?:[*+-]|\d+\.)) [^\n]*(?:\n(?!\1(?:[*+-]|\d+\.) )[^\n]*)*", RegexOptions.Multiline | RegexOptions.Compiled);
+        private static readonly Regex _orderListStart = new Regex(@"^\s*(?<start>\d+)\.", RegexOptions.Compiled);
         private static readonly Regex _unorderListStart = new Regex(@"^\s*(?<start>.)", RegexOptions.Compiled);
         private static readonly Regex _incRegex = new Regex(@"(?<=\()(?<path>.+?)(?=\)\])", RegexOptions.Compiled);
         private static readonly Regex _whitespaceInNormalLinkregex = new Regex(@"(?<=\]) (?=\(.+?\))", RegexOptions.Compiled);
@@ -639,16 +640,24 @@ namespace MarkdownMigration.Convert
             }
             else
             {
-                var match = _orderListStart.Match(token.SourceInfo.Markdown);
-                var start = 1;
-                if (match.Success)
-                {
-                    var value = match.Groups["start"].Value;
-                    if (Int32.TryParse(value, out int result))
+                // in dfm, start always be 1:
+                // if orignal markdown starts with "1.", keep the orignal numbers
+                // if not, migrate them to "1"
+                var matches = token.SourceInfo.Markdown.Match(_orderListItem);
+                var starts = matches.Select( item => {
+                    var match = _orderListStart.Match(item);
+                    if (match.Success)
                     {
-                        start = result;
+                        var value = match.Groups["start"].Value;
+                        if (Int32.TryParse(value, out int result))
+                        {
+                            return (int?)result;
+                        }
                     }
-                }
+                    return null;
+                }).Where(item=>item != null).Cast<int>().ToArray();
+
+                if (starts.Count() != token.Tokens.Length || starts.FirstOrDefault() != 1) starts = null;
 
                 for (int i = 0; i < token.Tokens.Length; ++i)
                 {
@@ -659,7 +668,8 @@ namespace MarkdownMigration.Convert
                         throw new Exception($"token {token.Tokens[i].GetType()} is not ordered MarkdownListItemBlockToken in MarkdownListBlockToken. Token raw:{token.Tokens[i].SourceInfo.Markdown}");
                     }
 
-                    content += $"{start + i}. ";
+                    var number = starts?[i] ?? 1;
+                    content += $"{number}. ";
                     string indent = new string(' ', (i + 1).ToString().Length + 2);
                     if (i == token.Tokens.Length - 1)
                     {

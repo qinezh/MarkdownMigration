@@ -640,6 +640,26 @@ a";
 
         [Fact]
         [Trait("Related", "MarkdigMarkdownRewriters")]
+        public void TestMigrateOrderedList()
+        {
+            // keep the number
+            var source = @" 1. a
+  3. b
+2. c
+ 4. d
+";
+            var expected = @"1. a
+   1. b
+   1. c
+
+4. d
+";
+            var result = _DFMtool.Convert(source, "topic.md");
+            Assert.Equal(expected.Replace("\r\n", "\n"), result.Replace("\r\n", "\n"));
+        }
+
+        [Fact]
+        [Trait("Related", "MarkdigMarkdownRewriters")]
         public void TestMigrateNewLine()
         {
             var source = @"- a
