@@ -642,7 +642,8 @@ a";
         [Trait("Related", "MarkdigMarkdownRewriters")]
         public void TestMigrateOrderedList()
         {
-            // keep the number
+            // keep the number starts with 1
+            // migratie the number starts with other number
             var source = @" 1. a
   3. b
 2. c
