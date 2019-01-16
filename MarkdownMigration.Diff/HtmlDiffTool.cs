@@ -57,6 +57,7 @@ namespace HtmlCompare
                 .AppendDelRule()
                 .AppendBlockquoteRule()
                 .AppendCommentRule()
+                .AppendOrderedListRule()
                 .AppendCodeSnippetWarningRule();
         }
 
@@ -71,6 +72,7 @@ namespace HtmlCompare
                 .AppendDelRule()
                 .AppendBlockquoteRule()
                 .AppendCommentRule()
+                .AppendOrderedListRule()
                 .AppendCodeSnippetWarningRule();
         }
 

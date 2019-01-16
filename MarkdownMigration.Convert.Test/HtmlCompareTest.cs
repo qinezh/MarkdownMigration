@@ -38,5 +38,15 @@
             HtmlDiffTool hdt2 = new HtmlDiffTool(htmlA, htmlC);
             Assert.False(hdt2.Compare(out _, out _, out _));
         }
+
+        [Fact]
+        public void HtmlCompareOrderedList()
+        {
+            var htmlA = @"<ol start=""6""><li>hello</li></ol>";
+            var htmlB = @"<ol><li>hello</li></ol>";
+
+            HtmlDiffTool hdt = new HtmlDiffTool(htmlA, htmlB);
+            Assert.False(hdt.Compare(out _, out _, out _));
+        }
     }
 }
