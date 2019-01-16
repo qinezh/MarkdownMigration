@@ -82,6 +82,16 @@ namespace HtmlCompare
             return rules;
         }
 
+        public static Dictionary<string, DiffRule> AppendOrderedListRule(this Dictionary<string, DiffRule> rules)
+        {
+            rules.Add("ol", new DiffRule
+            {
+                CompareAttributes = new string[] { "start" },
+            });
+
+            return rules;
+        }
+
         public static Dictionary<string, DiffRule> AppendXrefRule(this Dictionary<string, DiffRule> rules)
         {
             // This logic is for azure-docs-pr, will not impact other migration
