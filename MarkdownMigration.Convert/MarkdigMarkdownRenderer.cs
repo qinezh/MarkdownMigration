@@ -687,17 +687,15 @@ namespace MarkdownMigration.Convert
                 }
 
                 var lines = tokenRenderContent.ToString().Split('\n');
-                content += lines[0];
-                content += "\n";
 
-                for (var index = 1; index < lines.Count(); index++)
+                for (var index = 0; index < lines.Count(); index++)
                 {
                     if (last && index == lines.Count() - 1 && string.Equals(lines[index].Trim(), string.Empty))
                     {
                         continue;
                     }
 
-                    if (!string.Equals(lines[index].Trim(), string.Empty))
+                    if (!string.Equals(lines[index].Trim(), string.Empty) && index > 0)
                     {
                         content += indent;
                     }
