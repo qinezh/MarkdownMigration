@@ -826,7 +826,7 @@ namespace MarkdownMigration.Convert
                             continue;
                         }
                     }
-                    result += render.Render(_token);
+                    result += _token.SourceInfo.Markdown;
                 }
                 else
                 {
