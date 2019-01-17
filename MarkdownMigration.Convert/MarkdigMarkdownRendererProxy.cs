@@ -17,7 +17,7 @@ namespace MarkdownMigration.Convert
         public MarkdigMarkdownRendererProxy(string basePath = ".", bool useLegacyMode = true, int totalLines = 0, MigrationRule rule = MigrationRule.All)
         {
             _processedBlockTokens = new Stack<IMarkdownToken>();
-            _renderer = new MarkdigMarkdownRenderer(_processedBlockTokens, basePath, useLegacyMode, rule);
+            _renderer = new MarkdigMarkdownRenderer(_processedBlockTokens, basePath, useLegacyMode, rule, totalLines);
             _totalLines = totalLines;
             _rule = rule;
         }

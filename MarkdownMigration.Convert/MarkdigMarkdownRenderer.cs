@@ -44,8 +44,9 @@ namespace MarkdownMigration.Convert
         private MarkdigMarkdownService _service;
         private Stack<IMarkdownToken> _processedBlockTokens;
         private MigrationRule _rule;
+        private int _totalLines;
 
-        public MarkdigMarkdownRenderer(Stack<IMarkdownToken> processedBlockTokens, string basePath, bool useLegacyMode = true, MigrationRule rule = MigrationRule.All)
+        public MarkdigMarkdownRenderer(Stack<IMarkdownToken> processedBlockTokens, string basePath, bool useLegacyMode = true, MigrationRule rule = MigrationRule.All, int totalLines = 0)
         {
             var option = DocfxFlavoredMarked.CreateDefaultOptions();
             option.LegacyMode = useLegacyMode;
@@ -54,6 +55,7 @@ namespace MarkdownMigration.Convert
             _dfmEngine = builder.CreateDfmEngine(render);
             _dfmHtmlRender = new DfmHtmlRender(useLegacyMode);
             _rule = rule;
+            _totalLines = totalLines;
 
             var parameter = new MarkdownServiceParameters
             {
@@ -348,80 +350,27 @@ namespace MarkdownMigration.Convert
 
         public override StringBuffer Render(IMarkdownRenderer render, MarkdownTableBlockToken token, MarkdownBlockContext context)
         {
-            if(IsTableContainCodesnippet(token))
-            {
-                return BuildRowExtension(render, token);
-            }
-
             var markdown = token.SourceInfo.Markdown;
-            var newLineCount = Helper.CountEndNewLine(markdown);
-
-            if (CompareMarkupResult("\n" + markdown) && newLineCount >= 2)
-            {
-                return "\n" + markdown;
-            }
-
-            const int SpaceCount = 2;
-            var rowCount = token.Cells.Length + 2;
-            var columnCount = token.Header.Length;
-            var maxLengths = new int[columnCount];
-            var matrix = new StringBuffer[rowCount, columnCount];
-
-            for (var column = 0; column < columnCount; column++)
-            {
-                var header = token.Header[column];
-                var content = RenderInlineTokens(header.Content.Tokens, render, true);
-                matrix[0, column] = content;
-                maxLengths[column] = Math.Max(1, content.GetLength()) + SpaceCount;
-            }
-
-            for (var row = 0; row < token.Cells.Length; row++)
-            {
-                var cell = token.Cells[row];
-                for (var column = 0; column < columnCount; column++)
-                {
-                    var item = cell[column];
-                    var content = RenderInlineTokens(item.Content.Tokens, render, true);
-                    matrix[row + 2, column] = content;
-                    maxLengths[column] = Math.Max(maxLengths[column], content.GetLength() + SpaceCount);
-                }
-            }
-
-            for (var column = 0; column < columnCount; column++)
-            {
-                var align = token.Align[column];
-                switch (align)
-                {
-                    case Align.NotSpec:
-                        matrix[1, column] = "---";
-                        break;
-                    case Align.Left:
-                        matrix[1, column] = ":--";
-                        break;
-                    case Align.Right:
-                        matrix[1, column] = "--:";
-                        break;
-                    case Align.Center:
-                        matrix[1, column] = ":-:";
-                        break;
-                    default:
-                        throw new NotSupportedException($"align:{align} doesn't support in GFM table");
-                }
-            }
-
-            var result = BuildTable(matrix, maxLengths, rowCount, columnCount);
+            var pre = "";
+            var post = "";
 
             if (_processedBlockTokens != null && _processedBlockTokens.Count > 0)
             {
                 var preToken = _processedBlockTokens.Peek();
                 var preTokenNewLinecount = Helper.CountEndNewLine(preToken.SourceInfo.Markdown);
-                if (preTokenNewLinecount < 2)
+                if (!(preToken is MarkdownNewLineBlockToken) && preTokenNewLinecount < 2)
                 {
-                    return '\n' + result;
+                    pre = "\n";
                 }
             }
 
-            return result;
+            var newLineCount = Helper.CountEndNewLine(markdown);
+            if (markdown.Split('\n').Count() - 1 + token.SourceInfo.LineNumber - 1 < _totalLines && newLineCount < 2)
+            {
+                post = "\n";
+            }
+
+            return pre + markdown + post;
         }
 
         private StringBuffer BuildTable(StringBuffer[,] matrix, int[] maxLenths, int rowCount, int nCol)
