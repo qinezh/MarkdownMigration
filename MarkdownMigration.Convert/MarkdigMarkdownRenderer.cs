@@ -786,24 +786,6 @@ namespace MarkdownMigration.Convert
                 }
                 else if (localTokens[index] is MarkdownLinkInlineToken token && token.LinkType is MarkdownLinkType.UrlLink)
                 {
-                    if (pre is MarkdownTextToken t && (!IsValidPreviousCharacter(t.Content.Last())))
-                    {
-                        result += "<" + render.Render(token) + ">";
-                        continue;
-                    }
-
-                    if (post is MarkdownTextToken tt && (!IsValidPostCharacters(tt.Content)))
-                    {
-                        result += "<" + render.Render(token) + ">";
-                        continue;
-                    }
-
-                    if (pre is MarkdownTagInlineToken)
-                    {
-                        result += "<" + render.Render(token) + ">";
-                        continue;
-                    }
-
                     result += render.Render(token);
                 }
                 else if (localTokens[index] is MarkdownTagInlineToken)
