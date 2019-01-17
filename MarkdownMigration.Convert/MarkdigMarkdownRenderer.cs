@@ -36,6 +36,7 @@ namespace MarkdownMigration.Convert
         private static readonly Regex _tagName = new Regex(@"\<(\/?[a-zA-Z1-9]+)", RegexOptions.Compiled);
         private static readonly Regex _strongRegex = new Regex(@"<strong>(.*?)</strong>", RegexOptions.Compiled);
         private static readonly Regex _emRegex = new Regex(@"<em>(.*?)</em>", RegexOptions.Compiled);
+        private static readonly Regex _emailRegex = new Regex(@"^\s*[\w._%+-]*[\w_%+-]@[\w.-]+\.[\w]{2,}\b", RegexOptions.Compiled);
 
         private static readonly char[] punctuationExceptions = { '−', '-', '†', '‡' };
         private static readonly char NewLine = '\n';
@@ -820,55 +821,30 @@ namespace MarkdownMigration.Convert
                 }
                 else if (localTokens[index] is MarkdownStrongInlineToken || localTokens[index] is MarkdownEmInlineToken)
                 {
-                    var delimiterCount = localTokens[index] is MarkdownStrongInlineToken ? 2 : 1;
-                    var seToken = localTokens[index];
-                    var enableWithinWord = seToken.SourceInfo.Markdown[0] == '*';
-
-                    ////Check strart delimiter
-                    //var pc = pre == null ? '\0' : pre.SourceInfo.Markdown.Last();
-                    //var c = seToken.SourceInfo.Markdown[delimiterCount];
-                    //bool startCanOpen, startCanClose;
-                    //CheckOpenCloseDelimiter(pc, c, enableWithinWord, out startCanOpen, out startCanClose);
-
-                    ////Check end delimiter
-                    //pc = seToken.SourceInfo.Markdown[seToken.SourceInfo.Markdown.Length - delimiterCount - 1];
-                    //c = post == null ? '\0' : post.SourceInfo.Markdown.First();
-                    //bool endCanOpen, endCanClose;
-                    //CheckOpenCloseDelimiter(pc, c, enableWithinWord, out endCanOpen, out endCanClose);
-
-                    //if(startCanOpen && endCanClose)
-                    //{
-                    //    result += insideHtml ? MarkupInlineToken(render, seToken) : render.Render(seToken);
-                    //}
-                    //else
+                    var _token = localTokens[index];
+                    string delimiter;
+                    ImmutableArray<IMarkdownToken> content;
+                    if (_token is MarkdownStrongInlineToken)
                     {
-
-                        if (seToken is MarkdownStrongInlineToken strong)
-                        {
-                            localTokens.Insert(index, new MarkdownTagInlineToken(null, null, SourceInfo.Create("</strong>", seToken.SourceInfo.File)));
-                            if(strong.Content.Any() && strong.Content.Last() is MarkdownTextToken && strong.Content.Last().SourceInfo.Markdown.EndsWith("\\"))
-                            {
-                                localTokens.Insert(index, new MarkdownTextToken(null, null, "\\", SourceInfo.Create("\\", seToken.SourceInfo.File)));
-                            }
-                            localTokens.InsertRange(index, strong.Content);
-                            localTokens.Insert(index, new MarkdownTagInlineToken(null, null, SourceInfo.Create("<strong>", seToken.SourceInfo.File)));
-                        }
-                        else
-                        {
-                            var em = seToken as MarkdownEmInlineToken;
-                            localTokens.Insert(index, new MarkdownTagInlineToken(null, null, SourceInfo.Create("</em>", seToken.SourceInfo.File)));
-                            if (em.Content.Any() && em.Content.Last() is MarkdownTextToken && em.Content.Last().SourceInfo.Markdown.EndsWith("\\"))
-                            {
-                                localTokens.Insert(index, new MarkdownTextToken(null, null, "\\", SourceInfo.Create("\\", seToken.SourceInfo.File)));
-                            }
-                            localTokens.InsertRange(index, em.Content);
-                            localTokens.Insert(index, new MarkdownTagInlineToken(null, null, SourceInfo.Create("<em>", seToken.SourceInfo.File)));
-                        }
-
-                        localTokens.Remove(seToken);
-                        UpdateReport(seToken, "StrongEmToTag");
-                        index--;
+                        delimiter = _token.SourceInfo.Markdown.Substring(0, 2);
+                        content = (_token as MarkdownStrongInlineToken).Content;
                     }
+                    else
+                    {
+                        delimiter = _token.SourceInfo.Markdown.Substring(0, 1);
+                        content = (_token as MarkdownEmInlineToken).Content;
+                    }
+
+                    if (content != null && content.Length == 1 && content.First() is MarkdownTextToken text)
+                    {
+                        if (_emailRegex.Match(text.Content).Success)
+                        {
+                            var escaped = text.Content.Replace("@", "\\@");
+                            result += $"{delimiter}{escaped}{delimiter}";
+                            continue;
+                        }
+                    }
+                    result += render.Render(_token);
                 }
                 else
                 {
@@ -876,7 +852,7 @@ namespace MarkdownMigration.Convert
                 }
             }
 
-            return RollBackStrongEmTag(result);
+            return result;
         }
 
         private string RollBackStrongEmTag(string content)

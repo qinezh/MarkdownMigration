@@ -441,8 +441,8 @@ content...";
         [Trait("Related", "MarkdigMarkdownRewriters")]
         public void TestMigrateStrongAndEm2()
         {
-            var source = @"""*https://docs.microsoft.com/en-us/dotnet/api/microsoft.windowsazure.storage?view=azure-dotnet*""";
-            var expected = @"""*<https://docs.microsoft.com/en-us/dotnet/api/microsoft.windowsazure.storage?view=azure-dotnet>*""";
+            var source = @"**brittasimon@yourcompanydomain.extension**";
+            var expected = @"**brittasimon\@yourcompanydomain.extension**";
             var result = _DFMtool.Convert(source, "topic.md");
 
             Assert.Equal(expected.Replace("\r\n", "\n"), result);
