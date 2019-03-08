@@ -99,6 +99,7 @@ namespace MarkdownMigration.ConsoleApp
 
                             break;
                         case CommandLineOptions.Mode.GenerateExcel:
+                            //  -ge -rpf "E:\CurrentWorks\azure-docs-pr\output\repoReport.json" -repourl "https://github.com/MicrosoftDocs/azure-docs-pr" -branch "master"
                             try
                             {
                                 repoReport = JsonConvert.DeserializeObject<RepoReport>(File.ReadAllText(opt.JsonReportFile));
