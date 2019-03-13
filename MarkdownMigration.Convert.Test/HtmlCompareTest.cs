@@ -48,5 +48,19 @@
             HtmlDiffTool hdt = new HtmlDiffTool(htmlA, htmlB);
             Assert.False(hdt.Compare(out _, out _, out _));
         }
+
+        [Fact]
+        public void HtmlCompareEmoji()
+        {
+            var htmlA = @"<p><span class=""emoji"" shortcode=""heavy_minus_sign"">➖</span></p>";
+            var htmlB = @"<p>➖</p>";
+
+            HtmlDiffTool hdt = new HtmlDiffTool(htmlA, htmlB);
+            Assert.True(hdt.Compare(out _, out _, out _));
+
+            var htmlA2 = @"<p><span>➖</span></p>";
+            HtmlDiffTool hdt2 = new HtmlDiffTool(htmlA2, htmlB);
+            Assert.False(hdt2.Compare(out _, out _, out _));
+        }
     }
 }

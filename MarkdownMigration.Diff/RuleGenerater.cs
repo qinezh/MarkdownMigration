@@ -72,6 +72,18 @@ namespace HtmlCompare
             return rules;
         }
 
+        public static Dictionary<string, DiffRule> AppendEmojiRule(this Dictionary<string, DiffRule> rules)
+        {
+            rules.Add("span", new DiffRule
+            {
+                CompareChildrenOnly = (node) => {
+                    return node.Attributes["class"]?.Value == "emoji";
+                    }
+            });
+
+            return rules;
+        }
+
         public static Dictionary<string, DiffRule> AppendPreRule(this Dictionary<string, DiffRule> rules)
         {
             rules.Add("pre", new DiffRule

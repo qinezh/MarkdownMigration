@@ -58,7 +58,8 @@ namespace HtmlCompare
                 .AppendBlockquoteRule()
                 .AppendCommentRule()
                 .AppendOrderedListRule()
-                .AppendCodeSnippetWarningRule();
+                .AppendCodeSnippetWarningRule()
+                .AppendEmojiRule();
         }
 
         private void PureCompareBuild()
@@ -73,7 +74,8 @@ namespace HtmlCompare
                 .AppendBlockquoteRule()
                 .AppendCommentRule()
                 .AppendOrderedListRule()
-                .AppendCodeSnippetWarningRule();
+                .AppendCodeSnippetWarningRule()
+                .AppendEmojiRule();
         }
 
         public bool Compare()
